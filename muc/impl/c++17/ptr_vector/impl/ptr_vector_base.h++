@@ -1,5 +1,8 @@
 #pragma once
 
+#include "muc/impl/c++17/memory/to_address.h++"
+
+#include <algorithm>
 #include <cassert>
 #include <cstddef>
 #include <initializer_list>
@@ -49,7 +52,7 @@ public:
     }
 
     auto operator->() const -> pointer {
-        return &**m_iter;
+        return to_address(*m_iter);
     }
 
     auto operator[](std::size_t index) const -> reference {
@@ -173,14 +176,14 @@ protected:
 
 protected:
     ptr_vector_base(const RawPtrVectorObjOrPtr& ptr_vec) :
-        m_ptr_vec{ptr_vec} {}
+        m_ptr_vector{ptr_vec} {}
 
     ptr_vector_base(RawPtrVectorObjOrPtr&& ptr_vec) :
-        m_ptr_vec{std::move(ptr_vec)} {}
+        m_ptr_vector{std::move(ptr_vec)} {}
 
     template<typename... Args>
     ptr_vector_base(Args&&... args) :
-        m_ptr_vec{std::forward<Args>(args)...} {}
+        m_ptr_vector{std::forward<Args>(args)...} {}
 
     ptr_vector_base(const ptr_vector_base&) = default;
 
@@ -197,29 +200,29 @@ public:
         std::is_nothrow_move_constructible_v<raw_ptr_vector>) -> ptr_vector_base& = default;
 
     auto operator=(std::initializer_list<value_type> ilist) -> ptr_vector_base& {
-        m_ptr_vec->clear();
+        m_ptr_vector->clear();
         insert(cend(), std::move(ilist));
         return *this;
     }
 
     auto assign(size_type count, const value_type& value) -> void {
-        m_ptr_vec->clear();
+        m_ptr_vector->clear();
         insert(cend(), count, value);
     }
 
     template<typename InputIt>
     auto assign(InputIt first, InputIt last) -> void {
-        m_ptr_vec->clear();
+        m_ptr_vector->clear();
         insert(cend(), first, last);
     }
 
     auto assign(std::initializer_list<value_type> ilist) -> void {
-        m_ptr_vec->clear();
+        m_ptr_vector->clear();
         insert(cend(), std::move(ilist));
     }
 
     auto get_allocator() const -> allocator_type {
-        return allocator_type{m_ptr_vec->get_allocator()};
+        return allocator_type{m_ptr_vector->get_allocator()};
     }
 
     //
@@ -238,67 +241,71 @@ public:
 
     auto operator[](size_type pos) -> reference {
         assert(pos < size());
-        return *m_ptr_vec[pos];
+        return *m_ptr_vector[pos];
     }
 
     auto operator[](size_type pos) const -> const_reference {
         assert(pos < size());
-        return *m_ptr_vec[pos];
+        return *m_ptr_vector[pos];
     }
 
     auto front() -> reference {
         assert(not empty());
-        return *m_ptr_vec->front();
+        return *m_ptr_vector->front();
     }
 
     auto front() const -> const_reference {
         assert(not empty());
-        return *m_ptr_vec->front();
+        return *m_ptr_vector->front();
     }
 
     auto back() -> reference {
         assert(not empty());
-        return *m_ptr_vec->back();
+        return *m_ptr_vector->back();
     }
 
     auto back() const -> const_reference {
         assert(not empty());
-        return *m_ptr_vec->back();
+        return *m_ptr_vector->back();
+    }
+
+    auto ptr_vector() -> raw_ptr_vector& {
+        if constexpr (std::is_pointer_v<RawPtrVectorObjOrPtr>) {
+            return *m_ptr_vector;
+        } else {
+            return m_ptr_vector;
+        }
+    }
+
+    auto ptr_vector() const -> const raw_ptr_vector& {
+        if constexpr (std::is_pointer_v<RawPtrVectorObjOrPtr>) {
+            return *m_ptr_vector;
+        } else {
+            return m_ptr_vector;
+        }
     }
 
     //
     // Iterators
     //
 
-    auto begin() noexcept -> iterator {
-        return iterator{m_ptr_vec->begin()};
-    }
-
     auto begin() const noexcept -> const_iterator {
-        return const_iterator{m_ptr_vec->begin()};
+        return const_iterator{m_ptr_vector->begin()};
     }
 
     auto cbegin() const noexcept -> const_iterator {
         return begin();
     }
 
-    auto end() noexcept -> iterator {
-        return iterator{m_ptr_vec->end()};
-    }
-
     auto end() const noexcept -> const_iterator {
-        return const_iterator{m_ptr_vec->end()};
+        return const_iterator{m_ptr_vector->end()};
     }
 
     auto cend() const noexcept -> const_iterator {
         return end();
     }
 
-    auto rbegin() -> reverse_iterator {
-        return reverse_iterator{end()};
-    }
-
-    auto rbegin() const -> const_reverse_iterator {
+    auto rbegin() const noexcept -> const_reverse_iterator {
         return const_reverse_iterator{end()};
     }
 
@@ -306,11 +313,7 @@ public:
         return rbegin();
     }
 
-    auto rend() -> reverse_iterator {
-        return reverse_iterator{begin()};
-    }
-
-    auto rend() const -> const_reverse_iterator {
+    auto rend() const noexcept -> const_reverse_iterator {
         return const_reverse_iterator{begin()};
     }
 
@@ -319,31 +322,79 @@ public:
     }
 
     //
+    // Writable iterators & range
+    //
+
+    auto vbegin() noexcept -> iterator {
+        return iterator{m_ptr_vector->begin()};
+    }
+
+    auto vend() noexcept -> iterator {
+        return iterator{m_ptr_vector->end()};
+    }
+
+    auto vrbegin() noexcept -> reverse_iterator {
+        return reverse_iterator{vend()};
+    }
+
+    auto vrend() noexcept -> reverse_iterator {
+        return reverse_iterator{vbegin()};
+    }
+
+    class vrange_type {
+        friend auto ptr_vector_base::writable_range() const noexcept -> vrange_type;
+
+    public:
+        auto begin() const noexcept -> iterator {
+            return iterator{m_ptr_vector->begin()};
+        }
+
+        auto end() const noexcept -> iterator {
+            return iterator{m_ptr_vector->end()};
+        }
+
+        auto rbegin() const noexcept -> reverse_iterator {
+            return reverse_iterator{end()};
+        }
+
+        auto rend() const noexcept -> reverse_iterator {
+            return reverse_iterator{begin()};
+        }
+
+    private:
+        raw_ptr_vector* m_ptr_vector;
+    };
+
+    auto vrange() const noexcept -> vrange_type {
+        return m_ptr_vector;
+    }
+
+    //
     // Capacity
     //
 
     [[nodiscard]] auto empty() const noexcept -> bool {
-        return m_ptr_vec->empty();
+        return m_ptr_vector->empty();
     }
 
     auto size() const noexcept -> size_type {
-        return m_ptr_vec->size();
+        return m_ptr_vector->size();
     }
 
     auto max_size() const noexcept -> size_type {
-        return m_ptr_vec->max_size();
+        return m_ptr_vector->max_size();
     }
 
     auto reserve() -> void {
-        return m_ptr_vec->reserve();
+        return m_ptr_vector->reserve();
     }
 
     auto capacity() const noexcept -> size_type {
-        return m_ptr_vec->capacity();
+        return m_ptr_vector->capacity();
     }
 
     auto shrink_to_fit() -> void {
-        return m_ptr_vec->shrink_to_fit();
+        return m_ptr_vector->shrink_to_fit();
     }
 
     //
@@ -351,7 +402,7 @@ public:
     //
 
     auto clear() -> void {
-        m_ptr_vec->clear();
+        m_ptr_vector->clear();
     }
 
     auto insert(const_iterator pos, const value_type& value) -> iterator {
@@ -363,40 +414,56 @@ public:
     }
 
     auto insert(const_iterator pos, size_type count, const value_type& value) -> iterator {
-        const auto first{iterator{m_ptr_vec->insert(pos.m_iter, count, {})}};
+        const auto i_pos{pos - cbegin()};
+
+        m_ptr_vector->resize(size() + count);
+        const auto first{vbegin() + i_pos};
         const auto last{first + count};
-        for (auto i{first.m_iter}; i != last.m_iter; ++i) {
-            *i = allocate_value(value);
-        }
+
+        std::move_backward(first.m_iter, last.m_iter, vend().m_iter);
+        std::generate(first.m_iter, last.m_iter,
+                      [&]() { return allocate_ptr(); });
+
         return first;
     }
 
     template<typename InputIt>
     auto insert(const_iterator pos, InputIt first, InputIt last) -> iterator {
+        const auto i_pos{pos - cbegin()};
         const auto count{std::distance(first, last)};
-        const auto this_first{iterator{m_ptr_vec->insert(pos.m_iter, count, {})}};
-        const auto this_last{this_first + count};
-        for (auto i{this_first.m_iter}; i != this_last.m_iter; ++i) {
-            *i = allocate_value(*first++);
-        }
-        return this_first;
+
+        m_ptr_vector->resize(size() + count);
+        const auto dst_first{vbegin() + i_pos};
+        const auto dst_last{dst_first + count};
+
+        std::move_backward(dst_first.m_iter, dst_last.m_iter, vend().m_iter);
+        std::generate(dst_first.m_iter, dst_last.m_iter,
+                      [&]() { return allocate_ptr(*first++); });
+
+        return dst_first;
     }
 
     auto insert(const_iterator pos, std::initializer_list<value_type> ilist) -> iterator {
         return insert(pos, ilist.begin(), ilist.end());
     }
 
+    // #if __cplusplus>=
+
+    // // TODO: insert_range
+
+    // #endif
+
     template<typename... Args>
     auto emplace(const_iterator pos, Args&&... args) -> iterator {
-        return iterator{m_ptr_vec->emplace(pos.m_iter, allocate_value(std::forward<Args>(args)...))};
+        return iterator{m_ptr_vector->emplace(pos.m_iter, allocate_ptr(std::forward<Args>(args)...))};
     }
 
     auto erase(const_iterator pos) -> iterator {
-        return iterator{m_ptr_vec->erase(pos.m_iter)};
+        return iterator{m_ptr_vector->erase(pos.m_iter)};
     }
 
     auto erase(const_iterator first, const_iterator last) -> iterator {
-        return iterator{m_ptr_vec->erase(first.m_iter, last.m_iter)};
+        return iterator{m_ptr_vector->erase(first.m_iter, last.m_iter)};
     }
 
     auto push_back(const value_type& value) -> void {
@@ -409,21 +476,21 @@ public:
 
     template<typename... Args>
     auto emplace_back(Args&&... args) -> reference {
-        return *emplace_back(allocate_value(std::forward<Args>(args)...));
+        return *emplace_back(allocate_ptr(std::forward<Args>(args)...));
     }
 
     auto pop_back() -> void {
-        m_ptr_vec->pop_back();
+        m_ptr_vector->pop_back();
     }
 
     auto resize(size_type count) -> void {
         if (size() >= count) {
             erase(cbegin() + count, cend());
         } else {
-            const auto first{m_ptr_vec->insert(m_ptr_vec->cend(), count - size(), {})};
-            const auto last{m_ptr_vec->end()};
+            const auto first{m_ptr_vector->insert(m_ptr_vector->cend(), count - size(), {})};
+            const auto last{m_ptr_vector->end()};
             for (auto i{first}; i != last; ++i) {
-                *i = allocate_value();
+                *i = allocate_ptr();
             }
         }
     }
@@ -432,16 +499,16 @@ public:
         if (size() >= count) {
             erase(cbegin() + count, cend());
         } else {
-            const auto first{m_ptr_vec->insert(m_ptr_vec->cend(), count - size(), {})};
-            const auto last{m_ptr_vec->end()};
+            const auto first{m_ptr_vector->insert(m_ptr_vector->cend(), count - size(), {})};
+            const auto last{m_ptr_vector->end()};
             for (auto i{first}; i != last; ++i) {
-                *i = allocate_value(value);
+                *i = allocate_ptr(value);
             }
         }
     }
 
     auto swap(ptr_vector_base& other) noexcept -> void {
-        m_ptr_vec->swap(other.m_ptr_vec);
+        m_ptr_vector->swap(other.m_ptr_vector);
     }
 
     //
@@ -449,27 +516,27 @@ public:
     //
 
     auto operator==(const ptr_vector_base& other) -> bool {
-        return m_ptr_vec == other.m_ptr_vec;
+        return m_ptr_vector == other.m_ptr_vector;
     }
 
     auto operator!=(const ptr_vector_base& other) -> bool {
-        return m_ptr_vec != other.m_ptr_vec;
+        return m_ptr_vector != other.m_ptr_vector;
     }
 
     auto operator<(const ptr_vector_base& other) -> bool {
-        return m_ptr_vec < other.m_ptr_vec;
+        return m_ptr_vector < other.m_ptr_vector;
     }
 
     auto operator<=(const ptr_vector_base& other) -> bool {
-        return m_ptr_vec <= other.m_ptr_vec;
+        return m_ptr_vector <= other.m_ptr_vector;
     }
 
     auto operator>(const ptr_vector_base& other) -> bool {
-        return m_ptr_vec > other.m_ptr_vec;
+        return m_ptr_vector > other.m_ptr_vector;
     }
 
     auto operator>=(const ptr_vector_base& other) -> bool {
-        return m_ptr_vec >= other.m_ptr_vec;
+        return m_ptr_vector >= other.m_ptr_vector;
     }
 
 protected:
@@ -481,12 +548,12 @@ protected:
 
 private:
     template<typename... Args>
-    auto allocate_value(Args&&... args) const -> typename raw_ptr_vector::value_type {
-        return static_cast<const Derived*>(this)->allocate_value(std::forward<Args>(args)...);
+    auto allocate_ptr(Args&&... args) const -> typename raw_ptr_vector::value_type {
+        return static_cast<const Derived*>(this)->allocate_ptr(std::forward<Args>(args)...);
     }
 
 protected:
-    obj_ptr<RawPtrVectorObjOrPtr> m_ptr_vec;
+    obj_ptr<RawPtrVectorObjOrPtr> m_ptr_vector;
 };
 
 } // namespace muc::impl

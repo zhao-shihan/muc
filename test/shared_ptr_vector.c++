@@ -29,11 +29,11 @@ auto main() -> int {
         muc::pmr::shared_ptr_vector<std::pmr::string> v;
         v = {"zoltraak", "char", "abandon", "cat", "note", "bell"};
         print_vector(v);
-        std::sort(v.begin(), v.end());
+        std::sort(v.vbegin(), v.vend());
         print_vector(v);
-        std::shuffle(v.begin(), v.end(), std::minstd_rand{});
+        std::shuffle(v.vbegin(), v.vend(), std::minstd_rand{});
         print_vector(v);
-        std::stable_sort(v.begin(), v.end());
+        std::stable_sort(v.vbegin(), v.vend());
         print_vector(v);
     }
     std::cout << '\n';
@@ -41,11 +41,11 @@ auto main() -> int {
         muc::pmr::shared_ptr_vector<std::pmr::string> v;
         v = {"zoltraak", "char", "abandon", "cat", "note", "bell"};
         print_vector(v);
-        std::sort(v.rbegin(), v.rend());
+        std::sort(v.vrbegin(), v.vrend());
         print_vector(v);
-        std::shuffle(v.rbegin(), v.rend(), std::minstd_rand{});
+        std::shuffle(v.vrbegin(), v.vrend(), std::minstd_rand{});
         print_vector(v);
-        std::stable_sort(v.rbegin(), v.rend());
+        std::stable_sort(v.vrbegin(), v.vrend());
         print_vector(v);
     }
     std::cout << '\n';

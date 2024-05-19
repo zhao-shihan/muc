@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ptr_vector_base.h++"
+#include "muc/impl/c++17/ptr_vector/impl/ptr_vector_base.h++"
 
 #include <initializer_list>
 #include <memory>
@@ -25,7 +25,7 @@ private:
                                        std::vector<std::shared_ptr<T>,
                                                    typename std::allocator_traits<Allocator>::template rebind_alloc<std::shared_ptr<T>>>>;
 
-    friend base; // for access allocate_value
+    friend base; // for access allocate_ptr
 
 public:
     using value_type = typename base::value_type;
@@ -49,15 +49,15 @@ public:
 
     shared_ptr_vector(size_type count, const T& value, const Allocator& alloc = {}) :
         base{count, alloc} {
-        for (auto&& ptr : this->m_ptr_vec) {
-            ptr = allocate_value(value);
+        for (auto&& ptr : this->m_ptr_vector) {
+            ptr = allocate_ptr(value);
         }
     }
 
     shared_ptr_vector(size_type count, const Allocator& alloc = {}) :
         base{count, alloc} {
-        for (auto&& ptr : this->m_ptr_vec) {
-            ptr = allocate_value();
+        for (auto&& ptr : this->m_ptr_vector) {
+            ptr = allocate_ptr();
         }
     }
 
@@ -80,7 +80,7 @@ public:
 
 protected:
     template<typename... Args>
-    auto allocate_value(Args&&... args) const -> std::shared_ptr<T> {
+    auto allocate_ptr(Args&&... args) const -> std::shared_ptr<T> {
         return std::allocate_shared<T>(this->get_allocator(), std::forward<Args>(args)...);
     }
 };

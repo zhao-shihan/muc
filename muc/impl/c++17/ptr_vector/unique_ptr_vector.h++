@@ -1,6 +1,7 @@
 #pragma once
 
-#include "ptr_vector_base.h++"
+#include "muc/impl/c++17/memory/allocate_unique.h++"
+#include "muc/impl/c++17/ptr_vector/impl/ptr_vector_base.h++"
 
 #include <initializer_list>
 #include <memory>
@@ -10,32 +11,11 @@
 
 namespace muc {
 
-namespace impl {
-
-template<typename Allocator>
-struct delete_by_allocator : private Allocator {
-    delete_by_allocator() = default;
-
-    explicit delete_by_allocator(const Allocator& alloc) :
-        Allocator{alloc} {}
-
-    explicit delete_by_allocator(Allocator&& alloc) :
-        Allocator{std::move(alloc)} {}
-
-    auto operator()(typename std::allocator_traits<Allocator>::pointer ptr) noexcept -> void {
-        Allocator& alloc{*this};
-        std::allocator_traits<Allocator>::destory(alloc, &*ptr);
-        std::allocator_traits<Allocator>::deallocate(alloc, ptr, 1);
-    }
-};
-
-} // namespace impl
-
 template<typename T, typename Allocator = typename std::allocator<T>>
 class unique_ptr_vector
     : public impl::ptr_vector_base<unique_ptr_vector<T, Allocator>,
-                                   std::vector<std::unique_ptr<T, impl::delete_by_allocator<Allocator>>,
-                                               typename std::allocator_traits<Allocator>::template rebind_alloc<std::unique_ptr<T, impl::delete_by_allocator<Allocator>>>>> {
+                                   std::vector<std::unique_ptr<T, allocator_delete<Allocator>>,
+                                               typename std::allocator_traits<Allocator>::template rebind_alloc<std::unique_ptr<T, allocator_delete<Allocator>>>>> {
     static_assert(std::is_same_v<typename Allocator::value_type, T>,
                   "muc::shared_ptr_vector must have the same value_type as its allocator");
     static_assert(not std::is_array_v<T>,
@@ -43,10 +23,10 @@ class unique_ptr_vector
 
 private:
     using base = impl::ptr_vector_base<unique_ptr_vector<T, Allocator>,
-                                       std::vector<std::unique_ptr<T, impl::delete_by_allocator<Allocator>>,
-                                                   typename std::allocator_traits<Allocator>::template rebind_alloc<std::unique_ptr<T, impl::delete_by_allocator<Allocator>>>>>;
+                                       std::vector<std::unique_ptr<T, allocator_delete<Allocator>>,
+                                                   typename std::allocator_traits<Allocator>::template rebind_alloc<std::unique_ptr<T, allocator_delete<Allocator>>>>>;
 
-    friend base; // for access allocate_value
+    friend base; // for access allocate_ptr
 
 public:
     using value_type = typename base::value_type;
@@ -70,15 +50,15 @@ public:
 
     unique_ptr_vector(size_type count, const T& value, const Allocator& alloc = {}) :
         base{count, alloc} {
-        for (auto&& ptr : this->m_ptr_vec) {
-            ptr = allocate_value(value);
+        for (auto&& ptr : this->m_ptr_vector) {
+            ptr = allocate_ptr(value);
         }
     }
 
-    unique_ptr_vector(size_type count, const Allocator& alloc = {}) :
+    explicit unique_ptr_vector(size_type count, const Allocator& alloc = {}) :
         base{count, alloc} {
-        for (auto&& ptr : this->m_ptr_vec) {
-            ptr = allocate_value();
+        for (auto&& ptr : this->m_ptr_vector) {
+            ptr = allocate_ptr();
         }
     }
 
@@ -101,11 +81,8 @@ public:
 
 protected:
     template<typename... Args>
-    auto allocate_value(Args&&... args) const -> std::unique_ptr<T, impl::delete_by_allocator<Allocator>> {
-        auto alloc{this->get_allocator()};
-        const auto ptr{std::allocator_traits<Allocator>::allocate(alloc, 1)};
-        std::allocator_traits<Allocator>::construct(alloc, &*ptr, std::forward<Args>(args)...);
-        return std::unique_ptr<T, impl::delete_by_allocator<Allocator>>{&*ptr, impl::delete_by_allocator{alloc}};
+    auto allocate_ptr(Args&&... args) const -> std::unique_ptr<T, allocator_delete<Allocator>> {
+        return allocate_unique<T>(this->get_allocator(), std::forward<Args>(args)...);
     }
 };
 
