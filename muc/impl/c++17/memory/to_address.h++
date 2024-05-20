@@ -30,7 +30,7 @@ constexpr auto to_address(const T& ptr) noexcept -> auto {
     if constexpr (impl::has_pointer_traits_to_address<T>::value) {
         return std::pointer_traits<T>::to_address(ptr);
     } else {
-        return to_address(ptr.operator->());
+        return muc::to_address(ptr.operator->());
     }
 }
 

@@ -30,7 +30,7 @@ struct allocator_delete : placement<Allocator> {
 
     auto operator()(typename std::allocator_traits<Allocator>::pointer ptr) -> void {
         Allocator& alloc(*this);
-        std::allocator_traits<Allocator>::destroy(alloc, to_address(ptr));
+        std::allocator_traits<Allocator>::destroy(alloc, muc::to_address(ptr));
         std::allocator_traits<Allocator>::deallocate(alloc, ptr, 1);
     }
 };
@@ -42,7 +42,7 @@ auto allocate_unique(Allocator alloc, Args&&... args) -> std::unique_ptr<T, allo
     const auto ptr{std::allocator_traits<Allocator>::allocate(alloc, 1)};
     const auto deallocate_when_failed{[&] { std::allocator_traits<Allocator>::deallocate(alloc, ptr, 1); }};
     try {
-        std::allocator_traits<Allocator>::construct(alloc, to_address(ptr), std::forward<Args>(args)...);
+        std::allocator_traits<Allocator>::construct(alloc, muc::to_address(ptr), std::forward<Args>(args)...);
         return std::unique_ptr<T, allocator_delete<Allocator>>{ptr, allocator_delete<Allocator>{alloc}};
     } catch (const std::exception& e) {
         deallocate_when_failed();

@@ -14,18 +14,18 @@ struct placement {
 public:
     placement(const T& obj) :
         m_storage{} {
-        construct_at(pointer_to(m_storage), obj);
+        muc::construct_at(pointer_to(m_storage), obj);
     }
 
     placement(T&& obj) :
         m_storage{} {
-        construct_at(pointer_to(m_storage), std::move(obj));
+        muc::construct_at(pointer_to(m_storage), std::move(obj));
     }
 
     template<typename... Args>
     placement(Args&&... args) :
         m_storage{} {
-        construct_at(pointer_to(m_storage), std::forward<Args>(args)...);
+        muc::construct_at(pointer_to(m_storage), std::forward<Args>(args)...);
     }
 
     placement(const placement& other) :
@@ -40,14 +40,14 @@ public:
 
     auto operator=(const placement& other) {
         alignas(T) std::byte buffer[sizeof(T)]{};
-        construct_at(pointer_to(buffer), *other);
+        muc::construct_at(pointer_to(buffer), *other);
         std::destroy_at(pointer_to(m_storage));
         std::memcpy(&m_storage, &buffer, sizeof(T));
     }
 
     auto operator=(placement&& other) {
         alignas(T) std::byte buffer[sizeof(T)]{};
-        construct_at(pointer_to(buffer), std::move(*other));
+        muc::construct_at(pointer_to(buffer), std::move(*other));
         std::destroy_at(pointer_to(m_storage));
         std::memcpy(&m_storage, &buffer, sizeof(T));
     }
