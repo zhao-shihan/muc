@@ -52,7 +52,7 @@ public:
     }
 
     auto operator->() const -> pointer {
-        return to_address(*m_iter);
+        return muc::to_address(*m_iter);
     }
 
     auto operator[](std::size_t index) const -> reference {
@@ -319,6 +319,58 @@ public:
 
     auto crend() const noexcept -> const_reverse_iterator {
         return rend();
+    }
+
+    //
+    // Pointer vector iterator
+    //
+
+    auto pbegin() noexcept -> typename raw_ptr_vector::iterator {
+        return m_ptr_vector->begin();
+    }
+
+    auto pbegin() const noexcept -> typename raw_ptr_vector::const_iterator {
+        return m_ptr_vector->begin();
+    }
+
+    auto pcbegin() const noexcept -> typename raw_ptr_vector::const_iterator {
+        return m_ptr_vector->cbegin();
+    }
+
+    auto pend() noexcept -> typename raw_ptr_vector::iterator {
+        return m_ptr_vector->end();
+    }
+
+    auto pend() const noexcept -> typename raw_ptr_vector::const_iterator {
+        return m_ptr_vector->end();
+    }
+
+    auto pcend() const noexcept -> typename raw_ptr_vector::const_iterator {
+        return m_ptr_vector->cend();
+    }
+
+    auto prbegin() noexcept -> typename raw_ptr_vector::reverse_iterator {
+        return m_ptr_vector->rbegin();
+    }
+
+    auto prbegin() const noexcept -> typename raw_ptr_vector::const_reverse_iterator {
+        return m_ptr_vector->rbegin();
+    }
+
+    auto pcrbegin() const noexcept -> typename raw_ptr_vector::const_reverse_iterator {
+        return m_ptr_vector->crbegin();
+    }
+
+    auto prend() noexcept -> typename raw_ptr_vector::reverse_iterator {
+        return m_ptr_vector->rend();
+    }
+
+    auto prend() const noexcept -> typename raw_ptr_vector::const_reverse_iterator {
+        return m_ptr_vector->rend();
+    }
+
+    auto pcrend() const noexcept -> typename raw_ptr_vector::const_reverse_iterator {
+        return m_ptr_vector->crend();
     }
 
     //
