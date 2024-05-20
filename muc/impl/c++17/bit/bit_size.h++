@@ -6,6 +6,6 @@
 namespace muc {
 
 template<typename T>
-std::size_t bit_width{CHAR_BIT * sizeof(T)};
+std::size_t bit_size{CHAR_BIT * sizeof(T)};
 
 } // namespace muc

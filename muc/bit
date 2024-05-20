@@ -2,5 +2,9 @@
 
 #if __cplusplus >= 201703L
 #    include "muc/impl/c++17/bit/bit_cast.h++"
-#    include "muc/impl/c++17/bit/bit_width.h++"
+#    include "muc/impl/c++17/bit/bit_size.h++"
+#    include "muc/impl/c++17/bit/byteswap.h++"
+#    include "muc/impl/c++17/bit/has_single_bit.h++"
+#    include "muc/impl/c++17/bit/rotl.h++"
+#    include "muc/impl/c++17/bit/rotr.h++"
 #endif
