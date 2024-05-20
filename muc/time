@@ -1,8 +1,6 @@
 #pragma once
 
 #if __cplusplus >= 201703L
-
 #    include "muc/impl/c++17/time/cpu_time_stopwatch.h++"
 #    include "muc/impl/c++17/time/wall_time_stopwatch.h++"
-
 #endif
