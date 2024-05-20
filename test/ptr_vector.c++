@@ -1,4 +1,4 @@
-#include "muc/ptr_vector.h++"
+#include "muc/ptr_vector"
 
 #include <algorithm>
 #include <iostream>

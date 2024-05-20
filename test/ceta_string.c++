@@ -1,4 +1,4 @@
-#include "muc/ceta_string.h++"
+#include "muc/ceta_string"
 
 #include <iostream>
 
