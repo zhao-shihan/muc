@@ -1,8 +1,9 @@
 #pragma once
 
 // Linux/BSD implementation:
-#if (defined linux or defined __linux__ or defined __linux) or \
-    (defined __DragonFly__ or defined __FreeBSD__ or defined __NetBSD__ or defined __OpenBSD__)
+#if (defined linux or defined __linux__ or defined __linux) or             \
+    (defined __DragonFly__ or defined __FreeBSD__ or defined __NetBSD__ or \
+     defined __OpenBSD__)
 #    include "muc/impl/c++17/time/impl/cpu_time_stopwatch/linux_bsd_cpu_time_stopwatch.h++"
 // Windows implementation:
 #elif defined _WIN32
@@ -22,7 +23,8 @@ template<typename Time = double>
 class cpu_time_stopwatch final : protected impl::cpu_time_stopwatch<Time> {
     static_assert(std::is_floating_point_v<Time>,
                   "the value type for stopwatch should be a floating point");
-    static_assert(std::numeric_limits<Time>::digits >= std::numeric_limits<double>::digits,
+    static_assert(std::numeric_limits<Time>::digits >=
+                      std::numeric_limits<double>::digits,
                   "stopwatch value type should be at least as long as double");
 
 public:

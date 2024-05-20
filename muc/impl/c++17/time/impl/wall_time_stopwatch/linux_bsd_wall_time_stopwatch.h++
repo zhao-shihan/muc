@@ -1,4 +1,5 @@
-// Copyright (c) 2022, Matthew Bentley (mattreecebentley@gmail.com) www.plflib.org
+// Copyright (c) 2022, Matthew Bentley (mattreecebentley@gmail.com)
+// www.plflib.org
 
 // This software is provided 'as-is', without any express or implied
 // warranty. In no event will the authors be held liable for any damages

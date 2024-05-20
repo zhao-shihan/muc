@@ -28,7 +28,8 @@ struct allocator_delete : placement<Allocator> {
     allocator_delete(allocator_delete<Alloc>&& other) :
         Allocator{static_cast<Alloc&&>(other)} {}
 
-    auto operator()(typename std::allocator_traits<Allocator>::pointer ptr) -> void {
+    auto
+    operator()(typename std::allocator_traits<Allocator>::pointer ptr) -> void {
         Allocator& alloc(*this);
         std::allocator_traits<Allocator>::destroy(alloc, muc::to_address(ptr));
         std::allocator_traits<Allocator>::deallocate(alloc, ptr, 1);
@@ -36,14 +37,21 @@ struct allocator_delete : placement<Allocator> {
 };
 
 template<typename T, typename Allocator, typename... Args>
-auto allocate_unique(Allocator alloc, Args&&... args) -> std::unique_ptr<T, allocator_delete<Allocator>> {
-    static_assert(std::is_same_v<typename std::allocator_traits<Allocator>::value_type, std::remove_cv_t<T>>,
-                  "Allocator has the wrong value_type");
+auto allocate_unique(Allocator alloc, Args&&... args)
+    -> std::unique_ptr<T, allocator_delete<Allocator>> {
+    static_assert(
+        std::is_same_v<typename std::allocator_traits<Allocator>::value_type,
+                       std::remove_cv_t<T>>,
+        "Allocator has the wrong value_type");
     const auto ptr{std::allocator_traits<Allocator>::allocate(alloc, 1)};
-    const auto deallocate_when_failed{[&] { std::allocator_traits<Allocator>::deallocate(alloc, ptr, 1); }};
+    const auto deallocate_when_failed{[&] {
+        std::allocator_traits<Allocator>::deallocate(alloc, ptr, 1);
+    }};
     try {
-        std::allocator_traits<Allocator>::construct(alloc, muc::to_address(ptr), std::forward<Args>(args)...);
-        return std::unique_ptr<T, allocator_delete<Allocator>>{ptr, allocator_delete<Allocator>{alloc}};
+        std::allocator_traits<Allocator>::construct(
+            alloc, muc::to_address(ptr), std::forward<Args>(args)...);
+        return std::unique_ptr<T, allocator_delete<Allocator>>{
+            ptr, allocator_delete<Allocator>{alloc}};
     } catch (const std::exception& e) {
         deallocate_when_failed();
         throw e;

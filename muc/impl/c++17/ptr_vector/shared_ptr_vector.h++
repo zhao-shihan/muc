@@ -12,18 +12,23 @@ namespace muc {
 
 template<typename T, typename Allocator = typename std::allocator<T>>
 class shared_ptr_vector
-    : public impl::ptr_vector_base<shared_ptr_vector<T, Allocator>,
-                                   std::vector<std::shared_ptr<T>,
-                                               typename std::allocator_traits<Allocator>::template rebind_alloc<std::shared_ptr<T>>>> {
+    : public impl::ptr_vector_base<
+          shared_ptr_vector<T, Allocator>,
+          std::vector<std::shared_ptr<T>,
+                      typename std::allocator_traits<Allocator>::
+                          template rebind_alloc<std::shared_ptr<T>>>> {
     static_assert(std::is_same_v<typename Allocator::value_type, T>,
-                  "muc::shared_ptr_vector must have the same value_type as its allocator");
+                  "muc::shared_ptr_vector must have the same value_type as its "
+                  "allocator");
     static_assert(not std::is_array_v<T>,
                   "value type of muc::shared_ptr_vector cannot be an array");
 
 private:
-    using base = impl::ptr_vector_base<shared_ptr_vector<T, Allocator>,
-                                       std::vector<std::shared_ptr<T>,
-                                                   typename std::allocator_traits<Allocator>::template rebind_alloc<std::shared_ptr<T>>>>;
+    using base = impl::ptr_vector_base<
+        shared_ptr_vector<T, Allocator>,
+        std::vector<std::shared_ptr<T>,
+                    typename std::allocator_traits<
+                        Allocator>::template rebind_alloc<std::shared_ptr<T>>>>;
 
     friend base; // for access allocate_ptr
 
@@ -47,7 +52,8 @@ public:
     explicit shared_ptr_vector(const Allocator& alloc) noexcept :
         base{alloc} {}
 
-    shared_ptr_vector(size_type count, const T& value, const Allocator& alloc = {}) :
+    shared_ptr_vector(size_type count, const T& value,
+                      const Allocator& alloc = {}) :
         base{count, alloc} {
         for (auto&& ptr : this->m_ptr_vector) {
             ptr = allocate_ptr(value);
@@ -62,7 +68,8 @@ public:
     }
 
     template<typename InputIt>
-    shared_ptr_vector(InputIt first, InputIt last, const Allocator& alloc = {}) :
+    shared_ptr_vector(InputIt first, InputIt last,
+                      const Allocator& alloc = {}) :
         base{alloc} {
         this->insert(this->cend(), first, last);
     }
@@ -73,7 +80,8 @@ public:
     shared_ptr_vector(shared_ptr_vector&& other, const Allocator& alloc) :
         base{std::move(other), alloc} {}
 
-    shared_ptr_vector(std::initializer_list<T> init, const Allocator& alloc = {}) :
+    shared_ptr_vector(std::initializer_list<T> init,
+                      const Allocator& alloc = {}) :
         base{alloc} {
         this->insert(this->cend(), std::move(init));
     }
@@ -81,20 +89,23 @@ public:
 protected:
     template<typename... Args>
     auto allocate_ptr(Args&&... args) const -> std::shared_ptr<T> {
-        return std::allocate_shared<T>(this->get_allocator(), std::forward<Args>(args)...);
+        return std::allocate_shared<T>(this->get_allocator(),
+                                       std::forward<Args>(args)...);
     }
 };
 
 template<typename Pointer, typename Allocator>
 auto swap(shared_ptr_vector<Pointer, Allocator>& lhs,
-          shared_ptr_vector<Pointer, Allocator>& rhs) noexcept(noexcept(lhs.swap(rhs))) -> void {
+          shared_ptr_vector<Pointer, Allocator>&
+              rhs) noexcept(noexcept(lhs.swap(rhs))) -> void {
     lhs.swap(rhs);
 }
 
 namespace pmr {
 
 template<typename T>
-using shared_ptr_vector = ::muc::shared_ptr_vector<T, std::pmr::polymorphic_allocator<T>>;
+using shared_ptr_vector =
+    ::muc::shared_ptr_vector<T, std::pmr::polymorphic_allocator<T>>;
 
 } // namespace pmr
 

@@ -59,14 +59,14 @@ constexpr auto pow(T x) -> T {
     return u * x * u;
 }
 
-/// @brief Calculate x^N, where x is an integral converted to floating point, N is an integer.
+/// @brief Calculate x^N, where x is an integral converted to floating point, N
+/// is an integer.
 /// @tparam T floating point type
 /// @tparam N power
 /// @param x base
 /// @return x^N
 template<int N, typename T = double, typename U,
-         std::enable_if_t<std::is_floating_point_v<T> and
-                              std::is_integral_v<T>,
+         std::enable_if_t<std::is_floating_point_v<T> and std::is_integral_v<T>,
                           bool> = true>
 constexpr auto pow(U x) -> T {
     return muc::pow<N>(static_cast<T>(x));

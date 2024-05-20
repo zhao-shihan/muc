@@ -20,8 +20,12 @@ template<typename T,
 [[nodiscard]] constexpr auto rotl(T x, int s) noexcept -> T {
     constexpr auto n{std::numeric_limits<T>::digits};
     const auto r{s % n};
-    if (r > 0) { return (x << r) | (x >> (n - r)); }
-    if (r < 0) { return (x >> -r) | (x << (n + r)); }
+    if (r > 0) {
+        return (x << r) | (x >> (n - r));
+    }
+    if (r < 0) {
+        return (x >> -r) | (x << (n + r));
+    }
     return x; // r == 0
 }
 

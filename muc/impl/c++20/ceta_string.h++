@@ -96,12 +96,14 @@ ceta_string() -> ceta_string<0>;
 ceta_string(std::nullptr_t) -> ceta_string<0>;
 
 template<std::size_t M, std::size_t N>
-constexpr auto operator==(const ceta_string<M>& lhs, const ceta_string<N>& rhs) -> bool {
+constexpr auto operator==(const ceta_string<M>& lhs,
+                          const ceta_string<N>& rhs) -> bool {
     return lhs.sv() == rhs.sv();
 }
 
 template<std::size_t M, std::size_t N>
-constexpr auto operator<=>(const ceta_string<M>& lhs, const ceta_string<N>& rhs) -> auto {
+constexpr auto operator<=>(const ceta_string<M>& lhs,
+                           const ceta_string<N>& rhs) -> auto {
     return lhs.sv() <=> rhs.sv();
 }
 

@@ -6,8 +6,7 @@
 namespace muc::impl {
 
 template<typename, typename, typename = void>
-struct has_binary_arithmetic_with
-    : std::false_type {};
+struct has_binary_arithmetic_with : std::false_type {};
 
 template<typename T, typename U>
 struct has_binary_arithmetic_with<
@@ -40,8 +39,7 @@ struct has_binary_arithmetic_with<
         // T x= X
         decltype(std::declval<T&>() += std::declval<const U&>()),
         decltype(std::declval<T&>() -= std::declval<const U&>()),
-        decltype(std::declval<T&>() *= 1),
-        decltype(std::declval<T&>() /= 1)>>
+        decltype(std::declval<T&>() *= 1), decltype(std::declval<T&>() /= 1)>>
     : std::true_type {};
 
 template<typename T, typename U>

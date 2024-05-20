@@ -11,7 +11,6 @@ struct is_scoped_enum
           not std::is_convertible_v<T, std::underlying_type_t<T>>> {};
 
 template<typename T>
-inline constexpr bool is_scoped_enum_v{
-    is_scoped_enum<T>::value};
+inline constexpr bool is_scoped_enum_v{is_scoped_enum<T>::value};
 
 } // namespace muc

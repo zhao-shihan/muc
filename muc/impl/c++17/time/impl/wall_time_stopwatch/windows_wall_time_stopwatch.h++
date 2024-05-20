@@ -1,4 +1,5 @@
-// Copyright (c) 2022, Matthew Bentley (mattreecebentley@gmail.com) www.plflib.org
+// Copyright (c) 2022, Matthew Bentley (mattreecebentley@gmail.com)
+// www.plflib.org
 
 // This software is provided 'as-is', without any express or implied
 // warranty. In no event will the authors be held liable for any damages
@@ -18,8 +19,10 @@
 
 #pragma once
 
-#if defined _MSC_VER and not defined __clang__ and not defined __GNUC__ and not defined NOMINMAX
-#    define NOMINMAX // Otherwise MS compilers act like idiots when using std::numeric_limits<>::max() and including windows.h
+#if defined _MSC_VER and not defined __clang__ and not defined __GNUC__ and \
+    not defined NOMINMAX
+#    define NOMINMAX // Otherwise MS compilers act like idiots when using
+                     // std::numeric_limits<>::max() and including windows.h
 #endif
 #ifndef WIN32_LEAN_AND_MEAN
 #    define WIN32_LEAN_AND_MEAN
@@ -44,7 +47,8 @@ public:
     auto s_elapsed() const noexcept -> Time {
         LARGE_INTEGER t;
         QueryPerformanceCounter(&t);
-        return static_cast<Time>(t.QuadPart - m_t0.QuadPart) / m_frequency.QuadPart;
+        return static_cast<Time>(t.QuadPart - m_t0.QuadPart) /
+               m_frequency.QuadPart;
     }
 
     auto ms_elapsed() const noexcept -> Time {

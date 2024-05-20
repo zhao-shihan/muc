@@ -1,4 +1,5 @@
-// Copyright (c) 2022, Matthew Bentley (mattreecebentley@gmail.com) www.plflib.org
+// Copyright (c) 2022, Matthew Bentley (mattreecebentley@gmail.com)
+// www.plflib.org
 
 // This software is provided 'as-is', without any express or implied
 // warranty. In no event will the authors be held liable for any damages
@@ -19,8 +20,9 @@
 #pragma once
 
 // Linux/BSD implementation:
-#if (defined linux or defined __linux__ or defined __linux) or \
-    (defined __DragonFly__ or defined __FreeBSD__ or defined __NetBSD__ or defined __OpenBSD__)
+#if (defined linux or defined __linux__ or defined __linux) or             \
+    (defined __DragonFly__ or defined __FreeBSD__ or defined __NetBSD__ or \
+     defined __OpenBSD__)
 #    include "muc/impl/c++17/time/impl/wall_time_stopwatch/linux_bsd_wall_time_stopwatch.h++"
 // Windows implementation:
 #elif defined _WIN32
@@ -35,12 +37,14 @@
 
 namespace muc {
 
-/// @brief high-precision cross-platform (linux/bsd/windows/etc.) simple stopwatch class
+/// @brief high-precision cross-platform (linux/bsd/windows/etc.) simple
+/// stopwatch class
 template<typename Time = double>
 class wall_time_stopwatch : protected impl::wall_time_stopwatch<Time> {
     static_assert(std::is_floating_point_v<Time>,
                   "the value type for stopwatch should be a floating point");
-    static_assert(std::numeric_limits<Time>::digits >= std::numeric_limits<double>::digits,
+    static_assert(std::numeric_limits<Time>::digits >=
+                      std::numeric_limits<double>::digits,
                   "stopwatch value type should be at least as long as double");
 
 public:

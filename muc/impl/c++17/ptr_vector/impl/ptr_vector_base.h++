@@ -14,27 +14,27 @@
 
 namespace muc::impl {
 
-template<bool Const, typename Derived, typename RawPtrVector, typename Implementer>
+template<bool Const, typename Derived, typename RawPtrVector,
+         typename Implementer>
 class indirect_random_access_iterator {
     friend Implementer;
 
 public:
     using difference_type = std::ptrdiff_t;
-    using value_type = std::conditional_t<Const,
-                                          const typename Derived::value_type,
-                                          typename Derived::value_type>;
-    using pointer = std::conditional_t<Const,
-                                       typename Derived::const_pointer,
+    using value_type =
+        std::conditional_t<Const, const typename Derived::value_type,
+                           typename Derived::value_type>;
+    using pointer = std::conditional_t<Const, typename Derived::const_pointer,
                                        typename Derived::pointer>;
-    using reference = std::conditional_t<Const,
-                                         typename Derived::const_reference,
-                                         typename Derived::reference>;
+    using reference =
+        std::conditional_t<Const, typename Derived::const_reference,
+                           typename Derived::reference>;
     using iterator_category = std::random_access_iterator_tag;
 
 private:
-    using raw_iterator = std::conditional_t<Const,
-                                            typename RawPtrVector::const_iterator,
-                                            typename RawPtrVector::iterator>;
+    using raw_iterator =
+        std::conditional_t<Const, typename RawPtrVector::const_iterator,
+                           typename RawPtrVector::iterator>;
 
 public:
     indirect_random_access_iterator() :
@@ -43,8 +43,10 @@ public:
     explicit indirect_random_access_iterator(raw_iterator iter) :
         m_iter{iter} {}
 
-    operator indirect_random_access_iterator<true, Derived, RawPtrVector, Implementer>() {
-        return indirect_random_access_iterator<true, Derived, RawPtrVector, Implementer>{m_iter};
+    operator indirect_random_access_iterator<true, Derived, RawPtrVector,
+                                             Implementer>() {
+        return indirect_random_access_iterator<true, Derived, RawPtrVector,
+                                               Implementer>{m_iter};
     }
 
     auto operator*() const -> reference {
@@ -59,7 +61,8 @@ public:
         return *m_iter[index];
     }
 
-    auto operator-(indirect_random_access_iterator other) const -> difference_type {
+    auto
+    operator-(indirect_random_access_iterator other) const -> difference_type {
         return m_iter - other.m_iter;
     }
 
@@ -161,16 +164,24 @@ private:
     using raw_ptr_vector = std::remove_pointer_t<RawPtrVectorObjOrPtr>;
 
 protected:
-    using value_type = typename std::pointer_traits<typename raw_ptr_vector::value_type>::element_type;
-    using allocator_type = typename std::allocator_traits<typename raw_ptr_vector::allocator_type>::template rebind_alloc<value_type>;
+    using value_type = typename std::pointer_traits<
+        typename raw_ptr_vector::value_type>::element_type;
+    using allocator_type = typename std::allocator_traits<
+        typename raw_ptr_vector::allocator_type>::
+        template rebind_alloc<value_type>;
     using size_type = typename raw_ptr_vector::size_type;
     using difference_type = typename raw_ptr_vector::difference_type;
     using reference = value_type&;
     using const_reference = const value_type&;
     using pointer = typename std::allocator_traits<allocator_type>::pointer;
-    using const_pointer = typename std::allocator_traits<allocator_type>::const_pointer;
-    using iterator = impl::indirect_random_access_iterator<false, Derived, raw_ptr_vector, ptr_vector_base>;
-    using const_iterator = impl::indirect_random_access_iterator<true, Derived, raw_ptr_vector, ptr_vector_base>;
+    using const_pointer =
+        typename std::allocator_traits<allocator_type>::const_pointer;
+    using iterator =
+        impl::indirect_random_access_iterator<false, Derived, raw_ptr_vector,
+                                              ptr_vector_base>;
+    using const_iterator =
+        impl::indirect_random_access_iterator<true, Derived, raw_ptr_vector,
+                                              ptr_vector_base>;
     using reverse_iterator = std::reverse_iterator<iterator>;
     using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
@@ -197,9 +208,11 @@ public:
     auto operator=(const ptr_vector_base& other) -> ptr_vector_base& = default;
 
     auto operator=(ptr_vector_base&& other) noexcept(
-        std::is_nothrow_move_constructible_v<raw_ptr_vector>) -> ptr_vector_base& = default;
+        std::is_nothrow_move_constructible_v<raw_ptr_vector>)
+        -> ptr_vector_base& = default;
 
-    auto operator=(std::initializer_list<value_type> ilist) -> ptr_vector_base& {
+    auto
+    operator=(std::initializer_list<value_type> ilist) -> ptr_vector_base& {
         m_ptr_vector->clear();
         insert(cend(), std::move(ilist));
         return *this;
@@ -353,11 +366,13 @@ public:
         return m_ptr_vector->rbegin();
     }
 
-    auto prbegin() const noexcept -> typename raw_ptr_vector::const_reverse_iterator {
+    auto prbegin() const noexcept ->
+        typename raw_ptr_vector::const_reverse_iterator {
         return m_ptr_vector->rbegin();
     }
 
-    auto pcrbegin() const noexcept -> typename raw_ptr_vector::const_reverse_iterator {
+    auto pcrbegin() const noexcept ->
+        typename raw_ptr_vector::const_reverse_iterator {
         return m_ptr_vector->crbegin();
     }
 
@@ -365,11 +380,13 @@ public:
         return m_ptr_vector->rend();
     }
 
-    auto prend() const noexcept -> typename raw_ptr_vector::const_reverse_iterator {
+    auto prend() const noexcept ->
+        typename raw_ptr_vector::const_reverse_iterator {
         return m_ptr_vector->rend();
     }
 
-    auto pcrend() const noexcept -> typename raw_ptr_vector::const_reverse_iterator {
+    auto pcrend() const noexcept ->
+        typename raw_ptr_vector::const_reverse_iterator {
         return m_ptr_vector->crend();
     }
 
@@ -394,7 +411,8 @@ public:
     }
 
     class vrange_type {
-        friend auto ptr_vector_base::writable_range() const noexcept -> vrange_type;
+        friend auto
+        ptr_vector_base::writable_range() const noexcept -> vrange_type;
 
     public:
         auto begin() const noexcept -> iterator {
@@ -465,7 +483,8 @@ public:
         return emplace(pos, std::move(value));
     }
 
-    auto insert(const_iterator pos, size_type count, const value_type& value) -> iterator {
+    auto insert(const_iterator pos, size_type count,
+                const value_type& value) -> iterator {
         const auto i_pos{pos - cbegin()};
 
         m_ptr_vector->resize(size() + count);
@@ -473,8 +492,9 @@ public:
         const auto last{first + count};
 
         std::move_backward(first.m_iter, last.m_iter, vend().m_iter);
-        std::generate(first.m_iter, last.m_iter,
-                      [&]() { return allocate_ptr(); });
+        std::generate(first.m_iter, last.m_iter, [&]() {
+            return allocate_ptr();
+        });
 
         return first;
     }
@@ -489,13 +509,15 @@ public:
         const auto dst_last{dst_first + count};
 
         std::move_backward(dst_first.m_iter, dst_last.m_iter, vend().m_iter);
-        std::generate(dst_first.m_iter, dst_last.m_iter,
-                      [&]() { return allocate_ptr(*first++); });
+        std::generate(dst_first.m_iter, dst_last.m_iter, [&]() {
+            return allocate_ptr(*first++);
+        });
 
         return dst_first;
     }
 
-    auto insert(const_iterator pos, std::initializer_list<value_type> ilist) -> iterator {
+    auto insert(const_iterator pos,
+                std::initializer_list<value_type> ilist) -> iterator {
         return insert(pos, ilist.begin(), ilist.end());
     }
 
@@ -507,7 +529,8 @@ public:
 
     template<typename... Args>
     auto emplace(const_iterator pos, Args&&... args) -> iterator {
-        return iterator{m_ptr_vector->emplace(pos.m_iter, allocate_ptr(std::forward<Args>(args)...))};
+        return iterator{m_ptr_vector->emplace(
+            pos.m_iter, allocate_ptr(std::forward<Args>(args)...))};
     }
 
     auto erase(const_iterator pos) -> iterator {
@@ -539,7 +562,8 @@ public:
         if (size() >= count) {
             erase(cbegin() + count, cend());
         } else {
-            const auto first{m_ptr_vector->insert(m_ptr_vector->cend(), count - size(), {})};
+            const auto first{
+                m_ptr_vector->insert(m_ptr_vector->cend(), count - size(), {})};
             const auto last{m_ptr_vector->end()};
             for (auto i{first}; i != last; ++i) {
                 *i = allocate_ptr();
@@ -551,7 +575,8 @@ public:
         if (size() >= count) {
             erase(cbegin() + count, cend());
         } else {
-            const auto first{m_ptr_vector->insert(m_ptr_vector->cend(), count - size(), {})};
+            const auto first{
+                m_ptr_vector->insert(m_ptr_vector->cend(), count - size(), {})};
             const auto last{m_ptr_vector->end()};
             for (auto i{first}; i != last; ++i) {
                 *i = allocate_ptr(value);
@@ -600,8 +625,10 @@ protected:
 
 private:
     template<typename... Args>
-    auto allocate_ptr(Args&&... args) const -> typename raw_ptr_vector::value_type {
-        return static_cast<const Derived*>(this)->allocate_ptr(std::forward<Args>(args)...);
+    auto allocate_ptr(Args&&... args) const ->
+        typename raw_ptr_vector::value_type {
+        return static_cast<const Derived*>(this)->allocate_ptr(
+            std::forward<Args>(args)...);
     }
 
 protected:
