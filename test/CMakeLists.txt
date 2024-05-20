@@ -22,5 +22,9 @@ if(MACE_ENABLE_UBSAN_IN_DEBUG_BUILD)
     endif()
 endif()
 
-add_executable(shared_ptr_vector shared_ptr_vector.c++)
-add_executable(unique_ptr_vector unique_ptr_vector.c++)
+set(CMAKE_CXX_STANDARD 17)
+add_executable(ptr_vector_c++17 ptr_vector.c++)
+
+set(CMAKE_CXX_STANDARD 20)
+add_executable(ptr_vector_c++20 ptr_vector.c++)
+add_executable(ceta_string_c++20 ceta_string.c++)
