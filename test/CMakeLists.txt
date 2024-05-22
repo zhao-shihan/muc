@@ -32,7 +32,7 @@ endif()
 
 macro(add_executable_with_feature prefix feature)
     add_executable(${prefix}_${feature} ${prefix}.c++)
-    target_include_directories(${prefix}_${feature} PRIVATE ${CMAKE_HOME_DIRECTORY})
+    target_include_directories(${prefix}_${feature} PRIVATE ${CMAKE_HOME_DIRECTORY}/include)
     target_compile_features(${prefix}_${feature} PRIVATE ${feature})
     target_compile_definitions(${prefix}_${feature} PRIVATE MUC_STATIC_TEST)
 endmacro(add_executable_with_feature)

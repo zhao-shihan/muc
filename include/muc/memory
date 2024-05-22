@@ -1,0 +1,16 @@
+#pragma once
+#ifndef MUC_MEMORY_35fd64e5dd5518762ebc391025fd06efd3f82687e245b5830b55c4a3ab96d768
+#define MUC_MEMORY_35fd64e5dd5518762ebc391025fd06efd3f82687e245b5830b55c4a3ab96d768
+
+#ifndef MUC_ONE_35fd64e5dd5518762ebc391025fd06efd3f82687e245b5830b55c4a3ab96d768
+#define MUC_ONE_35fd64e5dd5518762ebc391025fd06efd3f82687e245b5830b55c4a3ab96d768
+#endif
+
+#if __cplusplus >= 201703L
+#include "muc/impl/c++17/memory/allocate_unique.h++"
+#include "muc/impl/c++17/memory/construct_at.h++"
+#include "muc/impl/c++17/memory/placement.h++"
+#include "muc/impl/c++17/memory/to_address.h++"
+#endif
+
+#endif
