@@ -167,11 +167,7 @@ constexpr auto abs(long n) -> long {
 #ifdef MUC_CPP_LIB_HAS_CONSTEXPR_CMATH
     return std::abs(n);
 #else // backport
-#    if defined __clang__ or defined __GNUC__
-    return __builtin_labs(n);
-#    else
     return n >= 0 ? n : -n;
-#    endif
 #endif
 }
 
@@ -179,11 +175,7 @@ constexpr auto abs(long long n) -> long long {
 #ifdef MUC_CPP_LIB_HAS_CONSTEXPR_CMATH
     return std::abs(n);
 #else // backport
-#    if defined __clang__ or defined __GNUC__
-    return __builtin_llabs(n);
-#    else
     return n >= 0 ? n : -n;
-#    endif
 #endif
 }
 
