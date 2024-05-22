@@ -5,7 +5,7 @@
 #include <limits>
 #include <type_traits>
 
-#ifdef __cplusplus >= 202002L // >= C++20
+#if __cplusplus >= 202002L // >= C++20
 #    include <version>
 #    ifdef __cpp_lib_constexpr_cmath
 #        define MUC_CPP_LIB_HAS_CONSTEXPR_CMATH
@@ -26,7 +26,7 @@ constexpr auto div(int x, int y) -> std::div_t {
 #ifdef MUC_CPP_LIB_HAS_CONSTEXPR_CMATH
     return std::div(x, y);
 #else // backport
-    std::div_t result;
+    std::div_t result{};
     result.quot = x / y;
     result.rem = x % y;
     return result;
@@ -37,7 +37,7 @@ constexpr auto div(long x, long y) -> std::ldiv_t {
 #ifdef MUC_CPP_LIB_HAS_CONSTEXPR_CMATH
     return std::div(x, y);
 #else // backport
-    std::ldiv_t result;
+    std::ldiv_t result{};
     result.quot = x / y;
     result.rem = x % y;
     return result;
@@ -48,7 +48,7 @@ constexpr auto div(long long x, long long y) -> std::lldiv_t {
 #ifdef MUC_CPP_LIB_HAS_CONSTEXPR_CMATH
     return std::div(x, y);
 #else // backport
-    std::lldiv_t result;
+    std::lldiv_t result{};
     result.quot = x / y;
     result.rem = x % y;
     return result;
@@ -71,24 +71,26 @@ constexpr auto lldiv(long long x, long long y) -> std::lldiv_t {
 #endif
 }
 
-template<
-    std::enable_if_t<(sizeof(std::intmax_t) > sizeof(long long)), bool> = true>
-constexpr auto div(std::intmax_t x, std::intmax_t y) -> std::imaxdiv_t {
-#ifdef MUC_CPP_LIB_HAS_CONSTEXPR_CMATH
-    return std::div(x, y);
-#else // backport
-    return muc::imaxdiv(x, y);
-#endif
-}
-
 constexpr auto imaxdiv(std::intmax_t x, std::intmax_t y) -> std::imaxdiv_t {
 #ifdef MUC_CPP_LIB_HAS_CONSTEXPR_CMATH
     return std::imaxdiv(x, y);
 #else // backport
-    std::imaxdiv_t result;
+    std::imaxdiv_t result{};
     result.quot = x / y;
     result.rem = x % y;
     return result;
+#endif
+}
+
+template<typename IntMax,
+         std::enable_if_t<std::is_same_v<IntMax, std::intmax_t> and
+                              (sizeof(IntMax) > sizeof(long long)),
+                          bool> = true>
+constexpr auto div(IntMax x, IntMax y) -> std::imaxdiv_t {
+#ifdef MUC_CPP_LIB_HAS_CONSTEXPR_CMATH
+    return std::div(x, y);
+#else // backport
+    return muc::imaxdiv(x, y);
 #endif
 }
 
@@ -185,16 +187,6 @@ constexpr auto abs(long long n) -> long long {
 #endif
 }
 
-template<
-    std::enable_if_t<(sizeof(std::intmax_t) > sizeof(long long)), bool> = true>
-constexpr auto abs(std::intmax_t n) -> std::intmax_t {
-#ifdef MUC_CPP_LIB_HAS_CONSTEXPR_CMATH
-    return std::abs(n);
-#else // backport
-    return n >= 0 ? n : -n;
-#endif
-}
-
 constexpr auto labs(long n) -> long {
 #ifdef MUC_CPP_LIB_HAS_CONSTEXPR_CMATH
     return std::labs(n);
@@ -215,7 +207,19 @@ constexpr auto imaxabs(std::intmax_t n) -> std::intmax_t {
 #ifdef MUC_CPP_LIB_HAS_CONSTEXPR_CMATH
     return std::imaxabs(n);
 #else // backport
-    return muc::abs(n);
+    return n >= 0 ? n : -n;
+#endif
+}
+
+template<typename IntMax,
+         std::enable_if_t<std::is_same_v<IntMax, std::intmax_t> and
+                              (sizeof(IntMax) > sizeof(long long)),
+                          bool> = true>
+constexpr auto abs(IntMax n) -> std::intmax_t {
+#ifdef MUC_CPP_LIB_HAS_CONSTEXPR_CMATH
+    return std::abs(n);
+#else // backport
+    return muc::imaxabs(n);
 #endif
 }
 
