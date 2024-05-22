@@ -1,6 +1,6 @@
 #pragma once
 
-#include "muc/ceta_string"
+#include "muc/impl/c++20/ceta_string.h++"
 
 #include <cassert>
 #include <cmath>
