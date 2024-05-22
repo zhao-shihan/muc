@@ -1,4 +1,8 @@
+#ifndef MUC_TEST_UNIVERSE
 #include "muc/time"
+#else
+#include "muc-universe"
+#endif
 
 #include <iostream>
 #include <random>

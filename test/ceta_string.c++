@@ -1,4 +1,8 @@
+#ifndef MUC_TEST_UNIVERSE
 #include "muc/ceta_string"
+#else
+#include "muc-universe"
+#endif
 
 #include <iostream>
 

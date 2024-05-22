@@ -1,4 +1,8 @@
+#ifndef MUC_TEST_UNIVERSE
 #include "muc/math"
+#else
+#include "muc-universe"
+#endif
 
 #include <cmath>
 #include <iostream>
