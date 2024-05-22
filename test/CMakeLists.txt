@@ -37,11 +37,13 @@ macro(add_executable_with_feature prefix feature)
     target_compile_features(${prefix}_${feature} PRIVATE ${feature})
 endmacro(add_executable_with_feature)
 
+add_executable_with_feature(find_root cxx_std_17)
 add_executable_with_feature(math cxx_std_17)
 add_executable_with_feature(ptr_vector cxx_std_17)
 add_executable_with_feature(stopwatch cxx_std_17)
 
 add_executable_with_feature(ceta_string cxx_std_20)
+add_executable_with_feature(find_root cxx_std_20)
 add_executable_with_feature(math cxx_std_20)
 add_executable_with_feature(ptr_vector cxx_std_20)
 add_executable_with_feature(stopwatch cxx_std_20)
