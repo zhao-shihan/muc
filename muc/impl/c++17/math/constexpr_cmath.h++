@@ -7,7 +7,7 @@
 
 #if __cplusplus >= 202002L // >= C++20
 #    include <version>
-#    ifdef __cpp_lib_constexpr_cmath
+#    ifdef __cpp_lib_constexpr_cmath // >= C++23
 #        define MUC_CPP_LIB_HAS_CONSTEXPR_CMATH
 #    endif
 #endif
