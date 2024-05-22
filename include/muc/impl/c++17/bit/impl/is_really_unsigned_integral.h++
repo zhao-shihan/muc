@@ -8,7 +8,10 @@ template<typename T>
 struct is_really_unsigned_integral
     : std::bool_constant<
           std::is_unsigned_v<T> and not std::is_same_v<T, bool> and
-          not std::is_same_v<T, char> and not std::is_same_v<T, char8_t> and
+          not std::is_same_v<T, char> and
+#if __cplusplus >= 202002L
+          not std::is_same_v<T, char8_t> and
+#endif
           not std::is_same_v<T, char16_t> and
           not std::is_same_v<T, char32_t> and not std::is_same_v<T, wchar_t>> {
 };

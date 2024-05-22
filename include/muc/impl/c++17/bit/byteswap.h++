@@ -2,6 +2,7 @@
 
 #include "muc/impl/c++17/bit/bit_cast.h++"
 
+#include <algorithm>
 #include <array>
 #include <cstddef>
 #include <type_traits>
@@ -19,7 +20,7 @@ auto byteswap(T value) noexcept -> T {
                   "T may not have padding bits");
     auto bit{muc::bit_cast<std::array<std::byte, sizeof(T)>>(value)};
     std::reverse(bit.begin(), bit.end());
-    return std::bit_cast<T>(bit);
+    return muc::bit_cast<T>(bit);
 }
 
 } // namespace muc
