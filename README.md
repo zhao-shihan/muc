@@ -2,7 +2,7 @@
 
 MUC is a C++ STL-style header-only library, requires C++17 or higher. Some utilities requires C++20.
 
-# Public headers
+## Public headers
 
 - `muc/bit`: bit manipulations.
 - `muc/ceta_string` (C++20): includes `muc::ceta_string`, a string type for template parameters.
