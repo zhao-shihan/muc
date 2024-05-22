@@ -6,14 +6,14 @@
 #include <type_traits>
 
 #if __cplusplus >= 202002L // >= C++20
-#    include <version>
-#    ifdef __cpp_lib_constexpr_cmath // >= C++23
-#        define MUC_CPP_LIB_HAS_CONSTEXPR_CMATH
-#    endif
+#include <version>
+#ifdef __cpp_lib_constexpr_cmath // >= C++23
+#define MUC_CPP_LIB_HAS_CONSTEXPR_CMATH
+#endif
 #endif
 
 #ifdef MUC_CPP_LIB_HAS_CONSTEXPR_CMATH
-#    include <cmath>
+#include <cmath>
 #endif
 
 namespace muc {
@@ -103,7 +103,7 @@ constexpr auto abs(T x) -> T {
 #ifdef MUC_CPP_LIB_HAS_CONSTEXPR_CMATH
     return std::abs(x);
 #else // backport
-#    if defined __clang__ or defined __GNUC__
+#if defined __clang__ or defined __GNUC__
     if constexpr (std::is_same_v<T, double>) {
         return __builtin_fabs(x);
     } else if constexpr (std::is_same_v<T, float>) {
@@ -111,9 +111,9 @@ constexpr auto abs(T x) -> T {
     } else if constexpr (std::is_same_v<T, long double>) {
         return __builtin_fabsl(x);
     }
-#    else
+#else
     return x >= 0 ? x : -x;
-#    endif
+#endif
 #endif
 }
 

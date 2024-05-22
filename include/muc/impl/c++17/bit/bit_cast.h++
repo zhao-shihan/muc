@@ -3,9 +3,9 @@
 #include <type_traits>
 
 #if __cplusplus >= 202002L // >= C++20
-#    include <bit>
+#include <bit>
 #else // <= C++17
-#    include <cstring>
+#include <cstring>
 #endif
 
 namespace muc {

@@ -21,15 +21,15 @@
 
 #if defined _MSC_VER and not defined __clang__ and not defined __GNUC__ and \
     not defined NOMINMAX
-#    define NOMINMAX // Otherwise MS compilers act like idiots when using
-                     // std::numeric_limits<>::max() and including windows.h
+#define NOMINMAX // Otherwise MS compilers act like idiots when using
+                 // std::numeric_limits<>::max() and including windows.h
 #endif
 #ifndef WIN32_LEAN_AND_MEAN
-#    define WIN32_LEAN_AND_MEAN
-#    include <windows.h>
-#    undef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#undef WIN32_LEAN_AND_MEAN
 #else
-#    include <windows.h>
+#include <windows.h>
 #endif
 
 namespace muc::impl {
