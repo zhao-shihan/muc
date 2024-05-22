@@ -71,6 +71,8 @@ secant(const F& f, T x0, std::optional<T> x1O = {}, int max_iter = 1000,
     return {x2, false};
 }
 
+} // namespace muc::find_root
+
 #ifdef MUC_STATIC_TEST
 
 static_assert([] {
@@ -82,7 +84,8 @@ static_assert([] {
             return 2 * x;
         },
         0.5)};
-    return converged and muc::abs(x - 1) < 2 * default_tolerance<>;
+    return converged and
+           muc::abs(x - 1) < 2 * muc::find_root::default_tolerance<>;
 }());
 
 static_assert([] {
@@ -91,9 +94,8 @@ static_assert([] {
             return x * x - 1;
         },
         0.5)};
-    return converged and muc::abs(x - 1) < 2 * default_tolerance<>;
+    return converged and
+           muc::abs(x - 1) < 2 * muc::find_root::default_tolerance<>;
 }());
 
 #endif
-
-} // namespace muc::find_root
