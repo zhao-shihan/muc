@@ -5,6 +5,7 @@
 #endif
 
 #if __cplusplus >= 201703L
+#    include "muc/impl/c++17/math/constexpr_cmath.h++"
 #    include "muc/impl/c++17/math/hypot.h++"
 #    include "muc/impl/c++17/math/lerp.h++"
 #    include "muc/impl/c++17/math/midpoint.h++"
