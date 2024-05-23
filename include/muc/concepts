@@ -1,0 +1,9 @@
+#pragma once
+#ifndef MUC_CONCEPTS_35fd64e5dd5518762ebc391025fd06efd3f82687e245b5830b55c4a3ab96d768
+#define MUC_CONCEPTS_35fd64e5dd5518762ebc391025fd06efd3f82687e245b5830b55c4a3ab96d768
+
+#if __cplusplus >= 202002L
+#include "muc/impl/c++20/concepts/boolean_testable.h++"
+#endif
+
+#endif

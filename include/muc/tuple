@@ -3,6 +3,7 @@
 #define MUC_TUPLE_35fd64e5dd5518762ebc391025fd06efd3f82687e245b5830b55c4a3ab96d768
 
 #if __cplusplus >= 202002L
+#include "muc/impl/c++20/tuple/applicable_on.h++"
 #include "muc/impl/c++20/tuple/apply.h++"
 #include "muc/impl/c++20/tuple/pair_like.h++"
 #include "muc/impl/c++20/tuple/to_std_tuple.h++"
