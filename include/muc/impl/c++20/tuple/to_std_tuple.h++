@@ -6,7 +6,7 @@
 
 namespace muc {
 
-namespace internal {
+namespace impl {
 
 template<tuple_like, std::size_t, std::size_t, tuple_like>
 struct to_std_tuple_helper;
@@ -21,11 +21,11 @@ struct to_std_tuple_helper<T, N, N, std::tuple<Ts...>> {
     using type = std::tuple<Ts...>;
 };
 
-} // namespace internal
+} // namespace impl
 
 template<tuple_like T>
 struct to_std_tuple
-    : internal::to_std_tuple_helper<T, 0, std::tuple_size_v<T>, std::tuple<>> {
+    : impl::to_std_tuple_helper<T, 0, std::tuple_size_v<T>, std::tuple<>> {
 };
 
 template<tuple_like T>

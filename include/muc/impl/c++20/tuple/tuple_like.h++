@@ -6,7 +6,7 @@
 
 namespace muc {
 
-namespace internal {
+namespace impl {
 
 template<typename T, std::size_t I>
 concept has_tuple_element_and_get = requires(T t) {
@@ -14,7 +14,7 @@ concept has_tuple_element_and_get = requires(T t) {
     { get<I>(t) } -> std::convertible_to<const std::tuple_element_t<I, T>&>;
 };
 
-} // namespace internal
+} // namespace impl
 
 template<typename T>
 concept tuple_like = requires {
@@ -24,7 +24,7 @@ concept tuple_like = requires {
         std::tuple_size<T>,
         std::integral_constant<std::size_t, std::tuple_size_v<T>>>;
     requires([]<std::size_t... Is>(std::index_sequence<Is...>) {
-        return (... and internal::has_tuple_element_and_get<T, Is>);
+        return (... and impl::has_tuple_element_and_get<T, Is>);
     }(std::make_index_sequence<std::tuple_size_v<T>>()));
 };
 

@@ -7,7 +7,7 @@
 
 namespace muc {
 
-namespace internal {
+namespace impl {
 
 template<tuple_like...>
 struct std_tuple_concat;
@@ -29,10 +29,10 @@ struct std_tuple_concat<std::tuple<Ts...>, std::tuple<Us...>, Vs...>
 template<tuple_like... Ts>
 using std_tuple_concat_t = typename std_tuple_concat<Ts...>::type;
 
-} // namespace internal
+} // namespace impl
 
 template<tuple_like... Ts>
-struct tuple_concat : internal::std_tuple_concat<to_std_tuple_t<Ts>...> {};
+struct tuple_concat : impl::std_tuple_concat<to_std_tuple_t<Ts>...> {};
 
 template<tuple_like... Ts>
 using tuple_concat_t = typename tuple_concat<Ts...>::type;

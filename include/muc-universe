@@ -3122,7 +3122,7 @@ public:
 
 namespace muc {
 
-namespace internal {
+namespace impl {
 
 template<typename T, std::size_t I>
 concept has_tuple_element_and_get = requires(T t) {
@@ -3130,7 +3130,7 @@ concept has_tuple_element_and_get = requires(T t) {
     { get<I>(t) } -> std::convertible_to<const std::tuple_element_t<I, T>&>;
 };
 
-} // namespace internal
+} // namespace impl
 
 template<typename T>
 concept tuple_like = requires {
@@ -3140,11 +3140,42 @@ concept tuple_like = requires {
         std::tuple_size<T>,
         std::integral_constant<std::size_t, std::tuple_size_v<T>>>;
     requires([]<std::size_t... Is>(std::index_sequence<Is...>) {
-        return (... and internal::has_tuple_element_and_get<T, Is>);
+        return (... and impl::has_tuple_element_and_get<T, Is>);
     }(std::make_index_sequence<std::tuple_size_v<T>>()));
 };
 
 } // namespace muc
+
+#include <functional>
+#include <utility>
+
+namespace muc {
+
+namespace internal {
+
+template<typename F, typename T, std::size_t... Is>
+    requires tuple_like<std::decay_t<T>>
+constexpr auto apply(F&& f, T&& t, std::index_sequence<Is...>) noexcept(
+    noexcept(std::invoke(std::forward<F>(f),
+                         get<Is>(std::forward<T>(t))...))) -> decltype(auto) {
+    return std::invoke(std::forward<F>(f), get<Is>(std::forward<T>(t))...);
+}
+
+} // namespace internal
+
+template<typename F, typename T>
+    requires tuple_like<std::decay_t<T>>
+constexpr auto apply(F&& f, T&& t) noexcept(noexcept(internal::apply(
+    std::forward<F>(f), std::forward<T>(t),
+    std::make_index_sequence<std::tuple_size_v<std::decay_t<T>>>{})))
+    -> decltype(auto) {
+    return internal::apply(
+        std::forward<F>(f), std::forward<T>(t),
+        std::make_index_sequence<std::tuple_size_v<std::decay_t<T>>>{});
+}
+
+} // namespace muc
+
 
 namespace muc {
 
@@ -3161,7 +3192,7 @@ concept pair_like = requires {
 
 namespace muc {
 
-namespace internal {
+namespace impl {
 
 template<tuple_like, std::size_t, std::size_t, tuple_like>
 struct to_std_tuple_helper;
@@ -3176,11 +3207,11 @@ struct to_std_tuple_helper<T, N, N, std::tuple<Ts...>> {
     using type = std::tuple<Ts...>;
 };
 
-} // namespace internal
+} // namespace impl
 
 template<tuple_like T>
 struct to_std_tuple
-    : internal::to_std_tuple_helper<T, 0, std::tuple_size_v<T>, std::tuple<>> {
+    : impl::to_std_tuple_helper<T, 0, std::tuple_size_v<T>, std::tuple<>> {
 };
 
 template<tuple_like T>
@@ -3193,7 +3224,7 @@ using to_std_tuple_t = typename to_std_tuple<T>::type;
 
 namespace muc {
 
-namespace internal {
+namespace impl {
 
 template<tuple_like...>
 struct std_tuple_concat;
@@ -3215,10 +3246,10 @@ struct std_tuple_concat<std::tuple<Ts...>, std::tuple<Us...>, Vs...>
 template<tuple_like... Ts>
 using std_tuple_concat_t = typename std_tuple_concat<Ts...>::type;
 
-} // namespace internal
+} // namespace impl
 
 template<tuple_like... Ts>
-struct tuple_concat : internal::std_tuple_concat<to_std_tuple_t<Ts>...> {};
+struct tuple_concat : impl::std_tuple_concat<to_std_tuple_t<Ts>...> {};
 
 template<tuple_like... Ts>
 using tuple_concat_t = typename tuple_concat<Ts...>::type;
@@ -3233,7 +3264,7 @@ using tuple_concat_t = typename tuple_concat<Ts...>::type;
 
 namespace muc {
 
-namespace internal {
+namespace impl {
 
 template<tuple_like, typename>
 struct std_tuple_count;
@@ -3243,10 +3274,10 @@ struct std_tuple_count<std::tuple<Ts...>, T>
     : std::integral_constant<std::size_t, (... + static_cast<std::size_t>(
                                                      std::same_as<T, Ts>))> {};
 
-} // namespace internal
+} // namespace impl
 
 template<tuple_like T, typename U>
-struct tuple_count : internal::std_tuple_count<to_std_tuple_t<T>, U> {};
+struct tuple_count : impl::std_tuple_count<to_std_tuple_t<T>, U> {};
 
 template<tuple_like T, typename U>
 inline constexpr auto tuple_count_v{tuple_count<T, U>::value};
