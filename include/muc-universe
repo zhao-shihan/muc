@@ -3110,6 +3110,173 @@ public:
 #endif
 
 #endif
+#ifndef MUC_TUPLE_35fd64e5dd5518762ebc391025fd06efd3f82687e245b5830b55c4a3ab96d768
+#define MUC_TUPLE_35fd64e5dd5518762ebc391025fd06efd3f82687e245b5830b55c4a3ab96d768
+
+#if __cplusplus >= 202002L
+
+
+#include <concepts>
+#include <type_traits>
+#include <utility>
+
+namespace muc {
+
+namespace internal {
+
+template<typename T, std::size_t I>
+concept has_tuple_element_and_get = requires(T t) {
+    typename std::tuple_element_t<I, T>;
+    { get<I>(t) } -> std::convertible_to<const std::tuple_element_t<I, T>&>;
+};
+
+} // namespace internal
+
+template<typename T>
+concept tuple_like = requires {
+    requires not std::is_reference_v<T>;
+    typename std::tuple_size<T>::type;
+    requires std::derived_from<
+        std::tuple_size<T>,
+        std::integral_constant<std::size_t, std::tuple_size_v<T>>>;
+    requires([]<std::size_t... Is>(std::index_sequence<Is...>) {
+        return (... and internal::has_tuple_element_and_get<T, Is>);
+    }(std::make_index_sequence<std::tuple_size_v<T>>()));
+};
+
+} // namespace muc
+
+namespace muc {
+
+template<typename T>
+concept pair_like = requires {
+    requires tuple_like<T>;
+    requires std::tuple_size_v<T> == 2;
+};
+
+} // namespace muc
+
+
+#include <tuple>
+
+namespace muc {
+
+namespace internal {
+
+template<tuple_like, std::size_t, std::size_t, tuple_like>
+struct to_std_tuple_helper;
+
+template<tuple_like T, std::size_t I, std::size_t N, typename... Ts>
+struct to_std_tuple_helper<T, I, N, std::tuple<Ts...>>
+    : to_std_tuple_helper<T, I + 1, N,
+                          std::tuple<Ts..., std::tuple_element_t<I, T>>> {};
+
+template<tuple_like T, std::size_t N, typename... Ts>
+struct to_std_tuple_helper<T, N, N, std::tuple<Ts...>> {
+    using type = std::tuple<Ts...>;
+};
+
+} // namespace internal
+
+template<tuple_like T>
+struct to_std_tuple
+    : internal::to_std_tuple_helper<T, 0, std::tuple_size_v<T>, std::tuple<>> {
+};
+
+template<tuple_like T>
+using to_std_tuple_t = typename to_std_tuple<T>::type;
+
+} // namespace muc
+
+
+#include <tuple>
+
+namespace muc {
+
+namespace internal {
+
+template<tuple_like...>
+struct std_tuple_concat;
+
+template<>
+struct std_tuple_concat<> {
+    using type = std::tuple<>;
+};
+
+template<typename... Ts>
+struct std_tuple_concat<std::tuple<Ts...>> {
+    using type = std::tuple<Ts...>;
+};
+
+template<typename... Ts, typename... Us, typename... Vs>
+struct std_tuple_concat<std::tuple<Ts...>, std::tuple<Us...>, Vs...>
+    : std_tuple_concat<std::tuple<Ts..., Us...>, Vs...> {};
+
+template<tuple_like... Ts>
+using std_tuple_concat_t = typename std_tuple_concat<Ts...>::type;
+
+} // namespace internal
+
+template<tuple_like... Ts>
+struct tuple_concat : internal::std_tuple_concat<to_std_tuple_t<Ts>...> {};
+
+template<tuple_like... Ts>
+using tuple_concat_t = typename tuple_concat<Ts...>::type;
+
+} // namespace muc
+
+
+
+#include <concepts>
+#include <tuple>
+#include <type_traits>
+
+namespace muc {
+
+namespace internal {
+
+template<tuple_like, typename>
+struct std_tuple_count;
+
+template<typename... Ts, typename T>
+struct std_tuple_count<std::tuple<Ts...>, T>
+    : std::integral_constant<std::size_t, (... + static_cast<std::size_t>(
+                                                     std::same_as<T, Ts>))> {};
+
+} // namespace internal
+
+template<tuple_like T, typename U>
+struct tuple_count : internal::std_tuple_count<to_std_tuple_t<T>, U> {};
+
+template<tuple_like T, typename U>
+inline constexpr auto tuple_count_v{tuple_count<T, U>::value};
+
+} // namespace muc
+
+#include <type_traits>
+
+namespace muc {
+
+template<tuple_like T, typename U>
+struct tuple_contains : std::conditional_t<tuple_count_v<T, U> >= 1,
+                                           std::true_type, std::false_type> {};
+
+template<tuple_like T, typename U>
+inline constexpr auto tuple_contains_v = tuple_contains<T, U>::value;
+
+template<tuple_like T, typename U>
+struct tuple_contains_unique
+    : std::conditional_t<tuple_count_v<T, U> == 1, std::true_type,
+                         std::false_type> {};
+
+template<tuple_like T, typename U>
+inline constexpr auto tuple_contains_unique_v{
+    tuple_contains_unique<T, U>::value};
+
+} // namespace muc
+#endif
+
+#endif
 #ifndef MUC_TYPE_TRAITS_35fd64e5dd5518762ebc391025fd06efd3f82687e245b5830b55c4a3ab96d768
 #define MUC_TYPE_TRAITS_35fd64e5dd5518762ebc391025fd06efd3f82687e245b5830b55c4a3ab96d768
 
