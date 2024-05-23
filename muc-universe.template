@@ -20,6 +20,7 @@
 
 #pragma once
 
+#include "muc/array"
 #include "muc/bit"
 #include "muc/ceta_string"
 #include "muc/math"
