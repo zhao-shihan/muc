@@ -8,7 +8,7 @@ namespace muc {
 
 template<typename T, std::enable_if_t<is_general_arithmetic_v<T>, bool> = true>
 constexpr auto midpoint(const T& a, const T& b) -> decltype(auto) {
-    return a / 2 + b / 2;
+    return a + (b - a) / 2;
 }
 
 } // namespace muc

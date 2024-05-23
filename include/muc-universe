@@ -770,6 +770,26 @@ static_assert(muc::digits_of<16>(-0x123456, true) == 7);
 
 #endif
 
+#include <cmath>
+#include <type_traits>
+
+namespace muc {
+
+template<typename... Ts, std::enable_if_t<((sizeof...(Ts) >= 2) and ... and
+                                           std::is_floating_point_v<Ts>),
+                                          bool> = true>
+constexpr auto hypot2(Ts... x) -> auto {
+    return (... + (x * x));
+}
+
+template<typename... Ts, std::enable_if_t<((sizeof...(Ts) >= 2) and ... and
+                                           std::is_floating_point_v<Ts>),
+                                          bool> = true>
+auto hypot(Ts... x) -> auto {
+    return std::sqrt(muc::hypot2(x...));
+}
+
+} // namespace muc
 
 
 
@@ -847,209 +867,6 @@ template<typename T>
 inline constexpr bool is_general_arithmetic_v{is_general_arithmetic<T>::value};
 
 } // namespace muc
-
-#include <type_traits>
-
-namespace muc {
-
-template<typename T, std::enable_if_t<is_general_arithmetic_v<T>, bool> = true>
-constexpr auto midpoint(const T& a, const T& b) -> decltype(auto) {
-    return a / 2 + b / 2;
-}
-
-} // namespace muc
-
-#include <type_traits>
-
-namespace muc {
-
-/// @brief Calculate m^N, where both m and N are integers.
-/// @tparam T integral type
-/// @tparam N power, N>=0
-/// @param m base
-/// @return m^N of type T.
-template<int N, typename T,
-         std::enable_if_t<N >= 0 and std::is_integral_v<T>, bool> = true>
-constexpr auto ipow(T m) -> T {
-    if constexpr (N == 0) {
-        return 1;
-    }
-    if constexpr (N == 1) {
-        return m;
-    }
-    if constexpr (N % 2 == 0) {
-        const auto k{muc::ipow<N / 2>(m)};
-        return k * k;
-    }
-    if constexpr (N % 3 == 0) {
-        const auto k{muc::ipow<N / 3>(m)};
-        return k * k * k;
-    }
-    const auto k{muc::ipow<(N - 1) / 2>(m)};
-    return k * m * k;
-}
-
-/// @brief Calculate x^N, where x is an floating point and N is an integer.
-/// @tparam T floating point type
-/// @tparam N power
-/// @param x base
-/// @return x^N
-template<int N, typename T,
-         std::enable_if_t<std::is_floating_point_v<T>, bool> = true>
-constexpr auto pow(T x) -> T {
-    if constexpr (N < 0) {
-        return muc::pow<-N>(1 / x);
-    }
-    if constexpr (N == 0) {
-        return 1;
-    }
-    if constexpr (N == 1) {
-        return x;
-    }
-    if constexpr (N % 2 == 0) {
-        const auto u{muc::pow<N / 2>(x)};
-        return u * u;
-    }
-    if constexpr (N % 3 == 0) {
-        const auto u{muc::pow<N / 3>(x)};
-        return u * u * u;
-    }
-    const auto u{muc::pow<(N - 1) / 2>(x)};
-    return u * x * u;
-}
-
-/// @brief Calculate x^N, where x is an integral converted to floating point, N
-/// is an integer.
-/// @tparam T floating point type
-/// @tparam N power
-/// @param x base
-/// @return x^N
-template<int N, typename T = double, typename U,
-         std::enable_if_t<std::is_floating_point_v<T> and std::is_integral_v<T>,
-                          bool> = true>
-constexpr auto pow(U x) -> T {
-    return muc::pow<N>(static_cast<T>(x));
-}
-
-} // namespace muc
-
-#include <cmath>
-#include <limits>
-#include <optional>
-#include <type_traits>
-#include <utility>
-
-namespace muc::find_root {
-
-template<typename T = double,
-         std::enable_if_t<std::is_floating_point_v<T>, bool> = true>
-inline constexpr auto default_tolerance{
-    muc::pow<std::numeric_limits<T>::digits / 2, T>(2) *
-    std::numeric_limits<T>::epsilon()};
-
-template<typename T, typename F, typename DF,
-         std::enable_if_t<std::is_floating_point_v<T> and
-                              std::is_invocable_v<F, T> and
-                              std::is_invocable_v<DF, T>,
-                          bool> = true>
-constexpr auto
-newton_raphson(const F& f, const DF& df, T x0, int max_iter = 1000,
-               T tolerance = default_tolerance<T>) -> std::pair<T, bool> {
-    auto x1{x0 - f(x0) / df(x0)};
-    for (int i{}; i < max_iter; ++i) {
-        if (muc::isnan(x1)) {
-            break;
-        }
-        if (muc::abs(x1 - x0) <= muc::abs(muc::midpoint(x1, x0)) * tolerance) {
-            return {x1, true};
-        }
-        x0 = x1;
-        x1 = x0 - f(x0) / df(x0);
-    }
-    return {x1, false};
-}
-
-template<
-    typename T, typename F,
-    std::enable_if_t<std::is_floating_point_v<T> and std::is_invocable_v<F, T>,
-                     bool> = true>
-constexpr auto
-secant(const F& f, T x0, std::optional<T> x1O = {}, int max_iter = 1000,
-       T tolerance = default_tolerance<T>) -> std::pair<T, bool> {
-    auto fx0{f(x0)};
-    if (fx0 == 0) {
-        return {x0, true};
-    }
-    auto x1{x1O.value_or(x0 + fx0 * 2 * tolerance /
-                                  (f(x0 - tolerance) - f(x0 + tolerance)))};
-    auto fx1{f(x1)};
-    auto x2{(x0 * fx1 - x1 * fx0) / (fx1 - fx0)};
-    for (int i{}; i < max_iter; ++i) {
-        if (muc::isnan(x2)) {
-            break;
-        }
-        if (muc::abs(x2 - x1) <= muc::abs(muc::midpoint(x2, x1)) * tolerance) {
-            return {x2, true};
-        }
-        x0 = x1;
-        fx0 = fx1;
-        x1 = x2;
-        fx1 = f(x2);
-        x2 = (x0 * fx1 - x1 * fx0) / (fx1 - fx0);
-    }
-    return {x2, false};
-}
-
-} // namespace muc::find_root
-
-#ifdef MUC_STATIC_TEST
-
-static_assert([] {
-    const auto [x, converged]{muc::find_root::newton_raphson(
-        [](auto x) {
-            return x * x - 1;
-        },
-        [](auto x) {
-            return 2 * x;
-        },
-        0.5)};
-    return converged and
-           muc::abs(x - 1) < 2 * muc::find_root::default_tolerance<>;
-}());
-
-static_assert([] {
-    const auto [x, converged]{muc::find_root::secant(
-        [](auto x) {
-            return x * x - 1;
-        },
-        0.5)};
-    return converged and
-           muc::abs(x - 1) < 2 * muc::find_root::default_tolerance<>;
-}());
-
-#endif
-
-#include <cmath>
-#include <type_traits>
-
-namespace muc {
-
-template<typename... Ts, std::enable_if_t<((sizeof...(Ts) >= 2) and ... and
-                                           std::is_floating_point_v<Ts>),
-                                          bool> = true>
-constexpr auto hypot2(Ts... x) -> auto {
-    return (... + (x * x));
-}
-
-template<typename... Ts, std::enable_if_t<((sizeof...(Ts) >= 2) and ... and
-                                           std::is_floating_point_v<Ts>),
-                                          bool> = true>
-auto hypot(Ts... x) -> auto {
-    return std::sqrt(muc::hypot2(x...));
-}
-
-} // namespace muc
-
 
 #include <cmath>
 #include <concepts>
@@ -1180,6 +997,80 @@ static_assert(muc::lltrunc(+2.7) == +2);
 static_assert(muc::lltrunc(+3.7) == +3);
 
 #endif
+
+#include <type_traits>
+
+namespace muc {
+
+/// @brief Calculate m^N, where both m and N are integers.
+/// @tparam T integral type
+/// @tparam N power, N>=0
+/// @param m base
+/// @return m^N of type T.
+template<int N, typename T,
+         std::enable_if_t<N >= 0 and std::is_integral_v<T>, bool> = true>
+constexpr auto ipow(T m) -> T {
+    if constexpr (N == 0) {
+        return 1;
+    }
+    if constexpr (N == 1) {
+        return m;
+    }
+    if constexpr (N % 2 == 0) {
+        const auto k{muc::ipow<N / 2>(m)};
+        return k * k;
+    }
+    if constexpr (N % 3 == 0) {
+        const auto k{muc::ipow<N / 3>(m)};
+        return k * k * k;
+    }
+    const auto k{muc::ipow<(N - 1) / 2>(m)};
+    return k * m * k;
+}
+
+/// @brief Calculate x^N, where x is an floating point and N is an integer.
+/// @tparam T floating point type
+/// @tparam N power
+/// @param x base
+/// @return x^N
+template<int N, typename T,
+         std::enable_if_t<std::is_floating_point_v<T>, bool> = true>
+constexpr auto pow(T x) -> T {
+    if constexpr (N < 0) {
+        return muc::pow<-N>(1 / x);
+    }
+    if constexpr (N == 0) {
+        return 1;
+    }
+    if constexpr (N == 1) {
+        return x;
+    }
+    if constexpr (N % 2 == 0) {
+        const auto u{muc::pow<N / 2>(x)};
+        return u * u;
+    }
+    if constexpr (N % 3 == 0) {
+        const auto u{muc::pow<N / 3>(x)};
+        return u * u * u;
+    }
+    const auto u{muc::pow<(N - 1) / 2>(x)};
+    return u * x * u;
+}
+
+/// @brief Calculate x^N, where x is an integral converted to floating point, N
+/// is an integer.
+/// @tparam T floating point type
+/// @tparam N power
+/// @param x base
+/// @return x^N
+template<int N, typename T = double, typename U,
+         std::enable_if_t<std::is_floating_point_v<T> and std::is_integral_v<T>,
+                          bool> = true>
+constexpr auto pow(U x) -> T {
+    return muc::pow<N>(static_cast<T>(x));
+}
+
+} // namespace muc
 #endif
 
 #endif
@@ -1417,6 +1308,379 @@ auto allocate_unique(Allocator alloc, Args&&... args)
 }
 
 } // namespace muc
+#endif
+
+#endif
+#ifndef MUC_NUMERIC_35fd64e5dd5518762ebc391025fd06efd3f82687e245b5830b55c4a3ab96d768
+#define MUC_NUMERIC_35fd64e5dd5518762ebc391025fd06efd3f82687e245b5830b55c4a3ab96d768
+
+#if __cplusplus >= 202002L
+
+#include <ranges>
+#include <utility>
+#include <version>
+
+#ifdef __cpp_lib_ranges_iota // C++23
+#include <algorithm>
+#include <numeric>
+#else // backport
+#include <iterator>
+#endif
+
+namespace muc::ranges {
+
+#ifdef __cpp_lib_ranges_iota // C++23
+
+struct iota_fn {
+    template<std::input_or_output_iterator O, std::sentinel_for<O> S,
+             std::weakly_incrementable T>
+        requires std::indirectly_writable<O, const T&>
+    constexpr auto operator()(O first, S last,
+                              T value) const -> std::ranges::iota_result<O, T> {
+        return std::ranges::iota(std::move(first), std::move(last),
+                                 std::move(value));
+    }
+
+    template<std::weakly_incrementable T, std::ranges::output_range<const T&> R>
+    constexpr auto operator()(R&& r, T value) const
+        -> std::ranges::iota_result<std::ranges::borrowed_iterator_t<R>, T> {
+        return std::ranges::iota(std::forward<decltype(r)>(r),
+                                 std::move(value));
+    }
+};
+
+#else // backport
+
+template<typename O, typename T>
+struct out_value_result {
+    [[no_unique_address]] O out;
+    [[no_unique_address]] T value;
+
+    template<typename O2, typename T2>
+        requires std::convertible_to<const O&, O2> and
+                 std::convertible_to<const T&, T2>
+    constexpr operator out_value_result<O2, T2>() const& {
+        return {out, value};
+    }
+
+    template<typename O2, typename T2>
+        requires std::convertible_to<O, O2> and std::convertible_to<T, T2>
+    constexpr operator out_value_result<O2, T2>() && {
+        return {std::move(out), std::move(value)};
+    }
+};
+
+template<typename O, typename T>
+using iota_result = out_value_result<O, T>;
+
+struct iota_fn {
+    template<std::input_or_output_iterator O, std::sentinel_for<O> S,
+             std::weakly_incrementable T>
+        requires std::indirectly_writable<O, const T&>
+    constexpr auto operator()(O first, S last,
+                              T value) const -> iota_result<O, T> {
+        while (first != last) {
+            *first++ = value++;
+        }
+        return {std::move(first), std::move(value)};
+    }
+
+    template<std::weakly_incrementable T, std::ranges::output_range<const T&> R>
+    constexpr auto operator()(R&& r, T value) const
+        -> iota_result<std::ranges::borrowed_iterator_t<R>, T> {
+        return (*this)(std::ranges::begin(std::forward<decltype(r)>(r)),
+                       std::ranges::end(std::forward<decltype(r)>(r)),
+                       std::move(value));
+    }
+};
+
+#endif
+
+inline constexpr iota_fn iota{};
+
+} // namespace muc::ranges
+
+#include <iterator>
+#include <numeric>
+#include <ranges>
+#include <utility>
+
+namespace muc::ranges {
+
+constexpr struct {
+    constexpr auto operator()(std::ranges::input_range auto&& r,
+                              auto&&... args) const -> decltype(auto) {
+        return std::accumulate(std::ranges::cbegin(r), std::ranges::cend(r),
+                               std::forward<decltype(args)>(args)...);
+    }
+} accumulate{};
+
+constexpr struct {
+    constexpr auto operator()(std::ranges::input_range auto&& r,
+                              auto&&... args) const -> decltype(auto) {
+        return std::reduce(std::ranges::cbegin(r), std::ranges::cend(r),
+                           std::forward<decltype(args)>(args)...);
+    }
+
+    auto operator()(auto&& policy, std::ranges::forward_range auto&& r,
+                    auto&&... args) const -> decltype(auto) {
+        return std::reduce(std::forward<decltypr(policy)>(policy),
+                           std::ranges::cbegin(r), std::ranges::cend(r),
+                           std::forward<decltype(args)>(args)...);
+    }
+} reduce{};
+
+constexpr struct {
+    constexpr auto operator()(std::ranges::input_range auto&& r,
+                              std::input_iterator auto i,
+                              auto&&... args) const -> decltype(auto) {
+        return std::transform_reduce(std::ranges::cbegin(r),
+                                     std::ranges::cend(r), i,
+                                     std::forward<decltype(args)>(args)...);
+    }
+
+    constexpr auto operator()(std::ranges::input_range auto&& r,
+                              auto&&... args) const -> decltype(auto) {
+        return std::transform_reduce(std::ranges::cbegin(r),
+                                     std::ranges::cend(r),
+                                     std::forward<decltype(args)>(args)...);
+    }
+
+    auto operator()(auto&& policy, std::ranges::forward_range auto&& r,
+                    std::forward_iterator auto i,
+                    auto&&... args) const -> decltype(auto) {
+        return std::transform_reduce(
+            std::forward<decltypr(policy)>(policy), std::ranges::cbegin(r),
+            std::ranges::cend(r), i, std::forward<decltype(args)>(args)...);
+    }
+
+    auto operator()(auto&& policy, std::ranges::forward_range auto&& r,
+                    auto&&... args) const -> decltype(auto) {
+        return std::transform_reduce(
+            std::forward<decltypr(policy)>(policy), std::ranges::cbegin(r),
+            std::ranges::cend(r), std::forward<decltype(args)>(args)...);
+    }
+} transform_reduce{};
+
+constexpr struct {
+    constexpr auto operator()(std::ranges::input_range auto&& r,
+                              std::input_iterator auto i,
+                              auto&&... args) const -> decltype(auto) {
+        return std::inner_product(std::ranges::cbegin(r), std::ranges::cend(r),
+                                  i, std::forward<decltype(args)>(args)...);
+    }
+} inner_product{};
+
+constexpr struct {
+    constexpr auto operator()(std::ranges::input_range auto&& r,
+                              /* std::output_iterator */ auto o,
+                              auto&&... args) const -> decltype(auto) {
+        return std::adjacent_difference(std::ranges::cbegin(r),
+                                        std::ranges::cend(r), o,
+                                        std::forward<decltype(args)>(args)...);
+    }
+
+    auto operator()(auto&& policy, std::ranges::forward_range auto&& r,
+                    std::forward_iterator auto o,
+                    auto&&... args) const -> decltype(auto) {
+        return std::adjacent_difference(
+            std::forward<decltypr(policy)>(policy), std::ranges::cbegin(r),
+            std::ranges::cend(r), o, std::forward<decltype(args)>(args)...);
+    }
+} adjacent_difference{};
+
+constexpr struct {
+    constexpr auto operator()(std::ranges::input_range auto&& r,
+                              /* std::output_iterator */ auto o,
+                              auto&&... args) const -> decltype(auto) {
+        return std::partial_sum(std::ranges::cbegin(r), std::ranges::cend(r), o,
+                                std::forward<decltype(args)>(args)...);
+    }
+} partial_sum{};
+
+constexpr struct {
+    constexpr auto operator()(std::ranges::input_range auto&& r,
+                              /* std::output_iterator */ auto o,
+                              auto&&... args) const -> decltype(auto) {
+        return std::inclusive_scan(std::ranges::cbegin(r), std::ranges::cend(r),
+                                   o, std::forward<decltype(args)>(args)...);
+    }
+
+    auto operator()(auto&& policy, std::ranges::forward_range auto&& r,
+                    std::forward_iterator auto o,
+                    auto&&... args) const -> decltype(auto) {
+        return std::inclusive_scan(std::forward<decltypr(policy)>(policy),
+                                   std::ranges::cbegin(r), std::ranges::cend(r),
+                                   o, std::forward<decltype(args)>(args)...);
+    }
+} inclusive_scan{};
+
+constexpr struct {
+    constexpr auto operator()(std::ranges::input_range auto&& r,
+                              /* std::output_iterator */ auto o,
+                              auto&&... args) const -> decltype(auto) {
+        return std::exclusive_scan(std::ranges::cbegin(r), std::ranges::cend(r),
+                                   o, std::forward<decltype(args)>(args)...);
+    }
+
+    auto operator()(auto&& policy, std::ranges::forward_range auto&& r,
+                    std::forward_iterator auto o,
+                    auto&&... args) const -> decltype(auto) {
+        return std::exclusive_scan(std::forward<decltypr(policy)>(policy),
+                                   std::ranges::cbegin(r), std::ranges::cend(r),
+                                   o, std::forward<decltype(args)>(args)...);
+    }
+} exclusive_scan{};
+
+constexpr struct {
+    constexpr auto operator()(std::ranges::input_range auto&& r,
+                              /* std::output_iterator */ auto o,
+                              auto&&... args) const -> decltype(auto) {
+        return std::transform_inclusive_scan(
+            std::ranges::cbegin(r), std::ranges::cend(r), o,
+            std::forward<decltype(args)>(args)...);
+    }
+
+    auto operator()(auto&& policy, std::ranges::forward_range auto&& r,
+                    std::forward_iterator auto o,
+                    auto&&... args) const -> decltype(auto) {
+        return std::transform_inclusive_scan(
+            std::forward<decltypr(policy)>(policy), std::ranges::cbegin(r),
+            std::ranges::cend(r), o, std::forward<decltype(args)>(args)...);
+    }
+} transform_inclusive_scan{};
+
+constexpr struct {
+    constexpr auto operator()(std::ranges::input_range auto&& r,
+                              /* std::output_iterator */ auto o,
+                              auto&&... args) const -> decltype(auto) {
+        return std::transform_exclusive_scan(
+            std::ranges::cbegin(r), std::ranges::cend(r), o,
+            std::forward<decltype(args)>(args)...);
+    }
+
+    auto operator()(auto&& policy, std::ranges::forward_range auto&& r,
+                    std::forward_iterator auto o,
+                    auto&&... args) const -> decltype(auto) {
+        return std::transform_exclusive_scan(
+            std::forward<decltypr(policy)>(policy), std::ranges::cbegin(r),
+            std::ranges::cend(r), o, std::forward<decltype(args)>(args)...);
+    }
+} transform_exclusive_scan{};
+
+} // namespace muc::ranges
+#endif
+
+#if __cplusplus >= 201703L
+
+
+
+#include <type_traits>
+
+namespace muc {
+
+template<typename T, std::enable_if_t<is_general_arithmetic_v<T>, bool> = true>
+constexpr auto midpoint(const T& a, const T& b) -> decltype(auto) {
+    return a + (b - a) / 2;
+}
+
+} // namespace muc
+
+#include <cmath>
+#include <limits>
+#include <optional>
+#include <type_traits>
+#include <utility>
+
+namespace muc::find_root {
+
+template<typename T = double,
+         std::enable_if_t<std::is_floating_point_v<T>, bool> = true>
+inline constexpr auto default_tolerance{
+    muc::pow<std::numeric_limits<T>::digits / 2, T>(2) *
+    std::numeric_limits<T>::epsilon()};
+
+template<typename T, typename F, typename DF,
+         std::enable_if_t<std::is_floating_point_v<T> and
+                              std::is_invocable_v<F, T> and
+                              std::is_invocable_v<DF, T>,
+                          bool> = true>
+constexpr auto
+newton_raphson(const F& f, const DF& df, T x0, int max_iter = 1000,
+               T tolerance = default_tolerance<T>) -> std::pair<T, bool> {
+    auto x1{x0 - f(x0) / df(x0)};
+    for (int i{}; i < max_iter; ++i) {
+        if (muc::isnan(x1)) {
+            break;
+        }
+        if (muc::abs(x1 - x0) <= muc::abs(muc::midpoint(x1, x0)) * tolerance) {
+            return {x1, true};
+        }
+        x0 = x1;
+        x1 = x0 - f(x0) / df(x0);
+    }
+    return {x1, false};
+}
+
+template<
+    typename T, typename F,
+    std::enable_if_t<std::is_floating_point_v<T> and std::is_invocable_v<F, T>,
+                     bool> = true>
+constexpr auto
+secant(const F& f, T x0, std::optional<T> x1O = {}, int max_iter = 1000,
+       T tolerance = default_tolerance<T>) -> std::pair<T, bool> {
+    auto fx0{f(x0)};
+    if (fx0 == 0) {
+        return {x0, true};
+    }
+    auto x1{x1O.value_or(x0 + fx0 * 2 * tolerance /
+                                  (f(x0 - tolerance) - f(x0 + tolerance)))};
+    auto fx1{f(x1)};
+    auto x2{(x0 * fx1 - x1 * fx0) / (fx1 - fx0)};
+    for (int i{}; i < max_iter; ++i) {
+        if (muc::isnan(x2)) {
+            break;
+        }
+        if (muc::abs(x2 - x1) <= muc::abs(muc::midpoint(x2, x1)) * tolerance) {
+            return {x2, true};
+        }
+        x0 = x1;
+        fx0 = fx1;
+        x1 = x2;
+        fx1 = f(x2);
+        x2 = (x0 * fx1 - x1 * fx0) / (fx1 - fx0);
+    }
+    return {x2, false};
+}
+
+} // namespace muc::find_root
+
+#ifdef MUC_STATIC_TEST
+
+static_assert([] {
+    const auto [x, converged]{muc::find_root::newton_raphson(
+        [](auto x) {
+            return x * x - 1;
+        },
+        [](auto x) {
+            return 2 * x;
+        },
+        0.5)};
+    return converged and
+           muc::abs(x - 1) < 2 * muc::find_root::default_tolerance<>;
+}());
+
+static_assert([] {
+    const auto [x, converged]{muc::find_root::secant(
+        [](auto x) {
+            return x * x - 1;
+        },
+        0.5)};
+    return converged and
+           muc::abs(x - 1) < 2 * muc::find_root::default_tolerance<>;
+}());
+
+#endif
 #endif
 
 #endif

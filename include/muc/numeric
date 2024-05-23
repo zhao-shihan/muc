@@ -1,0 +1,15 @@
+#pragma once
+#ifndef MUC_NUMERIC_35fd64e5dd5518762ebc391025fd06efd3f82687e245b5830b55c4a3ab96d768
+#define MUC_NUMERIC_35fd64e5dd5518762ebc391025fd06efd3f82687e245b5830b55c4a3ab96d768
+
+#if __cplusplus >= 202002L
+#include "muc/impl/c++20/numeric/ranges_iota.h++"
+#include "muc/impl/c++20/numeric/ranges_numeric.h++"
+#endif
+
+#if __cplusplus >= 201703L
+#include "muc/impl/c++17/numeric/find_root.h++"
+#include "muc/impl/c++17/numeric/midpoint.h++"
+#endif
+
+#endif

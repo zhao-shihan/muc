@@ -1,5 +1,6 @@
 #ifndef MUC_TEST_UNIVERSE
 #include "muc/math"
+#include "muc/numeric"
 #else
 #include "muc-universe"
 #endif

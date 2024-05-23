@@ -1,8 +1,8 @@
 #pragma once
 
 #include "muc/impl/c++17/math/constexpr_cmath.h++"
-#include "muc/impl/c++17/math/midpoint.h++"
 #include "muc/impl/c++17/math/pow.h++"
+#include "muc/impl/c++17/numeric/midpoint.h++"
 
 #include <cmath>
 #include <limits>

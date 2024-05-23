@@ -24,6 +24,7 @@
 #include "muc/ceta_string"
 #include "muc/math"
 #include "muc/memory"
+#include "muc/numeric"
 #include "muc/ptr_vector"
 #include "muc/time"
 #include "muc/type_traits"
