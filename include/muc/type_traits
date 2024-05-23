@@ -8,7 +8,9 @@
 #include "muc/impl/c++17/type_traits/is_general_arithmetic.h++"
 #include "muc/impl/c++17/type_traits/is_scoped_enum.h++"
 #include "muc/impl/c++17/type_traits/is_unbounded_array.h++"
+#include "muc/impl/c++17/type_traits/remove_cref.h++"
 #include "muc/impl/c++17/type_traits/remove_cvref.h++"
+#include "muc/impl/c++17/type_traits/remove_vref.h++"
 #include "muc/impl/c++17/type_traits/type_identity.h++"
 #endif
 
