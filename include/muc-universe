@@ -20,15 +20,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#ifndef MUC_UNIVERSE_35fd64e5dd5518762ebc391025fd06efd3f82687e245b5830b55c4a3ab96d768
-#define MUC_UNIVERSE_35fd64e5dd5518762ebc391025fd06efd3f82687e245b5830b55c4a3ab96d768
 
 #ifndef MUC_BIT_35fd64e5dd5518762ebc391025fd06efd3f82687e245b5830b55c4a3ab96d768
 #define MUC_BIT_35fd64e5dd5518762ebc391025fd06efd3f82687e245b5830b55c4a3ab96d768
-
-#ifndef MUC_UNIVERSE_35fd64e5dd5518762ebc391025fd06efd3f82687e245b5830b55c4a3ab96d768
-#define MUC_UNIVERSE_35fd64e5dd5518762ebc391025fd06efd3f82687e245b5830b55c4a3ab96d768
-#endif
 
 #if __cplusplus >= 201703L
 
@@ -234,10 +228,6 @@ template<typename T,
 #ifndef MUC_CETA_STRING_35fd64e5dd5518762ebc391025fd06efd3f82687e245b5830b55c4a3ab96d768
 #define MUC_CETA_STRING_35fd64e5dd5518762ebc391025fd06efd3f82687e245b5830b55c4a3ab96d768
 
-#ifndef MUC_UNIVERSE_35fd64e5dd5518762ebc391025fd06efd3f82687e245b5830b55c4a3ab96d768
-#define MUC_UNIVERSE_35fd64e5dd5518762ebc391025fd06efd3f82687e245b5830b55c4a3ab96d768
-#endif
-
 #if __cplusplus >= 202002L
 
 #include <algorithm>
@@ -353,10 +343,6 @@ constexpr auto operator<=>(const ceta_string<M>& lhs,
 #endif
 #ifndef MUC_MATH_35fd64e5dd5518762ebc391025fd06efd3f82687e245b5830b55c4a3ab96d768
 #define MUC_MATH_35fd64e5dd5518762ebc391025fd06efd3f82687e245b5830b55c4a3ab96d768
-
-#ifndef MUC_UNIVERSE_35fd64e5dd5518762ebc391025fd06efd3f82687e245b5830b55c4a3ab96d768
-#define MUC_UNIVERSE_35fd64e5dd5518762ebc391025fd06efd3f82687e245b5830b55c4a3ab96d768
-#endif
 
 #if __cplusplus >= 202002L
 
@@ -1200,10 +1186,6 @@ static_assert(muc::lltrunc(+3.7) == +3);
 #ifndef MUC_MEMORY_35fd64e5dd5518762ebc391025fd06efd3f82687e245b5830b55c4a3ab96d768
 #define MUC_MEMORY_35fd64e5dd5518762ebc391025fd06efd3f82687e245b5830b55c4a3ab96d768
 
-#ifndef MUC_UNIVERSE_35fd64e5dd5518762ebc391025fd06efd3f82687e245b5830b55c4a3ab96d768
-#define MUC_UNIVERSE_35fd64e5dd5518762ebc391025fd06efd3f82687e245b5830b55c4a3ab96d768
-#endif
-
 #if __cplusplus >= 201703L
 
 
@@ -1441,10 +1423,6 @@ auto allocate_unique(Allocator alloc, Args&&... args)
 #ifndef MUC_PTR_VECTOR_35fd64e5dd5518762ebc391025fd06efd3f82687e245b5830b55c4a3ab96d768
 #define MUC_PTR_VECTOR_35fd64e5dd5518762ebc391025fd06efd3f82687e245b5830b55c4a3ab96d768
 
-#ifndef MUC_UNIVERSE_35fd64e5dd5518762ebc391025fd06efd3f82687e245b5830b55c4a3ab96d768
-#define MUC_UNIVERSE_35fd64e5dd5518762ebc391025fd06efd3f82687e245b5830b55c4a3ab96d768
-#endif
-
 #if __cplusplus >= 201703L
 
 
@@ -1553,30 +1531,39 @@ public:
         return indirect_random_access_iterator{m_iter - n};
     }
 
-    auto operator==(const indirect_random_access_iterator& other) -> bool {
+    auto
+    operator==(const indirect_random_access_iterator& other) const -> bool {
         return m_iter == other.m_iter;
     }
-
-    auto operator!=(const indirect_random_access_iterator& other) -> bool {
+#if __cplusplus >= 202002L
+    auto
+    operator<=>(const indirect_random_access_iterator& other) const -> auto {
+        return m_iter <=> other.m_iter;
+    }
+#else
+    auto
+    operator!=(const indirect_random_access_iterator& other) const -> bool {
         return m_iter != other.m_iter;
     }
 
-    auto operator<(const indirect_random_access_iterator& other) -> bool {
+    auto operator<(const indirect_random_access_iterator& other) const -> bool {
         return m_iter < other.m_iter;
     }
 
-    auto operator<=(const indirect_random_access_iterator& other) -> bool {
+    auto
+    operator<=(const indirect_random_access_iterator& other) const -> bool {
         return m_iter <= other.m_iter;
     }
 
-    auto operator>(const indirect_random_access_iterator& other) -> bool {
+    auto operator>(const indirect_random_access_iterator& other) const -> bool {
         return m_iter > other.m_iter;
     }
 
-    auto operator>=(const indirect_random_access_iterator& other) -> bool {
+    auto
+    operator>=(const indirect_random_access_iterator& other) const -> bool {
         return m_iter >= other.m_iter;
     }
-
+#endif
 private:
     raw_iterator m_iter;
 };
@@ -2311,10 +2298,6 @@ using unique_ptr_vector =
 #ifndef MUC_TIME_35fd64e5dd5518762ebc391025fd06efd3f82687e245b5830b55c4a3ab96d768
 #define MUC_TIME_35fd64e5dd5518762ebc391025fd06efd3f82687e245b5830b55c4a3ab96d768
 
-#ifndef MUC_UNIVERSE_35fd64e5dd5518762ebc391025fd06efd3f82687e245b5830b55c4a3ab96d768
-#define MUC_UNIVERSE_35fd64e5dd5518762ebc391025fd06efd3f82687e245b5830b55c4a3ab96d768
-#endif
-
 #if __cplusplus >= 201703L
 
 // Linux/BSD implementation:
@@ -2740,10 +2723,6 @@ public:
 #ifndef MUC_TYPE_TRAITS_35fd64e5dd5518762ebc391025fd06efd3f82687e245b5830b55c4a3ab96d768
 #define MUC_TYPE_TRAITS_35fd64e5dd5518762ebc391025fd06efd3f82687e245b5830b55c4a3ab96d768
 
-#ifndef MUC_UNIVERSE_35fd64e5dd5518762ebc391025fd06efd3f82687e245b5830b55c4a3ab96d768
-#define MUC_UNIVERSE_35fd64e5dd5518762ebc391025fd06efd3f82687e245b5830b55c4a3ab96d768
-#endif
-
 #if __cplusplus >= 201703L
 
 
@@ -2890,8 +2869,6 @@ template<typename T>
 struct type_identity {
     using type = T;
 };
-#endif
-
 #endif
 
 #endif

@@ -19,8 +19,6 @@
 // SOFTWARE.
 
 #pragma once
-#ifndef MUC_UNIVERSE_35fd64e5dd5518762ebc391025fd06efd3f82687e245b5830b55c4a3ab96d768
-#define MUC_UNIVERSE_35fd64e5dd5518762ebc391025fd06efd3f82687e245b5830b55c4a3ab96d768
 
 #include "muc/bit"
 #include "muc/ceta_string"
@@ -29,5 +27,3 @@
 #include "muc/ptr_vector"
 #include "muc/time"
 #include "muc/type_traits"
-
-#endif

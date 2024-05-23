@@ -106,30 +106,39 @@ public:
         return indirect_random_access_iterator{m_iter - n};
     }
 
-    auto operator==(const indirect_random_access_iterator& other) -> bool {
+    auto
+    operator==(const indirect_random_access_iterator& other) const -> bool {
         return m_iter == other.m_iter;
     }
-
-    auto operator!=(const indirect_random_access_iterator& other) -> bool {
+#if __cplusplus >= 202002L
+    auto
+    operator<=>(const indirect_random_access_iterator& other) const -> auto {
+        return m_iter <=> other.m_iter;
+    }
+#else
+    auto
+    operator!=(const indirect_random_access_iterator& other) const -> bool {
         return m_iter != other.m_iter;
     }
 
-    auto operator<(const indirect_random_access_iterator& other) -> bool {
+    auto operator<(const indirect_random_access_iterator& other) const -> bool {
         return m_iter < other.m_iter;
     }
 
-    auto operator<=(const indirect_random_access_iterator& other) -> bool {
+    auto
+    operator<=(const indirect_random_access_iterator& other) const -> bool {
         return m_iter <= other.m_iter;
     }
 
-    auto operator>(const indirect_random_access_iterator& other) -> bool {
+    auto operator>(const indirect_random_access_iterator& other) const -> bool {
         return m_iter > other.m_iter;
     }
 
-    auto operator>=(const indirect_random_access_iterator& other) -> bool {
+    auto
+    operator>=(const indirect_random_access_iterator& other) const -> bool {
         return m_iter >= other.m_iter;
     }
-
+#endif
 private:
     raw_iterator m_iter;
 };

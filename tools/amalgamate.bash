@@ -5,4 +5,6 @@ if test -f muc-universe.template; then
     cp muc-universe.template build/muc-universe.h++
     amalgamate/amalgamate -v -o build -I include -- build/muc-universe.h++
     cp build/muc-amalgamated/muc.h++ include/muc-universe
+else
+    echo "Try execute this script at the top directory!"
 fi
