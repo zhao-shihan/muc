@@ -4,6 +4,9 @@
 
 #if __cplusplus >= 202002L
 #include "muc/impl/c++20/concepts/boolean_testable.h++"
+#include "muc/impl/c++20/concepts/copy_assignable.h++"
+#include "muc/impl/c++20/concepts/instantiated_from.h++"
+#include "muc/impl/c++20/concepts/move_assignable.h++"
 #endif
 
 #endif

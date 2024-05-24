@@ -484,6 +484,69 @@ concept boolean_testable = requires(B&& b) {
 };
 
 } // namespace muc
+
+
+#include <concepts>
+
+namespace muc {
+
+/// @brief C++ named requirements: MoveAssignable. This is more strict than
+/// std::is_move_assignable because it does check the type of the result of the
+/// assignment (which, for a CopyAssignable type, must be an lvalue of type T).
+/// See also: https://en.cppreference.com/w/cpp/named_req/move_assignable
+template<typename T>
+concept move_assignable = std::assignable_from<T&, T&&>;
+
+template<typename T>
+concept noexcept_move_assignable =
+    std::assignable_from<T&, T&&> and std::is_nothrow_move_assignable_v<T>;
+
+} // namespace muc
+
+#include <concepts>
+
+namespace muc {
+
+/// @brief C++ named requirements: CopyAssignable. This is more strict than
+/// std::is_copy_assignable because it does check the type of the result of the
+/// assignment (which, for a CopyAssignable type, must be an lvalue of type T).
+/// See also: https://en.cppreference.com/w/cpp/named_req/copy_assignable
+template<typename T>
+concept copy_assignable =
+    move_assignable<T> and std::assignable_from<T&, T&> and
+    std::assignable_from<T&, const T&> and std::assignable_from<T&, const T&&>;
+
+template<typename T>
+concept noexcept_copy_assignable =
+    noexcept_move_assignable<T> and std::assignable_from<T&, T&> and
+    std::assignable_from<T&, const T&> and
+    std::assignable_from<T&, const T&&> and
+    std::is_nothrow_move_assignable_v<T>;
+
+} // namespace muc
+
+
+#include <type_traits>
+
+namespace muc {
+
+template<template<typename...> typename, typename>
+struct is_template_of : std::false_type {};
+
+template<template<typename...> typename Template, typename... Args>
+struct is_template_of<Template, Template<Args...>> : std::true_type {};
+
+template<template<typename...> typename Template, typename T>
+inline constexpr bool is_template_of_v{is_template_of<Template, T>::value};
+
+} // namespace muc
+
+namespace muc {
+
+template<typename T, template<typename...> typename Template>
+concept InstantiatedFrom = is_template_of_v<Template, T>;
+
+} // namespace muc
 #endif
 
 #endif
