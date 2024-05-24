@@ -253,15 +253,15 @@ auto byteswap(T value) noexcept -> T {
 namespace muc::impl {
 
 template<typename T>
-struct is_really_unsigned_integral
-    : std::bool_constant<
-          std::is_unsigned_v<T> and not std::is_same_v<T, bool> and
-          not std::is_same_v<T, char> and
+struct is_really_unsigned_integral :
+    std::bool_constant<std::is_unsigned_v<T> and not std::is_same_v<T, bool> and
+                       not std::is_same_v<T, char> and
 #if __cplusplus >= 202002L
-          not std::is_same_v<T, char8_t> and
+                       not std::is_same_v<T, char8_t> and
 #endif
-          not std::is_same_v<T, char16_t> and
-          not std::is_same_v<T, char32_t> and not std::is_same_v<T, wchar_t>> {
+                       not std::is_same_v<T, char16_t> and
+                       not std::is_same_v<T, char32_t> and
+                       not std::is_same_v<T, wchar_t>> {
 };
 
 template<typename T>
@@ -1041,8 +1041,8 @@ struct has_binary_arithmetic_with<
         // T x= X
         decltype(std::declval<T&>() += std::declval<const U&>()),
         decltype(std::declval<T&>() -= std::declval<const U&>()),
-        decltype(std::declval<T&>() *= 1), decltype(std::declval<T&>() /= 1)>>
-    : std::true_type {};
+        decltype(std::declval<T&>() *= 1), decltype(std::declval<T&>() /= 1)>> :
+    std::true_type {};
 
 template<typename T, typename U>
 inline constexpr bool has_binary_arithmetic_with_v{
@@ -1056,21 +1056,21 @@ inline constexpr bool has_binary_arithmetic_with_v{
 namespace muc {
 
 template<typename T>
-struct is_general_arithmetic
-    : std::bool_constant<std::is_default_constructible_v<T> and
-                         impl::has_binary_arithmetic_with_v<T, T> and
-                         impl::has_binary_arithmetic_with_v<
-                             T, decltype(std::declval<const T&>() +
-                                         std::declval<const T&>())> and
-                         impl::has_binary_arithmetic_with_v<
-                             T, decltype(std::declval<const T&>() -
-                                         std::declval<const T&>())> and
-                         impl::has_binary_arithmetic_with_v<
-                             T, decltype(1 * std::declval<const T&>())> and
-                         impl::has_binary_arithmetic_with_v<
-                             T, decltype(std::declval<const T&>() * 1)> and
-                         impl::has_binary_arithmetic_with_v<
-                             T, decltype(std::declval<const T&>() / 1)>> {};
+struct is_general_arithmetic :
+    std::bool_constant<std::is_default_constructible_v<T> and
+                       impl::has_binary_arithmetic_with_v<T, T> and
+                       impl::has_binary_arithmetic_with_v<
+                           T, decltype(std::declval<const T&>() +
+                                       std::declval<const T&>())> and
+                       impl::has_binary_arithmetic_with_v<
+                           T, decltype(std::declval<const T&>() -
+                                       std::declval<const T&>())> and
+                       impl::has_binary_arithmetic_with_v<
+                           T, decltype(1 * std::declval<const T&>())> and
+                       impl::has_binary_arithmetic_with_v<
+                           T, decltype(std::declval<const T&>() * 1)> and
+                       impl::has_binary_arithmetic_with_v<
+                           T, decltype(std::declval<const T&>() / 1)>> {};
 
 template<typename T>
 inline constexpr bool is_general_arithmetic_v{is_general_arithmetic<T>::value};
@@ -2553,12 +2553,12 @@ protected:
 namespace muc {
 
 template<typename T, typename Allocator = typename std::allocator<T>>
-class shared_ptr_vector
-    : public impl::ptr_vector_base<
-          shared_ptr_vector<T, Allocator>,
-          std::vector<std::shared_ptr<T>,
-                      typename std::allocator_traits<Allocator>::
-                          template rebind_alloc<std::shared_ptr<T>>>> {
+class shared_ptr_vector :
+    public impl::ptr_vector_base<
+        shared_ptr_vector<T, Allocator>,
+        std::vector<std::shared_ptr<T>,
+                    typename std::allocator_traits<Allocator>::
+                        template rebind_alloc<std::shared_ptr<T>>>> {
     static_assert(std::is_same_v<typename Allocator::value_type, T>,
                   "muc::shared_ptr_vector must have the same value_type as its "
                   "allocator");
@@ -2663,13 +2663,13 @@ using shared_ptr_vector =
 namespace muc {
 
 template<typename T, typename Allocator = typename std::allocator<T>>
-class unique_ptr_vector
-    : public impl::ptr_vector_base<
-          unique_ptr_vector<T, Allocator>,
-          std::vector<
-              std::unique_ptr<T, allocator_delete<Allocator>>,
-              typename std::allocator_traits<Allocator>::template rebind_alloc<
-                  std::unique_ptr<T, allocator_delete<Allocator>>>>> {
+class unique_ptr_vector :
+    public impl::ptr_vector_base<
+        unique_ptr_vector<T, Allocator>,
+        std::vector<
+            std::unique_ptr<T, allocator_delete<Allocator>>,
+            typename std::allocator_traits<Allocator>::template rebind_alloc<
+                std::unique_ptr<T, allocator_delete<Allocator>>>>> {
     static_assert(std::is_same_v<typename Allocator::value_type, T>,
                   "muc::shared_ptr_vector must have the same value_type as its "
                   "allocator");
@@ -3300,9 +3300,9 @@ template<tuple_like, std::size_t, std::size_t, tuple_like>
 struct to_std_tuple_helper;
 
 template<tuple_like T, std::size_t I, std::size_t N, typename... Ts>
-struct to_std_tuple_helper<T, I, N, std::tuple<Ts...>>
-    : to_std_tuple_helper<T, I + 1, N,
-                          std::tuple<Ts..., std::tuple_element_t<I, T>>> {};
+struct to_std_tuple_helper<T, I, N, std::tuple<Ts...>> :
+    to_std_tuple_helper<T, I + 1, N,
+                        std::tuple<Ts..., std::tuple_element_t<I, T>>> {};
 
 template<tuple_like T, std::size_t N, typename... Ts>
 struct to_std_tuple_helper<T, N, N, std::tuple<Ts...>> {
@@ -3312,9 +3312,8 @@ struct to_std_tuple_helper<T, N, N, std::tuple<Ts...>> {
 } // namespace impl
 
 template<tuple_like T>
-struct to_std_tuple
-    : impl::to_std_tuple_helper<T, 0, std::tuple_size_v<T>, std::tuple<>> {
-};
+struct to_std_tuple :
+    impl::to_std_tuple_helper<T, 0, std::tuple_size_v<T>, std::tuple<>> {};
 
 template<tuple_like T>
 using to_std_tuple_t = typename to_std_tuple<T>::type;
@@ -3342,8 +3341,8 @@ struct std_tuple_concat<std::tuple<Ts...>> {
 };
 
 template<typename... Ts, typename... Us, typename... Vs>
-struct std_tuple_concat<std::tuple<Ts...>, std::tuple<Us...>, Vs...>
-    : std_tuple_concat<std::tuple<Ts..., Us...>, Vs...> {};
+struct std_tuple_concat<std::tuple<Ts...>, std::tuple<Us...>, Vs...> :
+    std_tuple_concat<std::tuple<Ts..., Us...>, Vs...> {};
 
 template<tuple_like... Ts>
 using std_tuple_concat_t = typename std_tuple_concat<Ts...>::type;
@@ -3372,9 +3371,9 @@ template<tuple_like, typename>
 struct std_tuple_count;
 
 template<typename... Ts, typename T>
-struct std_tuple_count<std::tuple<Ts...>, T>
-    : std::integral_constant<std::size_t, (... + static_cast<std::size_t>(
-                                                     std::same_as<T, Ts>))> {};
+struct std_tuple_count<std::tuple<Ts...>, T> :
+    std::integral_constant<std::size_t, (... + static_cast<std::size_t>(
+                                                   std::same_as<T, Ts>))> {};
 
 } // namespace impl
 
@@ -3391,16 +3390,17 @@ inline constexpr auto tuple_count_v{tuple_count<T, U>::value};
 namespace muc {
 
 template<tuple_like T, typename U>
-struct tuple_contains : std::conditional_t<tuple_count_v<T, U> >= 1,
-                                           std::true_type, std::false_type> {};
+struct tuple_contains :
+    std::conditional_t<tuple_count_v<T, U> >= 1, std::true_type,
+                       std::false_type> {};
 
 template<tuple_like T, typename U>
 inline constexpr auto tuple_contains_v = tuple_contains<T, U>::value;
 
 template<tuple_like T, typename U>
-struct tuple_contains_unique
-    : std::conditional_t<tuple_count_v<T, U> == 1, std::true_type,
-                         std::false_type> {};
+struct tuple_contains_unique :
+    std::conditional_t<tuple_count_v<T, U> == 1, std::true_type,
+                       std::false_type> {};
 
 template<tuple_like T, typename U>
 inline constexpr auto tuple_contains_unique_v{
@@ -3422,71 +3422,70 @@ inline constexpr auto tuple_contains_unique_v{
 namespace muc {
 
 template<typename T, typename U>
-struct is_arithmetic_operable_with
-    : std::bool_constant<
-          is_general_arithmetic_v<T> and is_general_arithmetic_v<U> and
-          // T <-> {U}
-          impl::has_binary_arithmetic_with_v<T, U> and
-          impl::has_binary_arithmetic_with_v<
-              T,
-              decltype(std::declval<const U&>() + std::declval<const U&>())> and
-          impl::has_binary_arithmetic_with_v<
-              T,
-              decltype(std::declval<const U&>() - std::declval<const U&>())> and
-          impl::has_binary_arithmetic_with_v<
-              U, decltype(+std::declval<const U&>())> and
-          impl::has_binary_arithmetic_with_v<
-              U, decltype(-std::declval<const U&>())> and
-          impl::has_binary_arithmetic_with_v<
-              T, decltype(1 * std::declval<const U&>())> and
-          impl::has_binary_arithmetic_with_v<
-              T, decltype(std::declval<const U&>() * 1)> and
-          impl::has_binary_arithmetic_with_v<
-              T, decltype(std::declval<const U&>() / 1)> and
-          // T <-> {T <-> U}
-          impl::has_binary_arithmetic_with_v<
-              T,
-              decltype(std::declval<const T&>() + std::declval<const U&>())> and
-          impl::has_binary_arithmetic_with_v<
-              T,
-              decltype(std::declval<const T&>() - std::declval<const U&>())> and
-          impl::has_binary_arithmetic_with_v<
-              T,
-              decltype(std::declval<const U&>() + std::declval<const T&>())> and
-          impl::has_binary_arithmetic_with_v<
-              T,
-              decltype(std::declval<const U&>() - std::declval<const T&>())> and
-          // U <-> {T}
-          impl::has_binary_arithmetic_with_v<U, T> and
-          impl::has_binary_arithmetic_with_v<
-              U,
-              decltype(std::declval<const T&>() + std::declval<const T&>())> and
-          impl::has_binary_arithmetic_with_v<
-              U,
-              decltype(std::declval<const T&>() - std::declval<const T&>())> and
-          impl::has_binary_arithmetic_with_v<
-              U, decltype(+std::declval<const T&>())> and
-          impl::has_binary_arithmetic_with_v<
-              U, decltype(-std::declval<const T&>())> and
-          impl::has_binary_arithmetic_with_v<
-              U, decltype(1 * std::declval<const T&>())> and
-          impl::has_binary_arithmetic_with_v<
-              U, decltype(std::declval<const T&>() * 1)> and
-          impl::has_binary_arithmetic_with_v<
-              U, decltype(std::declval<const T&>() / 1)> and
-          // U <-> {T <-> U}
-          impl::has_binary_arithmetic_with_v<
-              U,
-              decltype(std::declval<const T&>() + std::declval<const U&>())> and
-          impl::has_binary_arithmetic_with_v<
-              U,
-              decltype(std::declval<const T&>() - std::declval<const U&>())> and
-          impl::has_binary_arithmetic_with_v<
-              U,
-              decltype(std::declval<const U&>() + std::declval<const T&>())> and
-          impl::has_binary_arithmetic_with_v<
-              U,
-              decltype(std::declval<const U&>() - std::declval<const T&>())>> {
+struct is_arithmetic_operable_with :
+    std::bool_constant<
+        is_general_arithmetic_v<T> and is_general_arithmetic_v<U> and
+        // T <-> {U}
+        impl::has_binary_arithmetic_with_v<T, U> and
+        impl::has_binary_arithmetic_with_v<
+            T,
+            decltype(std::declval<const U&>() + std::declval<const U&>())> and
+        impl::has_binary_arithmetic_with_v<
+            T,
+            decltype(std::declval<const U&>() - std::declval<const U&>())> and
+        impl::has_binary_arithmetic_with_v<
+            U, decltype(+std::declval<const U&>())> and
+        impl::has_binary_arithmetic_with_v<
+            U, decltype(-std::declval<const U&>())> and
+        impl::has_binary_arithmetic_with_v<
+            T, decltype(1 * std::declval<const U&>())> and
+        impl::has_binary_arithmetic_with_v<
+            T, decltype(std::declval<const U&>() * 1)> and
+        impl::has_binary_arithmetic_with_v<
+            T, decltype(std::declval<const U&>() / 1)> and
+        // T <-> {T <-> U}
+        impl::has_binary_arithmetic_with_v<
+            T,
+            decltype(std::declval<const T&>() + std::declval<const U&>())> and
+        impl::has_binary_arithmetic_with_v<
+            T,
+            decltype(std::declval<const T&>() - std::declval<const U&>())> and
+        impl::has_binary_arithmetic_with_v<
+            T,
+            decltype(std::declval<const U&>() + std::declval<const T&>())> and
+        impl::has_binary_arithmetic_with_v<
+            T,
+            decltype(std::declval<const U&>() - std::declval<const T&>())> and
+        // U <-> {T}
+        impl::has_binary_arithmetic_with_v<U, T> and
+        impl::has_binary_arithmetic_with_v<
+            U,
+            decltype(std::declval<const T&>() + std::declval<const T&>())> and
+        impl::has_binary_arithmetic_with_v<
+            U,
+            decltype(std::declval<const T&>() - std::declval<const T&>())> and
+        impl::has_binary_arithmetic_with_v<
+            U, decltype(+std::declval<const T&>())> and
+        impl::has_binary_arithmetic_with_v<
+            U, decltype(-std::declval<const T&>())> and
+        impl::has_binary_arithmetic_with_v<
+            U, decltype(1 * std::declval<const T&>())> and
+        impl::has_binary_arithmetic_with_v<
+            U, decltype(std::declval<const T&>() * 1)> and
+        impl::has_binary_arithmetic_with_v<
+            U, decltype(std::declval<const T&>() / 1)> and
+        // U <-> {T <-> U}
+        impl::has_binary_arithmetic_with_v<
+            U,
+            decltype(std::declval<const T&>() + std::declval<const U&>())> and
+        impl::has_binary_arithmetic_with_v<
+            U,
+            decltype(std::declval<const T&>() - std::declval<const U&>())> and
+        impl::has_binary_arithmetic_with_v<
+            U,
+            decltype(std::declval<const U&>() + std::declval<const T&>())> and
+        impl::has_binary_arithmetic_with_v<
+            U, decltype(std::declval<const U&>() - std::declval<const T&>())>> {
 };
 
 template<typename T, typename U>
@@ -3516,10 +3515,10 @@ inline constexpr bool is_bounded_array_v{is_bounded_array<T>::value};
 namespace muc {
 
 template<typename T>
-struct is_scoped_enum
-    : std::bool_constant<
-          std::is_enum_v<T> and
-          not std::is_convertible_v<T, std::underlying_type_t<T>>> {};
+struct is_scoped_enum :
+    std::bool_constant<
+        std::is_enum_v<T> and
+        not std::is_convertible_v<T, std::underlying_type_t<T>>> {};
 
 template<typename T>
 inline constexpr bool is_scoped_enum_v{is_scoped_enum<T>::value};

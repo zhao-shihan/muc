@@ -11,12 +11,12 @@
 namespace muc {
 
 template<typename T, typename Allocator = typename std::allocator<T>>
-class shared_ptr_vector
-    : public impl::ptr_vector_base<
-          shared_ptr_vector<T, Allocator>,
-          std::vector<std::shared_ptr<T>,
-                      typename std::allocator_traits<Allocator>::
-                          template rebind_alloc<std::shared_ptr<T>>>> {
+class shared_ptr_vector :
+    public impl::ptr_vector_base<
+        shared_ptr_vector<T, Allocator>,
+        std::vector<std::shared_ptr<T>,
+                    typename std::allocator_traits<Allocator>::
+                        template rebind_alloc<std::shared_ptr<T>>>> {
     static_assert(std::is_same_v<typename Allocator::value_type, T>,
                   "muc::shared_ptr_vector must have the same value_type as its "
                   "allocator");

@@ -23,8 +23,8 @@ struct std_tuple_concat<std::tuple<Ts...>> {
 };
 
 template<typename... Ts, typename... Us, typename... Vs>
-struct std_tuple_concat<std::tuple<Ts...>, std::tuple<Us...>, Vs...>
-    : std_tuple_concat<std::tuple<Ts..., Us...>, Vs...> {};
+struct std_tuple_concat<std::tuple<Ts...>, std::tuple<Us...>, Vs...> :
+    std_tuple_concat<std::tuple<Ts..., Us...>, Vs...> {};
 
 template<tuple_like... Ts>
 using std_tuple_concat_t = typename std_tuple_concat<Ts...>::type;

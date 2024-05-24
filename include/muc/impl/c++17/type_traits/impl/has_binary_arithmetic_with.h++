@@ -39,8 +39,8 @@ struct has_binary_arithmetic_with<
         // T x= X
         decltype(std::declval<T&>() += std::declval<const U&>()),
         decltype(std::declval<T&>() -= std::declval<const U&>()),
-        decltype(std::declval<T&>() *= 1), decltype(std::declval<T&>() /= 1)>>
-    : std::true_type {};
+        decltype(std::declval<T&>() *= 1), decltype(std::declval<T&>() /= 1)>> :
+    std::true_type {};
 
 template<typename T, typename U>
 inline constexpr bool has_binary_arithmetic_with_v{

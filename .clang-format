@@ -29,7 +29,7 @@ BreakBeforeBraces: Attach
 BreakBeforeConceptDeclarations: true
 BreakBeforeTernaryOperators: false
 BreakConstructorInitializers: AfterColon
-BreakInheritanceList: AfterComma
+BreakInheritanceList: AfterColon
 BreakStringLiterals: true
 ColumnLimit: 80
 CompactNamespaces: false
