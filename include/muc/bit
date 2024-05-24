@@ -3,12 +3,12 @@
 #define MUC_BIT_35fd64e5dd5518762ebc391025fd06efd3f82687e245b5830b55c4a3ab96d768
 
 #if __cplusplus >= 201703L
-#include "muc/impl/c++17/bit/bit_cast.h++"
-#include "muc/impl/c++17/bit/bit_size.h++"
-#include "muc/impl/c++17/bit/byteswap.h++"
-#include "muc/impl/c++17/bit/has_single_bit.h++"
-#include "muc/impl/c++17/bit/rotl.h++"
-#include "muc/impl/c++17/bit/rotr.h++"
+#include "muc/detail/c++17/bit/bit_cast.h++"
+#include "muc/detail/c++17/bit/bit_size.h++"
+#include "muc/detail/c++17/bit/byteswap.h++"
+#include "muc/detail/c++17/bit/has_single_bit.h++"
+#include "muc/detail/c++17/bit/rotl.h++"
+#include "muc/detail/c++17/bit/rotr.h++"
 #endif
 
 #endif

@@ -3,7 +3,7 @@
 #define MUC_CETA_STRING_35fd64e5dd5518762ebc391025fd06efd3f82687e245b5830b55c4a3ab96d768
 
 #if __cplusplus >= 202002L
-#include "muc/impl/c++20/ceta_string.h++"
+#include "muc/detail/c++20/ceta_string.h++"
 #endif
 
 #endif
