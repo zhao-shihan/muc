@@ -54,11 +54,15 @@ auto test_ptr_vector() {
         PtrVector<std::pmr::string> v;
         v = {"zoltraak", "char", "abandon", "cat", "note", "bell"};
         print_vector(v);
-        std::sort(v.pbegin(), v.pend(), [](auto&& a, auto&& b) { return *a < *b; });
+        std::sort(v.pbegin(), v.pend(), [](auto&& a, auto&& b) {
+            return *a < *b;
+        });
         print_vector(v);
         std::shuffle(v.pbegin(), v.pend(), std::minstd_rand{});
         print_vector(v);
-        std::stable_sort(v.pbegin(), v.pend(), [](auto&& a, auto&& b) { return *a < *b; });
+        std::stable_sort(v.pbegin(), v.pend(), [](auto&& a, auto&& b) {
+            return *a < *b;
+        });
         print_vector(v);
     }
     std::cout << '\n';
@@ -78,11 +82,15 @@ auto test_ptr_vector() {
         PtrVector<std::pmr::string> v;
         v = {"zoltraak", "char", "abandon", "cat", "note", "bell"};
         print_vector(v);
-        std::sort(v.prbegin(), v.prend(), [](auto&& a, auto&& b) { return *a < *b; });
+        std::sort(v.prbegin(), v.prend(), [](auto&& a, auto&& b) {
+            return *a < *b;
+        });
         print_vector(v);
         std::shuffle(v.prbegin(), v.prend(), std::minstd_rand{});
         print_vector(v);
-        std::stable_sort(v.prbegin(), v.prend(), [](auto&& a, auto&& b) { return *a < *b; });
+        std::stable_sort(v.prbegin(), v.prend(), [](auto&& a, auto&& b) {
+            return *a < *b;
+        });
         print_vector(v);
     }
     std::cout << '\n';
@@ -104,6 +112,14 @@ auto test_ptr_vector() {
         print_address(u);
         print_vector(v);
         print_address(v);
+    }
+    std::cout << '\n';
+    {
+        PtrVector<std::pmr::string> v;
+        v = {"zoltraak", "char", "abandon", "cat", "note", "bell"};
+        print_vector(v);
+        v.erase(v.begin(), v.begin() + 2);
+        print_vector(v);
     }
     std::cout << '\n';
 }
