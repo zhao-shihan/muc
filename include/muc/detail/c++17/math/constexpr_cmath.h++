@@ -8,11 +8,11 @@
 #if __cplusplus >= 202002L // >= C++20
 #include <version>
 #ifdef __cpp_lib_constexpr_cmath // >= C++23
-#define MUC_CPP_LIB_HAS_CONSTEXPR_CMATH
+#define MUC_CPP_LIB_CONSTEXPR_CMATH
 #endif
 #endif
 
-#ifdef MUC_CPP_LIB_HAS_CONSTEXPR_CMATH
+#ifdef MUC_CPP_LIB_CONSTEXPR_CMATH
 #include <cmath>
 #endif
 
@@ -23,7 +23,7 @@ namespace muc {
 ///////////////////////////////////////////////////////////////////////////////
 
 constexpr auto div(int x, int y) -> std::div_t {
-#ifdef MUC_CPP_LIB_HAS_CONSTEXPR_CMATH
+#ifdef MUC_CPP_LIB_CONSTEXPR_CMATH
     return std::div(x, y);
 #else // backport
     std::div_t result{};
@@ -34,7 +34,7 @@ constexpr auto div(int x, int y) -> std::div_t {
 }
 
 constexpr auto div(long x, long y) -> std::ldiv_t {
-#ifdef MUC_CPP_LIB_HAS_CONSTEXPR_CMATH
+#ifdef MUC_CPP_LIB_CONSTEXPR_CMATH
     return std::div(x, y);
 #else // backport
     std::ldiv_t result{};
@@ -45,7 +45,7 @@ constexpr auto div(long x, long y) -> std::ldiv_t {
 }
 
 constexpr auto div(long long x, long long y) -> std::lldiv_t {
-#ifdef MUC_CPP_LIB_HAS_CONSTEXPR_CMATH
+#ifdef MUC_CPP_LIB_CONSTEXPR_CMATH
     return std::div(x, y);
 #else // backport
     std::lldiv_t result{};
@@ -56,7 +56,7 @@ constexpr auto div(long long x, long long y) -> std::lldiv_t {
 }
 
 constexpr auto ldiv(long x, long y) -> std::ldiv_t {
-#ifdef MUC_CPP_LIB_HAS_CONSTEXPR_CMATH
+#ifdef MUC_CPP_LIB_CONSTEXPR_CMATH
     return std::ldiv(x, y);
 #else // backport
     return muc::div(x, y);
@@ -64,7 +64,7 @@ constexpr auto ldiv(long x, long y) -> std::ldiv_t {
 }
 
 constexpr auto lldiv(long long x, long long y) -> std::lldiv_t {
-#ifdef MUC_CPP_LIB_HAS_CONSTEXPR_CMATH
+#ifdef MUC_CPP_LIB_CONSTEXPR_CMATH
     return std::lldiv(x, y);
 #else // backport
     return muc::div(x, y);
@@ -72,7 +72,7 @@ constexpr auto lldiv(long long x, long long y) -> std::lldiv_t {
 }
 
 constexpr auto imaxdiv(std::intmax_t x, std::intmax_t y) -> std::imaxdiv_t {
-#ifdef MUC_CPP_LIB_HAS_CONSTEXPR_CMATH
+#ifdef MUC_CPP_LIB_CONSTEXPR_CMATH
     return std::imaxdiv(x, y);
 #else // backport
     std::imaxdiv_t result{};
@@ -87,7 +87,7 @@ template<typename IntMax,
                               (sizeof(IntMax) > sizeof(long long)),
                           bool> = true>
 constexpr auto div(IntMax x, IntMax y) -> std::imaxdiv_t {
-#ifdef MUC_CPP_LIB_HAS_CONSTEXPR_CMATH
+#ifdef MUC_CPP_LIB_CONSTEXPR_CMATH
     return std::div(x, y);
 #else // backport
     return muc::imaxdiv(x, y);
@@ -100,7 +100,7 @@ constexpr auto div(IntMax x, IntMax y) -> std::imaxdiv_t {
 
 template<typename T, std::enable_if_t<std::is_floating_point_v<T>, bool> = true>
 constexpr auto abs(T x) -> T {
-#ifdef MUC_CPP_LIB_HAS_CONSTEXPR_CMATH
+#ifdef MUC_CPP_LIB_CONSTEXPR_CMATH
     return std::abs(x);
 #else // backport
 #if defined __clang__ or defined __GNUC__
@@ -119,7 +119,7 @@ constexpr auto abs(T x) -> T {
 
 template<typename T, std::enable_if_t<std::is_floating_point_v<T>, bool> = true>
 constexpr auto fabs(T x) -> T {
-#ifdef MUC_CPP_LIB_HAS_CONSTEXPR_CMATH
+#ifdef MUC_CPP_LIB_CONSTEXPR_CMATH
     return std::fabs(x);
 #else // backport
     return muc::abs(x);
@@ -127,7 +127,7 @@ constexpr auto fabs(T x) -> T {
 }
 
 constexpr auto fabsf(float x) -> float {
-#ifdef MUC_CPP_LIB_HAS_CONSTEXPR_CMATH
+#ifdef MUC_CPP_LIB_CONSTEXPR_CMATH
     return std::fabsf(x);
 #else // backport
     return muc::abs(x);
@@ -135,7 +135,7 @@ constexpr auto fabsf(float x) -> float {
 }
 
 constexpr auto fabsl(long double x) -> long double {
-#ifdef MUC_CPP_LIB_HAS_CONSTEXPR_CMATH
+#ifdef MUC_CPP_LIB_CONSTEXPR_CMATH
     return std::fabsl(x);
 #else // backport
     return muc::abs(x);
@@ -144,7 +144,7 @@ constexpr auto fabsl(long double x) -> long double {
 
 template<typename T, std::enable_if_t<std::is_integral_v<T>, bool> = true>
 constexpr auto fabs(T n) -> double {
-#ifdef MUC_CPP_LIB_HAS_CONSTEXPR_CMATH
+#ifdef MUC_CPP_LIB_CONSTEXPR_CMATH
     return std::fabs(n);
 #else // backport
     return muc::abs(static_cast<double>(n));
@@ -156,7 +156,7 @@ constexpr auto fabs(T n) -> double {
 ///////////////////////////////////////////////////////////////////////////////
 
 constexpr auto abs(int n) -> int {
-#ifdef MUC_CPP_LIB_HAS_CONSTEXPR_CMATH
+#ifdef MUC_CPP_LIB_CONSTEXPR_CMATH
     return std::abs(n);
 #else // backport
     return n >= 0 ? n : -n;
@@ -164,7 +164,7 @@ constexpr auto abs(int n) -> int {
 }
 
 constexpr auto abs(long n) -> long {
-#ifdef MUC_CPP_LIB_HAS_CONSTEXPR_CMATH
+#ifdef MUC_CPP_LIB_CONSTEXPR_CMATH
     return std::abs(n);
 #else // backport
     return n >= 0 ? n : -n;
@@ -172,7 +172,7 @@ constexpr auto abs(long n) -> long {
 }
 
 constexpr auto abs(long long n) -> long long {
-#ifdef MUC_CPP_LIB_HAS_CONSTEXPR_CMATH
+#ifdef MUC_CPP_LIB_CONSTEXPR_CMATH
     return std::abs(n);
 #else // backport
     return n >= 0 ? n : -n;
@@ -180,7 +180,7 @@ constexpr auto abs(long long n) -> long long {
 }
 
 constexpr auto labs(long n) -> long {
-#ifdef MUC_CPP_LIB_HAS_CONSTEXPR_CMATH
+#ifdef MUC_CPP_LIB_CONSTEXPR_CMATH
     return std::labs(n);
 #else // backport
     return muc::abs(n);
@@ -188,7 +188,7 @@ constexpr auto labs(long n) -> long {
 }
 
 constexpr auto llabs(long long n) -> long long {
-#ifdef MUC_CPP_LIB_HAS_CONSTEXPR_CMATH
+#ifdef MUC_CPP_LIB_CONSTEXPR_CMATH
     return std::llabs(n);
 #else // backport
     return muc::abs(n);
@@ -196,7 +196,7 @@ constexpr auto llabs(long long n) -> long long {
 }
 
 constexpr auto imaxabs(std::intmax_t n) -> std::intmax_t {
-#ifdef MUC_CPP_LIB_HAS_CONSTEXPR_CMATH
+#ifdef MUC_CPP_LIB_CONSTEXPR_CMATH
     return std::imaxabs(n);
 #else // backport
     return n >= 0 ? n : -n;
@@ -208,7 +208,7 @@ template<typename IntMax,
                               (sizeof(IntMax) > sizeof(long long)),
                           bool> = true>
 constexpr auto abs(IntMax n) -> std::intmax_t {
-#ifdef MUC_CPP_LIB_HAS_CONSTEXPR_CMATH
+#ifdef MUC_CPP_LIB_CONSTEXPR_CMATH
     return std::abs(n);
 #else // backport
     return muc::imaxabs(n);
@@ -221,7 +221,7 @@ constexpr auto abs(IntMax n) -> std::intmax_t {
 
 template<typename T, std::enable_if_t<std::is_floating_point_v<T>, bool> = true>
 constexpr auto isnan(T x) -> bool {
-#ifdef MUC_CPP_LIB_HAS_CONSTEXPR_CMATH
+#ifdef MUC_CPP_LIB_CONSTEXPR_CMATH
     return std::isnan(x);
 #else // backport
     return x != x;
@@ -230,7 +230,7 @@ constexpr auto isnan(T x) -> bool {
 
 template<typename T, std::enable_if_t<std::is_integral_v<T>, bool> = true>
 constexpr auto isnan(T n) -> bool {
-#ifdef MUC_CPP_LIB_HAS_CONSTEXPR_CMATH
+#ifdef MUC_CPP_LIB_CONSTEXPR_CMATH
     return std::isnan(n);
 #else // backport
     if constexpr (std::numeric_limits<double>::is_iec559) {
@@ -243,4 +243,4 @@ constexpr auto isnan(T n) -> bool {
 
 } // namespace muc
 
-#undef MUC_CPP_LIB_HAS_CONSTEXPR_CMATH
+#undef MUC_CPP_LIB_CONSTEXPR_CMATH
