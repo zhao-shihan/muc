@@ -1,11 +1,9 @@
 #pragma once
 
-#if false
+#include "muc/detail/c++17/memory/to_address.h++"
 
-#include <algorithm>
 #include <cassert>
 #include <cstddef>
-#include <initializer_list>
 #include <iterator>
 #include <memory>
 #include <sstream>
@@ -15,43 +13,42 @@
 
 namespace muc {
 
-template<typename RawPtrContainer>
-class ptr_vector_view {
+template<typename T,
+         typename =
+             std::void_t<decltype(*std::declval<typename T::value_type>())>>
+class ptr_span {
+private:
+    using raw_ptr_vector = T;
+
 public:
-    using value_type = std::conditional_t<
-        std::is_const_v<RawPtrContainer>,
-        const typename std::pointer_traits<
-            typename RawPtrContainer::value_type>::element_type,
-        typename std::pointer_traits<
-            typename RawPtrContainer::value_type>::element_type>;
-    using size_type = typename RawPtrContainer::size_type;
-    using difference_type = typename RawPtrContainer::difference_type;
+    using value_type = typename std::pointer_traits<
+        typename raw_ptr_vector::value_type>::element_type;
+    using size_type = typename raw_ptr_vector::size_type;
+    using difference_type = typename raw_ptr_vector::difference_type;
     using reference = value_type&;
     using const_reference = const value_type&;
-    using pointer = typename std::pointer_traits<
-        typename RawPtrContainer::value_type>::template rebind<value_type>;
-    using const_pointer = typename std::pointer_traits<
-        pointer>::template rebind<const value_type>;
+    using pointer = value_type*;             // TODO: Do we need traits?
+    using const_pointer = const value_type*; // TODO: Do we need traits?
 
 private:
     template<typename RawIterator>
     class basic_iterator {
-        friend class ptr_vector_view;
+        friend class ptr_span;
 
     public:
-        using difference_type = typename ptr_vector_view::difference_type;
+        using difference_type = typename ptr_span::difference_type;
         using value_type = std::conditional_t<
             std::is_const_v<
                 typename std::iterator_traits<RawIterator>::value_type>,
-            const typename ptr_vector_view::value_type, typename ptr_vector_view::value_type>;
+            const typename ptr_span::value_type, typename ptr_span::value_type>;
         using pointer = std::conditional_t<
             std::is_const_v<
                 typename std::iterator_traits<RawIterator>::value_type>,
-            typename ptr_vector_view::const_pointer, typename ptr_vector_view::pointer>;
+            typename ptr_span::const_pointer, typename ptr_span::pointer>;
         using reference = std::conditional_t<
             std::is_const_v<
                 typename std::iterator_traits<RawIterator>::value_type>,
-            typename ptr_vector_view::const_reference, typename ptr_vector_view::reference>;
+            typename ptr_span::const_reference, typename ptr_span::reference>;
         using iterator_category = std::random_access_iterator_tag;
 
     public:
@@ -63,8 +60,8 @@ private:
             m_iter{iter} {}
 
     public:
-        operator basic_iterator<typename RawPtrContainer::const_iterator>() {
-            return basic_iterator<typename RawPtrContainer::const_iterator>{
+        operator basic_iterator<typename raw_ptr_vector::const_iterator>() {
+            return basic_iterator<typename raw_ptr_vector::const_iterator>{
                 m_iter};
         }
 
@@ -73,7 +70,7 @@ private:
         }
 
         auto operator->() const -> pointer {
-            return *m_iter;
+            return muc::to_address(*m_iter);
         }
 
         auto operator[](std::size_t index) const -> reference {
@@ -157,57 +154,20 @@ private:
     };
 
 public:
-    using iterator = basic_iterator<typename RawPtrContainer::iterator>;
+    using iterator = basic_iterator<typename raw_ptr_vector::iterator>;
     using const_iterator =
-        basic_iterator<typename RawPtrContainer::const_iterator>;
+        basic_iterator<typename raw_ptr_vector::const_iterator>;
     using reverse_iterator = std::reverse_iterator<iterator>;
     using const_reverse_iterator = std::reverse_iterator<const_iterator>;
-// 2024-05-28 here. Const view or non-const view? Const view seems not useful.
-public:
-    ptr_vector_view(const RawPtrContainer& ptr_vec) :
-        m_ptr_vector{&ptr_vec} {}
-
-    ptr_vector_view(const ptr_vector_view&) = default;
-
-    ptr_vector_view(ptr_vector_view&&) = default;
 
 public:
-    //
-    // Assignment
-    //
+    ptr_span() noexcept :
+        m_ptr_vector{} {}
 
-    auto operator=(const ptr_vector_view& other) -> ptr_vector_view& {
-        *m_ptr_vector = *other.m_ptr_vector;
-        return *this;
-    }
+    ptr_span(T& ptr_vector) noexcept :
+        m_ptr_vector{&ptr_vector} {}
 
-    auto operator=(ptr_vector_view&& other) noexcept -> ptr_vector_view& = default;
-
-    auto operator=(std::initializer_list<value_type> ilist) -> ptr_vector_view& {
-        m_ptr_vector->clear();
-        insert(cend(), std::move(ilist));
-        return *this;
-    }
-
-    auto assign(size_type count, const value_type& value) -> void {
-        m_ptr_vector->clear();
-        insert(cend(), count, value);
-    }
-
-    template<typename InputIt>
-    auto assign(InputIt first, InputIt last) -> void {
-        m_ptr_vector->clear();
-        insert(cend(), first, last);
-    }
-
-    auto assign(std::initializer_list<value_type> ilist) -> void {
-        m_ptr_vector->clear();
-        insert(cend(), std::move(ilist));
-    }
-
-    auto get_allocator() const -> auto {
-        return m_ptr_vector->get_allocator();
-    }
+    ptr_span(T&& ptr_vector) = delete;
 
     //
     // Element access
@@ -225,12 +185,12 @@ public:
 
     auto operator[](size_type pos) -> reference {
         assert(pos < size());
-        return *(*m_ptr_vector)[pos];
+        return *m_ptr_vector[pos];
     }
 
     auto operator[](size_type pos) const -> const_reference {
         assert(pos < size());
-        return *(*m_ptr_vector)[pos];
+        return *m_ptr_vector[pos];
     }
 
     auto front() -> reference {
@@ -253,11 +213,11 @@ public:
         return *m_ptr_vector->back();
     }
 
-    auto ptr_vector() -> RawPtrContainer& {
+    auto underlying() -> raw_ptr_vector& {
         return *m_ptr_vector;
     }
 
-    auto ptr_vector() const -> const RawPtrContainer& {
+    auto underlying() const -> const raw_ptr_vector& {
         return *m_ptr_vector;
     }
 
@@ -301,55 +261,55 @@ public:
     // Pointer vector iterator
     //
 
-    auto pbegin() noexcept -> typename RawPtrContainer::iterator {
+    auto pbegin() noexcept -> typename raw_ptr_vector::iterator {
         return m_ptr_vector->begin();
     }
 
-    auto pbegin() const noexcept -> typename RawPtrContainer::const_iterator {
+    auto pbegin() const noexcept -> typename raw_ptr_vector::const_iterator {
         return m_ptr_vector->begin();
     }
 
-    auto pcbegin() const noexcept -> typename RawPtrContainer::const_iterator {
+    auto pcbegin() const noexcept -> typename raw_ptr_vector::const_iterator {
         return m_ptr_vector->cbegin();
     }
 
-    auto pend() noexcept -> typename RawPtrContainer::iterator {
+    auto pend() noexcept -> typename raw_ptr_vector::iterator {
         return m_ptr_vector->end();
     }
 
-    auto pend() const noexcept -> typename RawPtrContainer::const_iterator {
+    auto pend() const noexcept -> typename raw_ptr_vector::const_iterator {
         return m_ptr_vector->end();
     }
 
-    auto pcend() const noexcept -> typename RawPtrContainer::const_iterator {
+    auto pcend() const noexcept -> typename raw_ptr_vector::const_iterator {
         return m_ptr_vector->cend();
     }
 
-    auto prbegin() noexcept -> typename RawPtrContainer::reverse_iterator {
+    auto prbegin() noexcept -> typename raw_ptr_vector::reverse_iterator {
         return m_ptr_vector->rbegin();
     }
 
     auto prbegin() const noexcept ->
-        typename RawPtrContainer::const_reverse_iterator {
+        typename raw_ptr_vector::const_reverse_iterator {
         return m_ptr_vector->rbegin();
     }
 
     auto pcrbegin() const noexcept ->
-        typename RawPtrContainer::const_reverse_iterator {
+        typename raw_ptr_vector::const_reverse_iterator {
         return m_ptr_vector->crbegin();
     }
 
-    auto prend() noexcept -> typename RawPtrContainer::reverse_iterator {
+    auto prend() noexcept -> typename raw_ptr_vector::reverse_iterator {
         return m_ptr_vector->rend();
     }
 
     auto prend() const noexcept ->
-        typename RawPtrContainer::const_reverse_iterator {
+        typename raw_ptr_vector::const_reverse_iterator {
         return m_ptr_vector->rend();
     }
 
     auto pcrend() const noexcept ->
-        typename RawPtrContainer::const_reverse_iterator {
+        typename raw_ptr_vector::const_reverse_iterator {
         return m_ptr_vector->crend();
     }
 
@@ -374,7 +334,7 @@ public:
     }
 
     class vrange_type {
-        friend auto ptr_vector_view::vrange() const noexcept -> vrange_type;
+        friend auto ptr_span::vrange() const noexcept -> vrange_type;
 
     public:
         auto begin() const noexcept -> iterator {
@@ -394,7 +354,7 @@ public:
         }
 
     private:
-        RawPtrContainer* m_ptr_vector;
+        raw_ptr_vector* m_ptr_vector;
     };
 
     auto vrange() const noexcept -> vrange_type {
@@ -417,8 +377,8 @@ public:
         return m_ptr_vector->max_size();
     }
 
-    auto reserve() -> void {
-        return m_ptr_vector->reserve();
+    auto reserve(size_type new_capacity) -> void {
+        return m_ptr_vector->reserve(new_capacity);
     }
 
     auto capacity() const noexcept -> size_type {
@@ -437,58 +397,6 @@ public:
         m_ptr_vector->clear();
     }
 
-    auto insert(const_iterator pos, const value_type& value) -> iterator {
-        return emplace(pos, value);
-    }
-
-    auto insert(const_iterator pos, value_type&& value) -> iterator {
-        return emplace(pos, std::move(value));
-    }
-
-    auto insert(const_iterator pos, size_type count,
-                const value_type& value) -> iterator {
-        const auto i_pos{pos - cbegin()};
-
-        m_ptr_vector.resize(size() + count);
-        const auto first{pbegin() + i_pos};
-        const auto last{first + count};
-
-        std::move_backward(first, last, pend());
-        std::generate(first, last, [&]() {
-            return allocate_ptr(value);
-        });
-
-        return iterator{first};
-    }
-
-    template<typename InputIt>
-    auto insert(const_iterator pos, InputIt first, InputIt last) -> iterator {
-        const auto i_pos{pos - cbegin()};
-        const auto count{std::distance(first, last)};
-
-        m_ptr_vector.resize(size() + count);
-        const auto dst_first{pbegin() + i_pos};
-        const auto dst_last{dst_first + count};
-
-        std::move_backward(dst_first, dst_last, pend());
-        std::generate(dst_first, dst_last, [&]() {
-            return allocate_ptr(*first++);
-        });
-
-        return iterator{dst_first};
-    }
-
-    auto insert(const_iterator pos,
-                std::initializer_list<value_type> ilist) -> iterator {
-        return insert(pos, ilist.begin(), ilist.end());
-    }
-
-    template<typename... Args>
-    auto emplace(const_iterator pos, Args&&... args) -> iterator {
-        return iterator{m_ptr_vector->emplace(
-            pos.m_iter, allocate_ptr(std::forward<Args>(args)...))};
-    }
-
     auto erase(const_iterator pos) -> iterator {
         return iterator{m_ptr_vector->erase(pos.m_iter)};
     }
@@ -497,95 +405,65 @@ public:
         return iterator{m_ptr_vector->erase(first.m_iter, last.m_iter)};
     }
 
-    auto push_back(const value_type& value) -> void {
-        emplace_back(value);
-    }
-
-    auto push_back(value_type&& value) -> void {
-        emplace_back(std::move(value));
-    }
-
-    template<typename... Args>
-    auto emplace_back(Args&&... args) -> reference {
-        return *emplace_back(allocate_ptr(std::forward<Args>(args)...));
-    }
-
     auto pop_back() -> void {
         m_ptr_vector->pop_back();
     }
 
-    auto resize(size_type count) -> void {
-        if (size() >= count) {
-            erase(cbegin() + count, cend());
-        } else {
-            const auto first{
-                m_ptr_vector->insert(m_ptr_vector->cend(), count - size(), {})};
-            const auto last{m_ptr_vector->end()};
-            for (auto i{first}; i != last; ++i) {
-                *i = allocate_ptr();
-            }
-        }
-    }
-
-    auto resize(size_type count, const value_type& value) -> void {
-        if (size() >= count) {
-            erase(cbegin() + count, cend());
-        } else {
-            const auto first{
-                m_ptr_vector->insert(m_ptr_vector->cend(), count - size(), {})};
-            const auto last{m_ptr_vector->end()};
-            for (auto i{first}; i != last; ++i) {
-                *i = allocate_ptr(value);
-            }
-        }
-    }
-
-    auto swap(ptr_vector_view& other) noexcept -> void {
-        m_ptr_vector->swap(other.m_ptr_vector);
+    auto swap(ptr_span& other) noexcept -> void {
+        std::swap(m_ptr_vector, other.m_ptr_vector);
     }
 
     //
     // Compare
     //
 
-    auto operator==(const ptr_vector_view& other) -> bool {
-        return m_ptr_vector == other.m_ptr_vector;
+    auto operator==(const ptr_span& other) const -> bool {
+        return *m_ptr_vector == *other.m_ptr_vector;
+    }
+#if __cplusplus >= 202002L
+    auto operator<=>(const ptr_span& other) const -> auto {
+        return *m_ptr_vector <=> *other.m_ptr_vector;
+    }
+#else
+    auto operator!=(const ptr_span& other) const -> bool {
+        return *m_ptr_vector != *other.m_ptr_vector;
     }
 
-    auto operator!=(const ptr_vector_view& other) -> bool {
-        return m_ptr_vector != other.m_ptr_vector;
+    auto operator<(const ptr_span& other) const -> bool {
+        return *m_ptr_vector < *other.m_ptr_vector;
     }
 
-    auto operator<(const ptr_vector_view& other) -> bool {
-        return m_ptr_vector < other.m_ptr_vector;
+    auto operator<=(const ptr_span& other) const -> bool {
+        return *m_ptr_vector <= *other.m_ptr_vector;
     }
 
-    auto operator<=(const ptr_vector_view& other) -> bool {
-        return m_ptr_vector <= other.m_ptr_vector;
+    auto operator>(const ptr_span& other) const -> bool {
+        return *m_ptr_vector > *other.m_ptr_vector;
     }
 
-    auto operator>(const ptr_vector_view& other) -> bool {
-        return m_ptr_vector > other.m_ptr_vector;
+    auto operator>=(const ptr_span& other) const -> bool {
+        return *m_ptr_vector >= *other.m_ptr_vector;
     }
+#endif
 
-    auto operator>=(const ptr_vector_view& other) -> bool {
-        return m_ptr_vector >= other.m_ptr_vector;
-    }
-
-protected:
+private:
     auto range_check(size_type pos) const -> void {
         if (pos >= size()) {
             std::stringstream ss;
-            ss << "muc::impl::ptr_vector_view::range_check: pos >= size() " << '['
-               << pos << " >= " << size() << ']';
+            ss << "muc::ptr_span::range_check: pos >= size() [" << pos
+               << " >= " << size() << ']';
             throw std::out_of_range{ss.str()};
         }
     }
 
-protected:
-    RawPtrContainer* m_ptr_vector;
+private:
+    raw_ptr_vector* m_ptr_vector;
 };
 
-} // namespace muc
+template<typename T>
+auto swap(ptr_span<T>& lhs,
+          ptr_span<T>& rhs) noexcept(noexcept(lhs.swap(rhs))) -> void {
+    lhs.swap(rhs);
+}
 
-#endif
+} // namespace muc
