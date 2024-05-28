@@ -1,5 +1,7 @@
 #pragma once
 
+#if false
+
 #include <algorithm>
 #include <cassert>
 #include <cstddef>
@@ -14,7 +16,7 @@
 namespace muc {
 
 template<typename RawPtrContainer>
-class ptr_span {
+class ptr_vector_view {
 public:
     using value_type = std::conditional_t<
         std::is_const_v<RawPtrContainer>,
@@ -34,31 +36,33 @@ public:
 private:
     template<typename RawIterator>
     class basic_iterator {
-        friend class ptr_span;
+        friend class ptr_vector_view;
 
     public:
-        using difference_type = typename ptr_span::difference_type;
+        using difference_type = typename ptr_vector_view::difference_type;
         using value_type = std::conditional_t<
             std::is_const_v<
                 typename std::iterator_traits<RawIterator>::value_type>,
-            const typename ptr_span::value_type, typename ptr_span::value_type>;
+            const typename ptr_vector_view::value_type, typename ptr_vector_view::value_type>;
         using pointer = std::conditional_t<
             std::is_const_v<
                 typename std::iterator_traits<RawIterator>::value_type>,
-            typename ptr_span::const_pointer, typename ptr_span::pointer>;
+            typename ptr_vector_view::const_pointer, typename ptr_vector_view::pointer>;
         using reference = std::conditional_t<
             std::is_const_v<
                 typename std::iterator_traits<RawIterator>::value_type>,
-            typename ptr_span::const_reference, typename ptr_span::reference>;
+            typename ptr_vector_view::const_reference, typename ptr_vector_view::reference>;
         using iterator_category = std::random_access_iterator_tag;
-// 2024-05-24 here
+
     public:
         basic_iterator() :
             m_iter{} {}
 
+    private:
         explicit basic_iterator(RawIterator iter) :
             m_iter{iter} {}
 
+    public:
         operator basic_iterator<typename RawPtrContainer::const_iterator>() {
             return basic_iterator<typename RawPtrContainer::const_iterator>{
                 m_iter};
@@ -152,40 +156,34 @@ private:
         RawIterator m_iter;
     };
 
-protected:
+public:
     using iterator = basic_iterator<typename RawPtrContainer::iterator>;
     using const_iterator =
         basic_iterator<typename RawPtrContainer::const_iterator>;
     using reverse_iterator = std::reverse_iterator<iterator>;
     using const_reverse_iterator = std::reverse_iterator<const_iterator>;
+// 2024-05-28 here. Const view or non-const view? Const view seems not useful.
+public:
+    ptr_vector_view(const RawPtrContainer& ptr_vec) :
+        m_ptr_vector{&ptr_vec} {}
 
-protected:
-    ptr_span(const RawPtrContainer& ptr_vec) :
-        m_ptr_vector{ptr_vec} {}
+    ptr_vector_view(const ptr_vector_view&) = default;
 
-    ptr_span(RawPtrContainer&& ptr_vec) :
-        m_ptr_vector{std::move(ptr_vec)} {}
-
-    template<typename... Args>
-    ptr_span(Args&&... args) :
-        m_ptr_vector{std::forward<Args>(args)...} {}
-
-    ptr_span(const ptr_span&) = default;
-
-    ptr_span(ptr_span&&) = default;
+    ptr_vector_view(ptr_vector_view&&) = default;
 
 public:
     //
     // Assignment
     //
 
-    auto operator=(const ptr_span& other) -> ptr_span& = default;
+    auto operator=(const ptr_vector_view& other) -> ptr_vector_view& {
+        *m_ptr_vector = *other.m_ptr_vector;
+        return *this;
+    }
 
-    auto operator=(ptr_span&& other) noexcept(
-        std::is_nothrow_move_constructible_v<RawPtrContainer>) -> ptr_span& =
-                                                                      default;
+    auto operator=(ptr_vector_view&& other) noexcept -> ptr_vector_view& = default;
 
-    auto operator=(std::initializer_list<value_type> ilist) -> ptr_span& {
+    auto operator=(std::initializer_list<value_type> ilist) -> ptr_vector_view& {
         m_ptr_vector->clear();
         insert(cend(), std::move(ilist));
         return *this;
@@ -207,8 +205,8 @@ public:
         insert(cend(), std::move(ilist));
     }
 
-    auto get_allocator() const -> allocator_type {
-        return allocator_type{m_ptr_vector->get_allocator()};
+    auto get_allocator() const -> auto {
+        return m_ptr_vector->get_allocator();
     }
 
     //
@@ -227,12 +225,12 @@ public:
 
     auto operator[](size_type pos) -> reference {
         assert(pos < size());
-        return *m_ptr_vector[pos];
+        return *(*m_ptr_vector)[pos];
     }
 
     auto operator[](size_type pos) const -> const_reference {
         assert(pos < size());
-        return *m_ptr_vector[pos];
+        return *(*m_ptr_vector)[pos];
     }
 
     auto front() -> reference {
@@ -256,11 +254,11 @@ public:
     }
 
     auto ptr_vector() -> RawPtrContainer& {
-        return m_ptr_vector;
+        return *m_ptr_vector;
     }
 
     auto ptr_vector() const -> const RawPtrContainer& {
-        return m_ptr_vector;
+        return *m_ptr_vector;
     }
 
     //
@@ -376,7 +374,7 @@ public:
     }
 
     class vrange_type {
-        friend auto ptr_span::vrange() const noexcept -> vrange_type;
+        friend auto ptr_vector_view::vrange() const noexcept -> vrange_type;
 
     public:
         auto begin() const noexcept -> iterator {
@@ -451,16 +449,16 @@ public:
                 const value_type& value) -> iterator {
         const auto i_pos{pos - cbegin()};
 
-        m_ptr_vector->resize(size() + count);
-        const auto first{vbegin() + i_pos};
+        m_ptr_vector.resize(size() + count);
+        const auto first{pbegin() + i_pos};
         const auto last{first + count};
 
-        std::move_backward(first.m_iter, last.m_iter, vend().m_iter);
-        std::generate(first.m_iter, last.m_iter, [&]() {
-            return allocate_ptr();
+        std::move_backward(first, last, pend());
+        std::generate(first, last, [&]() {
+            return allocate_ptr(value);
         });
 
-        return first;
+        return iterator{first};
     }
 
     template<typename InputIt>
@@ -468,28 +466,22 @@ public:
         const auto i_pos{pos - cbegin()};
         const auto count{std::distance(first, last)};
 
-        m_ptr_vector->resize(size() + count);
-        const auto dst_first{vbegin() + i_pos};
+        m_ptr_vector.resize(size() + count);
+        const auto dst_first{pbegin() + i_pos};
         const auto dst_last{dst_first + count};
 
-        std::move_backward(dst_first.m_iter, dst_last.m_iter, vend().m_iter);
-        std::generate(dst_first.m_iter, dst_last.m_iter, [&]() {
+        std::move_backward(dst_first, dst_last, pend());
+        std::generate(dst_first, dst_last, [&]() {
             return allocate_ptr(*first++);
         });
 
-        return dst_first;
+        return iterator{dst_first};
     }
 
     auto insert(const_iterator pos,
                 std::initializer_list<value_type> ilist) -> iterator {
         return insert(pos, ilist.begin(), ilist.end());
     }
-
-    // #if __cplusplus>=
-
-    // // TODO: insert_range
-
-    // #endif
 
     template<typename... Args>
     auto emplace(const_iterator pos, Args&&... args) -> iterator {
@@ -548,7 +540,7 @@ public:
         }
     }
 
-    auto swap(ptr_span& other) noexcept -> void {
+    auto swap(ptr_vector_view& other) noexcept -> void {
         m_ptr_vector->swap(other.m_ptr_vector);
     }
 
@@ -556,27 +548,27 @@ public:
     // Compare
     //
 
-    auto operator==(const ptr_span& other) -> bool {
+    auto operator==(const ptr_vector_view& other) -> bool {
         return m_ptr_vector == other.m_ptr_vector;
     }
 
-    auto operator!=(const ptr_span& other) -> bool {
+    auto operator!=(const ptr_vector_view& other) -> bool {
         return m_ptr_vector != other.m_ptr_vector;
     }
 
-    auto operator<(const ptr_span& other) -> bool {
+    auto operator<(const ptr_vector_view& other) -> bool {
         return m_ptr_vector < other.m_ptr_vector;
     }
 
-    auto operator<=(const ptr_span& other) -> bool {
+    auto operator<=(const ptr_vector_view& other) -> bool {
         return m_ptr_vector <= other.m_ptr_vector;
     }
 
-    auto operator>(const ptr_span& other) -> bool {
+    auto operator>(const ptr_vector_view& other) -> bool {
         return m_ptr_vector > other.m_ptr_vector;
     }
 
-    auto operator>=(const ptr_span& other) -> bool {
+    auto operator>=(const ptr_vector_view& other) -> bool {
         return m_ptr_vector >= other.m_ptr_vector;
     }
 
@@ -584,7 +576,7 @@ protected:
     auto range_check(size_type pos) const -> void {
         if (pos >= size()) {
             std::stringstream ss;
-            ss << "muc::impl::ptr_span::range_check: pos >= size() " << '['
+            ss << "muc::impl::ptr_vector_view::range_check: pos >= size() " << '['
                << pos << " >= " << size() << ']';
             throw std::out_of_range{ss.str()};
         }
@@ -595,3 +587,5 @@ protected:
 };
 
 } // namespace muc
+
+#endif
