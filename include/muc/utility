@@ -8,6 +8,7 @@
 
 #if __cplusplus >= 201703L
 #include "muc/detail/c++17/utility/to_signed.h++"
+#include "muc/detail/c++17/utility/to_underlying.h++"
 #include "muc/detail/c++17/utility/to_unsigned.h++"
 #endif
 
