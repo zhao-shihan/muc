@@ -83,9 +83,11 @@ private:
         basic_iterator() :
             m_iter{} {}
 
+    private:
         explicit basic_iterator(RawIterator iter) :
             m_iter{iter} {}
 
+    public:
         operator basic_iterator<typename raw_ptr_vector::const_iterator>() {
             return basic_iterator<typename raw_ptr_vector::const_iterator>{
                 m_iter};
@@ -480,15 +482,15 @@ public:
         const auto i_pos{pos - cbegin()};
 
         m_ptr_vector.resize(size() + count);
-        const auto first{vbegin() + i_pos};
+        const auto first{pbegin() + i_pos};
         const auto last{first + count};
 
-        std::move_backward(first.m_iter, last.m_iter, vend().m_iter);
-        std::generate(first.m_iter, last.m_iter, [&]() {
-            return allocate_ptr();
+        std::move_backward(first, last, pend());
+        std::generate(first, last, [&]() {
+            return allocate_ptr(value);
         });
 
-        return first;
+        return iterator{first};
     }
 
     template<typename InputIt>
@@ -497,15 +499,15 @@ public:
         const auto count{std::distance(first, last)};
 
         m_ptr_vector.resize(size() + count);
-        const auto dst_first{vbegin() + i_pos};
+        const auto dst_first{pbegin() + i_pos};
         const auto dst_last{dst_first + count};
 
-        std::move_backward(dst_first.m_iter, dst_last.m_iter, vend().m_iter);
-        std::generate(dst_first.m_iter, dst_last.m_iter, [&]() {
+        std::move_backward(dst_first, dst_last, pend());
+        std::generate(dst_first, dst_last, [&]() {
             return allocate_ptr(*first++);
         });
 
-        return dst_first;
+        return iterator{dst_first};
     }
 
     auto insert(const_iterator pos,
