@@ -4,8 +4,10 @@
 #include "muc/detail/c++17/ptr_vector/impl/ptr_vector_base.h++"
 
 #include <initializer_list>
+#include <iterator>
 #include <memory>
 #include <memory_resource>
+#include <type_traits>
 #include <utility>
 #include <vector>
 
@@ -19,11 +21,13 @@ class unique_ptr_vector :
             std::unique_ptr<T, allocator_delete<Allocator>>,
             typename std::allocator_traits<Allocator>::template rebind_alloc<
                 std::unique_ptr<T, allocator_delete<Allocator>>>>> {
+    static_assert(not std::is_reference_v<T>,
+                  "value type of muc::unique_ptr_vector cannot be a reference");
+    static_assert(not std::is_array_v<T>,
+                  "value type of muc::unique_ptr_vector cannot be an array");
     static_assert(std::is_same_v<typename Allocator::value_type, T>,
                   "muc::shared_ptr_vector must have the same value_type as its "
                   "allocator");
-    static_assert(not std::is_array_v<T>,
-                  "value type of muc::unique_ptr_vector cannot be an array");
 
 private:
     using base = impl::ptr_vector_base<
@@ -36,25 +40,11 @@ private:
     friend base; // for access allocate_ptr
 
 public:
-    using value_type = typename base::value_type;
-    using allocator_type = typename base::allocator_type;
-    using size_type = typename base::size_type;
-    using difference_type = typename base::difference_type;
-    using reference = typename base::reference;
-    using const_reference = typename base::const_reference;
-    using pointer = typename base::pointer;
-    using const_pointer = typename base::const_pointer;
-    using iterator = typename base::iterator;
-    using const_iterator = typename base::const_iterator;
-    using reverse_iterator = typename base::reverse_iterator;
-    using const_reverse_iterator = typename base::const_reverse_iterator;
-
-public:
     unique_ptr_vector() noexcept(noexcept(Allocator{})) = default;
 
     explicit unique_ptr_vector(const Allocator& alloc) noexcept :
-        base{alloc} {}
-
+        base{typename base::raw_ptr_vector::allocator_type{alloc}} {}
+#if false
     unique_ptr_vector(size_type count, const T& value,
                       const Allocator& alloc = {}) :
         base{count, alloc} {
@@ -76,20 +66,76 @@ public:
         base{alloc} {
         this->insert(this->cend(), first, last);
     }
+#endif
+    unique_ptr_vector(const unique_ptr_vector&) = default;
+
+    unique_ptr_vector(unique_ptr_vector&&) noexcept = default;
 
     unique_ptr_vector(const unique_ptr_vector& other, const Allocator& alloc) :
-        base{other, alloc} {}
+        base{other.m_ptr_vector,
+             typename base::raw_ptr_vector::allocator_type{alloc}} {}
 
     unique_ptr_vector(unique_ptr_vector&& other, const Allocator& alloc) :
-        base{std::move(other), alloc} {}
+        base{std::move(other.m_ptr_vector),
+             typename base::raw_ptr_vector::allocator_type{alloc}} {}
 
+    unique_ptr_vector(const typename base::raw_ptr_vector& ptr_vector,
+                      const Allocator& alloc = {}) :
+        base{ptr_vector, typename base::raw_ptr_vector::allocator_type{alloc}} {
+    }
+
+    unique_ptr_vector(typename base::raw_ptr_vector&& ptr_vector,
+                      const Allocator& alloc = {}) :
+        base{std::move(ptr_vector),
+             typename base::raw_ptr_vector::allocator_type{alloc}} {}
+
+    template<
+        typename C,
+        std::enable_if_t<std::is_lvalue_reference_v<const C&>, bool> = true,
+        typename = std::void_t<decltype(std::begin(std::declval<const C&>()))>,
+        typename = std::void_t<decltype(std::end(std::declval<const C&>()))>,
+        std::enable_if_t<
+            std::is_constructible_v<typename base::raw_ptr_vector::value_type,
+                                    decltype(*std::begin(std::declval<C>())++)>,
+            bool> = true>
+    unique_ptr_vector(const C& ptr_vector, const Allocator& alloc = {}) :
+        unique_ptr_vector{alloc} {
+        auto first{std::begin(ptr_vector)};
+        const auto last{std::end(ptr_vector)};
+        this->reserve(std::distance(first, last));
+        while (first != last) {
+            this->m_ptr_vector.push_back(
+                typename base::raw_ptr_vector::value_type{*first++});
+        }
+    }
+
+    template<typename C,
+             std::enable_if_t<std::is_rvalue_reference_v<C&&>, bool> = true,
+             typename = std::void_t<decltype(std::begin(std::declval<C>()))>,
+             typename = std::void_t<decltype(std::end(std::declval<C>()))>,
+             std::enable_if_t<
+                 std::is_constructible_v<
+                     typename base::raw_ptr_vector::value_type,
+                     decltype(std::move(*std::begin(std::declval<C>())++))>,
+                 bool> = true>
+    unique_ptr_vector(C&& ptr_vector, const Allocator& alloc = {}) :
+        unique_ptr_vector{alloc} {
+        auto first{std::begin(ptr_vector)};
+        const auto last{std::end(ptr_vector)};
+        this->reserve(std::distance(first, last));
+        while (first != last) {
+            this->m_ptr_vector.push_back(
+                typename base::raw_ptr_vector::value_type{std::move(*first++)});
+        }
+    }
+#if false
     unique_ptr_vector(std::initializer_list<T> init,
                       const Allocator& alloc = {}) :
         base{alloc} {
         this->insert(this->cend(), std::move(init));
     }
-
-protected:
+#endif
+private:
     template<typename... Args>
     auto allocate_ptr(Args&&... args) const
         -> std::unique_ptr<T, allocator_delete<Allocator>> {

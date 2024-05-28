@@ -14,12 +14,22 @@
 #include <utility>
 
 namespace muc::impl {
+#if false
+namespace impl {
 
-/* template<typename T>
-struct obj_ptr_impl {
+template<typename T>
+struct as_pointer {
     struct type : T {
     public:
         using T::T;
+
+        auto operator*() noexcept -> T& {
+            return *this;
+        }
+
+        auto operator*() const noexcept -> const T& {
+            return *this;
+        }
 
         auto operator->() noexcept -> T* {
             return this;
@@ -32,19 +42,21 @@ struct obj_ptr_impl {
 };
 
 template<typename T>
-struct obj_ptr_impl<T*> {
+struct as_pointer<T*> {
     using type = T*;
 };
 
 template<typename T>
-using obj_ptr = typename obj_ptr_impl<T>::type; */
+using as_pointer_t = typename as_pointer<T>::type;
 
+} // namespace impl
+#endif
 template<typename Derived, typename RawPtrVector>
 class ptr_vector_base {
-private:
-    using raw_ptr_vector = std::remove_pointer_t<RawPtrVector>;
-
 protected:
+    using raw_ptr_vector = RawPtrVector;
+
+public:
     using value_type = typename std::pointer_traits<
         typename raw_ptr_vector::value_type>::element_type;
     using allocator_type = typename std::allocator_traits<
@@ -184,7 +196,7 @@ private:
         RawIterator m_iter;
     };
 
-protected:
+public:
     using iterator = basic_iterator<typename raw_ptr_vector::iterator>;
     using const_iterator =
         basic_iterator<typename raw_ptr_vector::const_iterator>;
@@ -192,10 +204,13 @@ protected:
     using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
 protected:
-    ptr_vector_base(const RawPtrVector& ptr_vec) :
+    ptr_vector_base() :
+        m_ptr_vector{} {}
+
+    ptr_vector_base(const raw_ptr_vector& ptr_vec) :
         m_ptr_vector{ptr_vec} {}
 
-    ptr_vector_base(RawPtrVector&& ptr_vec) :
+    ptr_vector_base(raw_ptr_vector&& ptr_vec) :
         m_ptr_vector{std::move(ptr_vec)} {}
 
     template<typename... Args>
@@ -204,7 +219,9 @@ protected:
 
     ptr_vector_base(const ptr_vector_base&) = default;
 
-    ptr_vector_base(ptr_vector_base&&) = default;
+    ptr_vector_base(ptr_vector_base&&) noexcept = default;
+
+    ~ptr_vector_base() = default;
 
 public:
     //
@@ -216,7 +233,7 @@ public:
     auto operator=(ptr_vector_base&& other) noexcept(
         std::is_nothrow_move_constructible_v<raw_ptr_vector>)
         -> ptr_vector_base& = default;
-
+#if false
     auto
     operator=(std::initializer_list<value_type> ilist) -> ptr_vector_base& {
         m_ptr_vector.clear();
@@ -239,7 +256,7 @@ public:
         m_ptr_vector.clear();
         insert(cend(), std::move(ilist));
     }
-
+#endif
     auto get_allocator() const -> allocator_type {
         return allocator_type{m_ptr_vector.get_allocator()};
     }
@@ -288,11 +305,11 @@ public:
         return *m_ptr_vector.back();
     }
 
-    auto ptr_vector() -> raw_ptr_vector& {
+    auto underlying() -> raw_ptr_vector& {
         return m_ptr_vector;
     }
 
-    auto ptr_vector() const -> const raw_ptr_vector& {
+    auto underlying() const -> const raw_ptr_vector& {
         return m_ptr_vector;
     }
 
@@ -413,11 +430,11 @@ public:
 
     public:
         auto begin() const noexcept -> iterator {
-            return iterator{m_ptr_vector->begin()};
+            return iterator{m_ptr_vector.begin()};
         }
 
         auto end() const noexcept -> iterator {
-            return iterator{m_ptr_vector->end()};
+            return iterator{m_ptr_vector.end()};
         }
 
         auto rbegin() const noexcept -> reverse_iterator {
@@ -452,8 +469,8 @@ public:
         return m_ptr_vector.max_size();
     }
 
-    auto reserve() -> void {
-        return m_ptr_vector.reserve();
+    auto reserve(size_type new_capacity) -> void {
+        return m_ptr_vector.reserve(new_capacity);
     }
 
     auto capacity() const noexcept -> size_type {
@@ -479,7 +496,7 @@ public:
     auto insert(const_iterator pos, value_type&& value) -> iterator {
         return emplace(pos, std::move(value));
     }
-
+#if false
     auto insert(const_iterator pos, size_type count,
                 const value_type& value) -> iterator {
         const auto i_pos{pos - cbegin()};
@@ -517,13 +534,7 @@ public:
                 std::initializer_list<value_type> ilist) -> iterator {
         return insert(pos, ilist.begin(), ilist.end());
     }
-
-    // #if __cplusplus>=
-
-    // // TODO: insert_range
-
-    // #endif
-
+#endif
     template<typename... Args>
     auto emplace(const_iterator pos, Args&&... args) -> iterator {
         return iterator{m_ptr_vector.emplace(
@@ -548,13 +559,14 @@ public:
 
     template<typename... Args>
     auto emplace_back(Args&&... args) -> reference {
-        return *emplace_back(allocate_ptr(std::forward<Args>(args)...));
+        return *m_ptr_vector.emplace_back(
+            allocate_ptr(std::forward<Args>(args)...));
     }
 
     auto pop_back() -> void {
         m_ptr_vector.pop_back();
     }
-
+#if false
     auto resize(size_type count) -> void {
         if (size() >= count) {
             erase(cbegin() + count, cend());
@@ -580,7 +592,7 @@ public:
             }
         }
     }
-
+#endif
     auto swap(ptr_vector_base& other) noexcept -> void {
         m_ptr_vector.swap(other.m_ptr_vector);
     }
@@ -589,31 +601,36 @@ public:
     // Compare
     //
 
-    auto operator==(const ptr_vector_base& other) -> bool {
+    auto operator==(const ptr_vector_base& other) const -> bool {
         return m_ptr_vector == other.m_ptr_vector;
     }
-
-    auto operator!=(const ptr_vector_base& other) -> bool {
+#if __cplusplus >= 202002L
+    auto operator<=>(const ptr_vector_base& other) const -> auto {
+        return m_ptr_vector <=> other.m_ptr_vector;
+    }
+#else
+    auto operator!=(const ptr_vector_base& other) const -> bool {
         return m_ptr_vector != other.m_ptr_vector;
     }
 
-    auto operator<(const ptr_vector_base& other) -> bool {
+    auto operator<(const ptr_vector_base& other) const -> bool {
         return m_ptr_vector < other.m_ptr_vector;
     }
 
-    auto operator<=(const ptr_vector_base& other) -> bool {
+    auto operator<=(const ptr_vector_base& other) const -> bool {
         return m_ptr_vector <= other.m_ptr_vector;
     }
 
-    auto operator>(const ptr_vector_base& other) -> bool {
+    auto operator>(const ptr_vector_base& other) const -> bool {
         return m_ptr_vector > other.m_ptr_vector;
     }
 
-    auto operator>=(const ptr_vector_base& other) -> bool {
+    auto operator>=(const ptr_vector_base& other) const -> bool {
         return m_ptr_vector >= other.m_ptr_vector;
     }
+#endif
 
-protected:
+private:
     auto range_check(size_type pos) const -> void {
         if (pos >= size()) {
             std::stringstream ss;
@@ -623,7 +640,6 @@ protected:
         }
     }
 
-private:
     template<typename... Args>
     auto allocate_ptr(Args&&... args) const ->
         typename raw_ptr_vector::value_type {
@@ -632,7 +648,7 @@ private:
     }
 
 protected:
-    RawPtrVector m_ptr_vector;
+    raw_ptr_vector m_ptr_vector;
 };
 
 } // namespace muc::impl
