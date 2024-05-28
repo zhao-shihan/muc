@@ -1,5 +1,7 @@
 #pragma once
 
+#include "muc/detail/c++17/memory/to_address.h++"
+
 #include <algorithm>
 #include <cassert>
 #include <cstddef>
@@ -43,10 +45,8 @@ private:
     using raw_ptr_vector = std::remove_pointer_t<RawPtrVector>;
 
 protected:
-    using pointer = typename raw_ptr_vector::value_type;
-    using value_type = typename std::pointer_traits<pointer>::element_type;
-    using const_pointer = typename std::pointer_traits<
-        pointer>::template rebind<const value_type>;
+    using value_type = typename std::pointer_traits<
+        typename raw_ptr_vector::value_type>::element_type;
     using allocator_type = typename std::allocator_traits<
         typename raw_ptr_vector::allocator_type>::
         template rebind_alloc<value_type>;
@@ -54,6 +54,9 @@ protected:
     using difference_type = typename raw_ptr_vector::difference_type;
     using reference = value_type&;
     using const_reference = const value_type&;
+    using pointer = typename std::allocator_traits<allocator_type>::pointer;
+    using const_pointer =
+        typename std::allocator_traits<allocator_type>::const_pointer;
 
 private:
     template<typename RawIterator>
@@ -98,7 +101,7 @@ private:
         }
 
         auto operator->() const -> pointer {
-            return *m_iter;
+            return muc::to_address(*m_iter);
         }
 
         auto operator[](std::size_t index) const -> reference {
