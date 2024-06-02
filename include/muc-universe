@@ -1000,98 +1000,6 @@ auto hypot(Ts... x) -> auto {
 
 } // namespace muc
 
-
-
-#include <type_traits>
-#include <utility>
-
-namespace muc::impl {
-
-template<typename, typename, typename = void>
-struct has_binary_arithmetic_with : std::false_type {};
-
-template<typename T, typename U>
-struct has_binary_arithmetic_with<
-    T, U,
-    std::void_t<
-        // T +/- T
-        decltype(std::declval<const T&>() + std::declval<const T&>()),
-        decltype(std::declval<const T&>() - std::declval<const T&>()),
-        // k * T
-        decltype(+std::declval<const T&>()),
-        decltype(-std::declval<const T&>()),
-        decltype(1 * std::declval<const T&>()),
-        decltype(std::declval<const T&>() * 1),
-        decltype(std::declval<const T&>() / 1),
-        // U +/- U
-        decltype(std::declval<const U&>() + std::declval<const U&>()),
-        decltype(std::declval<const U&>() - std::declval<const U&>()),
-        // k * U
-        decltype(+std::declval<const U&>()),
-        decltype(-std::declval<const U&>()),
-        decltype(1 * std::declval<const U&>()),
-        decltype(std::declval<const U&>() * 1),
-        decltype(std::declval<const U&>() / 1),
-        // T +/- U
-        decltype(std::declval<const T&>() + std::declval<const U&>()),
-        decltype(std::declval<const T&>() - std::declval<const U&>()),
-        // U +/- T
-        decltype(std::declval<const U&>() + std::declval<const T&>()),
-        decltype(std::declval<const U&>() - std::declval<const T&>()),
-        // T x= X
-        decltype(std::declval<T&>() += std::declval<const U&>()),
-        decltype(std::declval<T&>() -= std::declval<const U&>()),
-        decltype(std::declval<T&>() *= 1), decltype(std::declval<T&>() /= 1)>> :
-    std::true_type {};
-
-template<typename T, typename U>
-inline constexpr bool has_binary_arithmetic_with_v{
-    has_binary_arithmetic_with<T, U>::value};
-
-} // namespace muc::impl
-
-#include <type_traits>
-#include <utility>
-
-namespace muc {
-
-template<typename T>
-struct is_general_arithmetic :
-    std::bool_constant<std::is_default_constructible_v<T> and
-                       impl::has_binary_arithmetic_with_v<T, T> and
-                       impl::has_binary_arithmetic_with_v<
-                           T, decltype(std::declval<const T&>() +
-                                       std::declval<const T&>())> and
-                       impl::has_binary_arithmetic_with_v<
-                           T, decltype(std::declval<const T&>() -
-                                       std::declval<const T&>())> and
-                       impl::has_binary_arithmetic_with_v<
-                           T, decltype(1 * std::declval<const T&>())> and
-                       impl::has_binary_arithmetic_with_v<
-                           T, decltype(std::declval<const T&>() * 1)> and
-                       impl::has_binary_arithmetic_with_v<
-                           T, decltype(std::declval<const T&>() / 1)>> {};
-
-template<typename T>
-inline constexpr bool is_general_arithmetic_v{is_general_arithmetic<T>::value};
-
-} // namespace muc
-
-#include <cmath>
-#include <concepts>
-#include <type_traits>
-
-namespace muc {
-
-template<typename T, typename U,
-         std::enable_if_t<is_general_arithmetic_v<U>, bool> = true,
-         std::enable_if_t<std::is_arithmetic_v<U>, bool> = true>
-constexpr auto lerp(const T& a, const T& b, U t) -> decltype(auto) {
-    return (1 - t) * a + t * b;
-}
-
-} // namespace muc
-
 #include <cassert>
 #include <limits>
 #include <type_traits>
@@ -1781,6 +1689,98 @@ constexpr struct {
 #endif
 
 #if __cplusplus >= 201703L
+
+
+
+#include <type_traits>
+#include <utility>
+
+namespace muc::impl {
+
+template<typename, typename, typename = void>
+struct has_binary_arithmetic_with : std::false_type {};
+
+template<typename T, typename U>
+struct has_binary_arithmetic_with<
+    T, U,
+    std::void_t<
+        // T +/- T
+        decltype(std::declval<const T&>() + std::declval<const T&>()),
+        decltype(std::declval<const T&>() - std::declval<const T&>()),
+        // k * T
+        decltype(+std::declval<const T&>()),
+        decltype(-std::declval<const T&>()),
+        decltype(1 * std::declval<const T&>()),
+        decltype(std::declval<const T&>() * 1),
+        decltype(std::declval<const T&>() / 1),
+        // U +/- U
+        decltype(std::declval<const U&>() + std::declval<const U&>()),
+        decltype(std::declval<const U&>() - std::declval<const U&>()),
+        // k * U
+        decltype(+std::declval<const U&>()),
+        decltype(-std::declval<const U&>()),
+        decltype(1 * std::declval<const U&>()),
+        decltype(std::declval<const U&>() * 1),
+        decltype(std::declval<const U&>() / 1),
+        // T +/- U
+        decltype(std::declval<const T&>() + std::declval<const U&>()),
+        decltype(std::declval<const T&>() - std::declval<const U&>()),
+        // U +/- T
+        decltype(std::declval<const U&>() + std::declval<const T&>()),
+        decltype(std::declval<const U&>() - std::declval<const T&>()),
+        // T x= X
+        decltype(std::declval<T&>() += std::declval<const U&>()),
+        decltype(std::declval<T&>() -= std::declval<const U&>()),
+        decltype(std::declval<T&>() *= 1), decltype(std::declval<T&>() /= 1)>> :
+    std::true_type {};
+
+template<typename T, typename U>
+inline constexpr bool has_binary_arithmetic_with_v{
+    has_binary_arithmetic_with<T, U>::value};
+
+} // namespace muc::impl
+
+#include <type_traits>
+#include <utility>
+
+namespace muc {
+
+template<typename T>
+struct is_general_arithmetic :
+    std::bool_constant<std::is_default_constructible_v<T> and
+                       impl::has_binary_arithmetic_with_v<T, T> and
+                       impl::has_binary_arithmetic_with_v<
+                           T, decltype(std::declval<const T&>() +
+                                       std::declval<const T&>())> and
+                       impl::has_binary_arithmetic_with_v<
+                           T, decltype(std::declval<const T&>() -
+                                       std::declval<const T&>())> and
+                       impl::has_binary_arithmetic_with_v<
+                           T, decltype(1 * std::declval<const T&>())> and
+                       impl::has_binary_arithmetic_with_v<
+                           T, decltype(std::declval<const T&>() * 1)> and
+                       impl::has_binary_arithmetic_with_v<
+                           T, decltype(std::declval<const T&>() / 1)>> {};
+
+template<typename T>
+inline constexpr bool is_general_arithmetic_v{is_general_arithmetic<T>::value};
+
+} // namespace muc
+
+#include <cmath>
+#include <concepts>
+#include <type_traits>
+
+namespace muc {
+
+template<typename T, typename U,
+         std::enable_if_t<is_general_arithmetic_v<U>, bool> = true,
+         std::enable_if_t<std::is_arithmetic_v<U>, bool> = true>
+constexpr auto lerp(const T& a, const T& b, U t) -> decltype(auto) {
+    return (1 - t) * a + t * b;
+}
+
+} // namespace muc
 
 
 

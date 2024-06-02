@@ -8,6 +8,7 @@
 #endif
 
 #if __cplusplus >= 201703L
+#include "muc/detail/c++17/numeric/lerp.h++"
 #include "muc/detail/c++17/numeric/find_root.h++"
 #include "muc/detail/c++17/numeric/midpoint.h++"
 #endif
