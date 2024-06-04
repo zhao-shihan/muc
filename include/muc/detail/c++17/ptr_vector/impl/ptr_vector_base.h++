@@ -430,11 +430,11 @@ public:
 
     public:
         auto begin() const noexcept -> iterator {
-            return iterator{m_ptr_vector.begin()};
+            return iterator{m_ptr_vector->begin()};
         }
 
         auto end() const noexcept -> iterator {
-            return iterator{m_ptr_vector.end()};
+            return iterator{m_ptr_vector->end()};
         }
 
         auto rbegin() const noexcept -> reverse_iterator {

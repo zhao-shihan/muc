@@ -60,15 +60,15 @@ auto main() -> int {
     MUC_TEST_MATH_SCALAR(muc::midpoint(-42., 42.))
 
     MUC_TEST_MATH_SCALAR(muc::lerp(5u, 2u, -0.5))
-    MUC_TEST_MATH_SCALAR(muc::lerp(5u, 2u, 0))
+    MUC_TEST_MATH_SCALAR(muc::lerp(5u, 2u, 0.))
     MUC_TEST_MATH_SCALAR(muc::lerp(5u, 2u, 0.5))
-    MUC_TEST_MATH_SCALAR(muc::lerp(5u, 2u, 1))
+    MUC_TEST_MATH_SCALAR(muc::lerp(5u, 2u, 1.))
     MUC_TEST_MATH_SCALAR(muc::lerp(5u, 2u, 1.5))
 
     MUC_TEST_MATH_SCALAR(muc::lerp(0, 0, -0.5))
-    MUC_TEST_MATH_SCALAR(muc::lerp(0, 0, 0))
+    MUC_TEST_MATH_SCALAR(muc::lerp(0, 0, 0.))
     MUC_TEST_MATH_SCALAR(muc::lerp(0, 0, 0.5))
-    MUC_TEST_MATH_SCALAR(muc::lerp(0, 0, 1))
+    MUC_TEST_MATH_SCALAR(muc::lerp(0, 0, 1.))
     MUC_TEST_MATH_SCALAR(muc::lerp(0, 0, 1.5))
 
     const std::valarray u{0., 1.};
@@ -76,8 +76,8 @@ auto main() -> int {
 
     MUC_TEST_MATH_VECTOR(muc::midpoint(u, v))
     MUC_TEST_MATH_VECTOR(muc::lerp(u, v, -0.5))
-    MUC_TEST_MATH_VECTOR(muc::lerp(u, v, 0))
+    MUC_TEST_MATH_VECTOR(muc::lerp(u, v, 0.))
     MUC_TEST_MATH_VECTOR(muc::lerp(u, v, 0.5))
-    MUC_TEST_MATH_VECTOR(muc::lerp(u, v, 1))
+    MUC_TEST_MATH_VECTOR(muc::lerp(u, v, 1.))
     MUC_TEST_MATH_VECTOR(muc::lerp(u, v, 1.5))
 }

@@ -22,7 +22,7 @@ namespace muc {
 template<typename T, typename U,
          std::enable_if_t<is_general_arithmetic_v<U>, bool> = true,
          std::enable_if_t<std::is_floating_point_v<U>, bool> = true>
-constexpr auto lerp(const T& a, const T& b, U t) -> auto {
+constexpr auto lerp(const T& a, const T& b, U t) -> T {
     return (1 - t) * a + t * b;
 }
 
@@ -36,7 +36,7 @@ constexpr auto lerp(const T& a, const T& b, U t) -> auto {
 template<typename T, typename U,
          std::enable_if_t<is_general_arithmetic_v<U>, bool> = true,
          std::enable_if_t<std::is_floating_point_v<U>, bool> = true>
-constexpr auto lerp(const std::array<T, 2>& c, U t) -> auto {
+constexpr auto lerp(const std::array<T, 2>& c, U t) -> T {
     return muc::lerp(c[0], c[1], t);
 }
 
@@ -52,7 +52,7 @@ constexpr auto lerp(const std::array<T, 2>& c, U t) -> auto {
 template<typename T, typename U,
          std::enable_if_t<is_general_arithmetic_v<U>, bool> = true,
          std::enable_if_t<std::is_floating_point_v<U>, bool> = true>
-constexpr auto lerp(std::span<T, 2> c, U t) -> auto {
+constexpr auto lerp(std::span<T, 2> c, U t) -> T {
     return muc::lerp(c[0], c[1], t);
 }
 
