@@ -1,4 +1,4 @@
-if(MACE_ENABLE_UBSAN_IN_DEBUG_BUILD)
+if(MUC_ENABLE_UBSAN_IN_DEBUG_BUILD)
     if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
         add_compile_options($<$<CONFIG:Debug>:-fsanitize=undefined>
                             $<$<CONFIG:Debug>:-fno-omit-frame-pointer>
@@ -22,24 +22,26 @@ endif()
 
 # More warnings
 if(CMAKE_COMPILER_IS_GNUCXX)
-    list(APPEND MACE_COMPILE_OPTIONS -Wall -Wextra -Wduplicated-cond -Wnon-virtual-dtor -pedantic -Wundef -Wunused-macros)
+    list(APPEND MUC_COMPILE_OPTIONS -Wall -Wextra -Wduplicated-cond -Wnon-virtual-dtor -pedantic -Wundef -Wunused-macros)
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-    list(APPEND MACE_COMPILE_OPTIONS -WCL4 -Wmove -Wnon-virtual-dtor -pedantic -Wundef -Wunused-macros
+    list(APPEND MUC_COMPILE_OPTIONS -WCL4 -Wmove -Wnon-virtual-dtor -pedantic -Wundef -Wunused-macros
                                      -Wno-gnu-zero-variadic-macro-arguments)
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-    list(APPEND MACE_COMPILE_OPTIONS /W4)
+    list(APPEND MUC_COMPILE_OPTIONS /W4)
 endif()
 
 macro(add_executable_with_feature prefix feature)
     add_executable(${prefix}_${feature} ${prefix}.c++)
-    target_include_directories(${prefix}_${feature} PRIVATE ${CMAKE_HOME_DIRECTORY}/include)
+    target_link_libraries(${prefix}_${feature} PRIVATE muc)
     target_compile_features(${prefix}_${feature} PRIVATE ${feature})
     target_compile_definitions(${prefix}_${feature} PRIVATE MUC_STATIC_TEST)
+    target_compile_options(${prefix}_${feature} PRIVATE ${MUC_COMPILE_OPTIONS})
 
     add_executable(${prefix}_${feature}_universe ${prefix}.c++)
     target_include_directories(${prefix}_${feature}_universe PRIVATE ${CMAKE_HOME_DIRECTORY}/include)
     target_compile_features(${prefix}_${feature}_universe PRIVATE ${feature})
     target_compile_definitions(${prefix}_${feature}_universe PRIVATE MUC_STATIC_TEST MUC_TEST_UNIVERSE)
+    target_compile_options(${prefix}_${feature} PRIVATE ${MUC_COMPILE_OPTIONS})
 endmacro(add_executable_with_feature)
 
 add_executable_with_feature(find_root cxx_std_17)

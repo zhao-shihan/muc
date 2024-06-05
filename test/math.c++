@@ -17,7 +17,7 @@
     {                                           \
         const auto result{expr};                \
         std::cout << #expr " = [ ";             \
-        for (int i{}; i < result.size(); ++i) { \
+        for (std::size_t i{}; i < result.size(); ++i) { \
             std::cout << result[i] << ' ';      \
         }                                       \
         std::cout << "]\n";                     \
