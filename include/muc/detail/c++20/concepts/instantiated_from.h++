@@ -5,6 +5,6 @@
 namespace muc {
 
 template<typename T, template<typename...> typename Template>
-concept InstantiatedFrom = is_template_of_v<Template, T>;
+concept instantiated_from = is_template_of_v<Template, T>;
 
 } // namespace muc

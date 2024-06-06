@@ -544,7 +544,7 @@ inline constexpr bool is_template_of_v{is_template_of<Template, T>::value};
 namespace muc {
 
 template<typename T, template<typename...> typename Template>
-concept InstantiatedFrom = is_template_of_v<Template, T>;
+concept instantiated_from = is_template_of_v<Template, T>;
 
 } // namespace muc
 #endif
@@ -1709,7 +1709,7 @@ struct has_binary_arithmetic_with<
         decltype(std::declval<const T&>() + std::declval<const T&>()),
         decltype(std::declval<const T&>() - std::declval<const T&>()),
         // k * T
-        decltype(+std::declval<const T&>()),
+        /* decltype(+std::declval<const T&>()), */
         decltype(-std::declval<const T&>()),
         /* decltype(1 * std::declval<const T&>()),
         decltype(std::declval<const T&>() * 1),
@@ -1718,7 +1718,7 @@ struct has_binary_arithmetic_with<
         decltype(std::declval<const U&>() + std::declval<const U&>()),
         decltype(std::declval<const U&>() - std::declval<const U&>()),
         // k * U
-        decltype(+std::declval<const U&>()),
+        /* decltype(+std::declval<const U&>()), */
         decltype(-std::declval<const U&>()),
         /* decltype(1 * std::declval<const U&>()),
         decltype(std::declval<const U&>() * 1),
@@ -1831,7 +1831,7 @@ constexpr auto bilerp(const T& c00, const T& c01, const T& c10, const T& c11,
 namespace muc {
 
 template<typename T, std::enable_if_t<is_general_arithmetic_v<T>, bool> = true>
-constexpr auto midpoint(const T& a, const T& b) -> decltype(auto) {
+constexpr auto midpoint(const T& a, const T& b) -> T {
     return a + (b - a) / 2;
 }
 
@@ -4086,8 +4086,8 @@ struct is_arithmetic_operable_with :
         impl::has_binary_arithmetic_with_v<
             T,
             decltype(std::declval<const U&>() - std::declval<const U&>())> and
-        impl::has_binary_arithmetic_with_v<
-            U, decltype(+std::declval<const U&>())> and
+        /* impl::has_binary_arithmetic_with_v<
+            U, decltype(+std::declval<const U&>())> and */
         impl::has_binary_arithmetic_with_v<
             U, decltype(-std::declval<const U&>())> and
         impl::has_binary_arithmetic_with_v<
@@ -4117,8 +4117,8 @@ struct is_arithmetic_operable_with :
         impl::has_binary_arithmetic_with_v<
             U,
             decltype(std::declval<const T&>() - std::declval<const T&>())> and
-        impl::has_binary_arithmetic_with_v<
-            U, decltype(+std::declval<const T&>())> and
+        /* impl::has_binary_arithmetic_with_v<
+            U, decltype(+std::declval<const T&>())> and */
         impl::has_binary_arithmetic_with_v<
             U, decltype(-std::declval<const T&>())> and
         impl::has_binary_arithmetic_with_v<
