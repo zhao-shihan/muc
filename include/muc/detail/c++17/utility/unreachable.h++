@@ -13,7 +13,7 @@
 
 namespace muc {
 
-[[noreturn]] auto unreachable() -> void {
+[[noreturn]] inline auto unreachable() -> void {
 #ifdef MUC_CPP_LIB_UNREACHABLE
     std::unreachable(); // C++23
 #elif defined __clang__ or defined __GNUC__
