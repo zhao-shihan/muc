@@ -31,12 +31,12 @@ namespace muc {
 template<typename T, typename U,
          std::enable_if_t<is_general_arithmetic_v<T>, bool> = true,
          std::enable_if_t<std::is_floating_point_v<U>, bool> = true>
-constexpr auto trilerp(const T& c000, const T& c100, const T& c010,
-                       const T& c110, const T& c001, const T& c101,
-                       const T& c011, const T& c111, U u, U v, U w) -> T {
-    return muc::bilerp(muc::lerp(c000, c100, u), muc::lerp(c010, c110, u),
-                       muc::lerp(c001, c101, u), muc::lerp(c011, c111, u), v,
-                       w);
+constexpr auto trilerp(const T& c000, const T& c001, const T& c010,
+                       const T& c011, const T& c100, const T& c101,
+                       const T& c110, const T& c111, U u, U v, U w) -> T {
+    return muc::bilerp(muc::lerp(c000, c001, w), muc::lerp(c010, c011, w),
+                       muc::lerp(c100, c101, w), muc::lerp(c110, c111, w), u,
+                       v);
 }
 
 } // namespace muc

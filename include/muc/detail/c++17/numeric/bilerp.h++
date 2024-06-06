@@ -28,9 +28,9 @@ namespace muc {
 template<typename T, typename U,
          std::enable_if_t<is_general_arithmetic_v<T>, bool> = true,
          std::enable_if_t<std::is_floating_point_v<U>, bool> = true>
-constexpr auto bilerp(const T& c00, const T& c10, const T& c01, const T& c11,
+constexpr auto bilerp(const T& c00, const T& c01, const T& c10, const T& c11,
                       U u, U v) -> T {
-    return muc::lerp(muc::lerp(c00, c10, u), muc::lerp(c01, c11, u), v);
+    return muc::lerp(muc::lerp(c00, c01, v), muc::lerp(c10, c11, v), u);
 }
 
 } // namespace muc
