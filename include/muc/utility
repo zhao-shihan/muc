@@ -7,9 +7,12 @@
 #endif
 
 #if __cplusplus >= 201703L
+#include "muc/detail/c++17/utility/assume.h++"
+#include "muc/detail/c++17/utility/forward_like.h++"
 #include "muc/detail/c++17/utility/to_signed.h++"
 #include "muc/detail/c++17/utility/to_underlying.h++"
 #include "muc/detail/c++17/utility/to_unsigned.h++"
+#include "muc/detail/c++17/utility/unreachable.h++"
 #endif
 
 #endif

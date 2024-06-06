@@ -4253,6 +4253,101 @@ using type_identity_t = typename type_identity<T>::type;
 
 #if __cplusplus >= 201703L
 
+#if not __has_cpp_attribute(assume) and \
+    not(defined __clang__ or defined __GNUC__ or defined _MSC_VER)
+
+#if __cplusplus >= 202002L // >= C++20
+#include <version>
+#ifdef __cpp_lib_unreachable // >= C++23
+#define MUC_CPP_LIB_UNREACHABLE
+#endif
+#endif
+
+#ifdef MUC_CPP_LIB_UNREACHABLE
+#include <utility>
+#endif
+
+namespace muc {
+
+[[noreturn]] auto unreachable() -> void {
+#ifdef MUC_CPP_LIB_UNREACHABLE
+    std::unreachable(); // C++23
+#elif defined __clang__ or defined __GNUC__
+    __builtin_unreachable();
+#elif defined _MSC_VER
+    __assume(false);
+#endif
+}
+
+} // namespace muc
+
+#undef MUC_CPP_LIB_UNREACHABLE
+#endif
+
+namespace muc {
+
+constexpr auto assume(bool condition) noexcept -> void {
+#if __has_cpp_attribute(assume)
+    [[assume(condition)]]; // C++23
+#elif defined __clang__
+    __builtin_assume(condition);
+#elif defined __GNUC__
+    if (not condition) {
+        __builtin_unreachable();
+    }
+#elif defined _MSC_VER
+    __assume(condition);
+#else
+    if (not condition) {
+        unreachable();
+    }
+#endif
+}
+
+} // namespace muc
+
+#if __cplusplus >= 202002L // >= C++20
+#include <version>
+#ifdef __cpp_lib_forward_like // >= C++23
+#define MUC_CPP_LIB_FORWARD_LIKE
+#endif
+#endif
+
+#include <utility>
+
+#ifndef MUC_CPP_LIB_FORWARD_LIKE // backport
+#include <type_traits>
+#endif
+
+namespace muc {
+
+template<typename T, typename U>
+[[nodiscard]] constexpr auto forward_like(U&& x) noexcept -> auto&& {
+#ifdef MUC_CPP_LIB_FORWARD_LIKE // C++23
+    return std::forward_like<T, U>(x);
+#else // backport
+    constexpr bool is_adding_const =
+        std::is_const_v<std::remove_reference_t<T>>;
+    if constexpr (std::is_lvalue_reference_v<T&&>) {
+        if constexpr (is_adding_const) {
+            return std::as_const(x);
+        } else {
+            return static_cast<U&>(x);
+        }
+    } else {
+        if constexpr (is_adding_const) {
+            return std::move(std::as_const(x));
+        } else {
+            return std::move(x);
+        }
+    }
+#endif
+}
+
+} // namespace muc
+
+#undef MUC_CPP_LIB_FORWARD_LIKE
+
 #include <type_traits>
 
 namespace muc {
