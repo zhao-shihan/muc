@@ -51,6 +51,10 @@ public:
         return sv() <=> std::string_view{rhs};
     }
 
+    constexpr auto operator==(std::nullptr_t) const -> bool {
+        return not has_value();
+    }
+
     constexpr operator bool() const {
         return has_value();
     }
@@ -84,6 +88,10 @@ struct ceta_string<0> {
 
     constexpr operator bool() const {
         return has_value();
+    }
+
+    constexpr auto operator==(std::nullptr_t) const -> bool {
+        return not has_value();
     }
 
     static constexpr auto has_value() -> bool {
