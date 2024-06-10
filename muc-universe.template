@@ -24,6 +24,7 @@
 #include "muc/bit"
 #include "muc/ceta_string"
 #include "muc/concepts"
+#include "muc/functional"
 #include "muc/math"
 #include "muc/memory"
 #include "muc/numeric"

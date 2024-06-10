@@ -558,6 +558,34 @@ concept instantiated_from = is_template_of_v<Template, T>;
 #endif
 
 #endif
+#ifndef MUC_FUNCTIONAL_35fd64e5dd5518762ebc391025fd06efd3f82687e245b5830b55c4a3ab96d768
+#define MUC_FUNCTIONAL_35fd64e5dd5518762ebc391025fd06efd3f82687e245b5830b55c4a3ab96d768
+
+#if __cplusplus >= 201703L
+
+#include <tuple>
+#include <type_traits>
+#include <utility>
+
+namespace muc {
+
+/// @brief muc::multidentity is a function object type whose operator() returns
+/// its arguments in a `std::tuple`. The effect is the same as
+/// `std::forward_as_tuple`.
+/// @warning Passing temporary objects as arguments is errorous and will produce
+/// `std::tuple` holding dangling references.
+struct multidentity {
+    template<typename... Ts, std::enable_if_t<sizeof...(Ts) >= 1, bool> = true>
+    [[nodiscard]] constexpr auto
+    operator()(Ts&&... ts) const noexcept -> std::tuple<Ts&&...> {
+        return std::forward_as_tuple<Ts...>(ts...);
+    }
+};
+
+} // namespace muc
+#endif
+
+#endif
 #ifndef MUC_MATH_35fd64e5dd5518762ebc391025fd06efd3f82687e245b5830b55c4a3ab96d768
 #define MUC_MATH_35fd64e5dd5518762ebc391025fd06efd3f82687e245b5830b55c4a3ab96d768
 
