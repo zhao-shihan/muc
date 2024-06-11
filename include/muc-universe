@@ -563,6 +563,24 @@ concept instantiated_from = is_template_of_v<Template, T>;
 
 #if __cplusplus >= 201703L
 
+#include <utility>
+
+namespace muc {
+
+/// @brief `muc::identity` is a function object type whose operator() returns
+/// its argument unchanged. The effect is the same as It is a backport of
+/// `std::identity`.
+struct identity {
+    using is_transparent = struct {};
+
+    template<typename T>
+    [[nodiscard]] constexpr auto operator()(T&& t) const noexcept -> T&& {
+        return std::forward<T>(t);
+    }
+};
+
+} // namespace muc
+
 #include <tuple>
 #include <type_traits>
 #include <utility>
