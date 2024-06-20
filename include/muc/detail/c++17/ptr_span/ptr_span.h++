@@ -370,7 +370,7 @@ public:
     }
 
     auto size() const noexcept -> size_type {
-        return m_ptr_vector->size();
+        return m_ptr_vector ? m_ptr_vector->size() : 0;
     }
 
     auto max_size() const noexcept -> size_type {
