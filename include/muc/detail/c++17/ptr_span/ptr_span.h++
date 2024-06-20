@@ -366,7 +366,7 @@ public:
     //
 
     [[nodiscard]] auto empty() const noexcept -> bool {
-        return m_ptr_vector->empty();
+        return m_ptr_vector ? m_ptr_vector->empty() : true;
     }
 
     auto size() const noexcept -> size_type {
