@@ -36,12 +36,40 @@
 
 namespace muc::find_root {
 
+///
+/// @brief Default tolerance value for convergence in root-finding algorithms.
+///
+/// This constexpr variable provides a default tolerance value for convergence
+/// in root-finding algorithms. It is calculated as half of the number of
+/// significant digits of the floating-point type T.
+///
+/// @tparam T The type of the input value (default is double).
+///
 template<typename T = double,
          std::enable_if_t<std::is_floating_point_v<T>, bool> = true>
 inline constexpr auto default_tolerance{
     muc::pow<std::numeric_limits<T>::digits / 2, T>(2) *
     std::numeric_limits<T>::epsilon()};
 
+///
+/// @brief Newton-Raphson method for finding roots of a function.
+///
+/// This function implements the Newton-Raphson method for finding roots of a
+/// function. It iteratively calculates the next value using the function and
+/// its derivative until convergence.
+///
+/// @tparam T The type of the input value.
+/// @tparam F The type of the function to evaluate.
+/// @tparam DF The type of the derivative function.
+/// @param f The function to evaluate.
+/// @param df The derivative function.
+/// @param x0 The initial guess for the root.
+/// @param max_iter The maximum number of iterations allowed (default is 1000).
+/// @param tolerance The tolerance value for convergence (default is
+/// default_tolerance<T>).
+/// @return A pair containing the root value and a boolean indicating if
+/// convergence was achieved.
+///
 template<typename T, typename F, typename DF,
          std::enable_if_t<std::is_floating_point_v<T> and
                               std::is_invocable_r_v<T, F, T> and
@@ -64,6 +92,25 @@ newton_raphson(const F& f, const DF& df, T x0, int max_iter = 1000,
     return {x1, false};
 }
 
+///
+/// @brief Secant method for finding roots of a function.
+///
+/// This function implements the secant method for finding roots of a function.
+/// It iteratively calculates the next value using two initial guesses until
+/// convergence.
+///
+/// @tparam T The type of the input value.
+/// @tparam F The type of the function to evaluate.
+/// @param f The function to evaluate.
+/// @param x0 The first initial guess for the root.
+/// @param x1O The optional second initial guess for the root (default is
+/// empty).
+/// @param max_iter The maximum number of iterations allowed (default is 1000).
+/// @param tolerance The tolerance value for convergence (default is
+/// default_tolerance<T>).
+/// @return A pair containing the root value and a boolean indicating if
+/// convergence was achieved.
+///
 template<typename T, typename F,
          std::enable_if_t<std::is_floating_point_v<T> and
                               std::is_invocable_r_v<T, F, T>,
@@ -95,6 +142,27 @@ secant(const F& f, T x0, std::optional<T> x1O = {}, int max_iter = 1000,
     return {x2, false};
 }
 
+///
+/// @brief Brent's method for finding roots of a function.
+///
+/// This function implements Brent's method for finding roots of a function.
+/// It iteratively narrows down the root using a combination of bisection,
+/// secant, and inverse quadratic interpolation.
+///
+/// @tparam T The type of the input value.
+/// @tparam F The type of the function to evaluate.
+///
+/// @param f The function to evaluate.
+/// @param x1 The first initial guess for the root.
+/// @param x2 The second initial guess for the root.
+/// @param max_iter The maximum number of iterations allowed (default is
+/// 100000).
+/// @param tolerance The tolerance value for convergence (default is
+/// default_tolerance<T>).
+///
+/// @return A pair containing the root value and a boolean indicating if
+/// convergence was achieved.
+///
 template<typename T, typename F,
          std::enable_if_t<std::is_floating_point_v<T> and
                               std::is_invocable_r_v<T, F, T>,
