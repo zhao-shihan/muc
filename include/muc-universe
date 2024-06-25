@@ -2816,6 +2816,7 @@ constexpr auto midpoint(const T& a, const T& b) -> T {
 
 } // namespace muc
 
+#include <algorithm>
 #include <cmath>
 #include <limits>
 #include <optional>
@@ -2832,8 +2833,8 @@ inline constexpr auto default_tolerance{
 
 template<typename T, typename F, typename DF,
          std::enable_if_t<std::is_floating_point_v<T> and
-                              std::is_invocable_v<F, T> and
-                              std::is_invocable_v<DF, T>,
+                              std::is_invocable_r_v<T, F, T> and
+                              std::is_invocable_r_v<T, DF, T>,
                           bool> = true>
 constexpr auto
 newton_raphson(const F& f, const DF& df, T x0, int max_iter = 1000,
@@ -2852,10 +2853,10 @@ newton_raphson(const F& f, const DF& df, T x0, int max_iter = 1000,
     return {x1, false};
 }
 
-template<
-    typename T, typename F,
-    std::enable_if_t<std::is_floating_point_v<T> and std::is_invocable_v<F, T>,
-                     bool> = true>
+template<typename T, typename F,
+         std::enable_if_t<std::is_floating_point_v<T> and
+                              std::is_invocable_r_v<T, F, T>,
+                          bool> = true>
 constexpr auto
 secant(const F& f, T x0, std::optional<T> x1O = {}, int max_iter = 1000,
        T tolerance = default_tolerance<T>) -> std::pair<T, bool> {
@@ -2883,6 +2884,90 @@ secant(const F& f, T x0, std::optional<T> x1O = {}, int max_iter = 1000,
     return {x2, false};
 }
 
+template<typename T, typename F,
+         std::enable_if_t<std::is_floating_point_v<T> and
+                              std::is_invocable_r_v<T, F, T>,
+                          bool> = true>
+constexpr auto
+zbrent(const F& f, T x1, T x2, int max_iter = 100000,
+       T tolerance = default_tolerance<T>) -> std::pair<T, bool> {
+    auto a{x1};
+    auto b{x2};
+    auto c{x2};
+    auto d{x2 - x1};
+    auto e{x2 - x1};
+    auto fa{f(a)};
+    auto fb{f(b)};
+    auto fc{fb};
+
+    // Check if there is a single zero in range
+    if (fa * fb > 0) {
+        return {b, false};
+    }
+
+    // Start search
+    for (auto iter{0ll}; iter < max_iter; ++iter) {
+        if ((fb > 0 and fc > 0) or (fb < 0 and fc < 0)) {
+            c = a;
+            fc = fa;
+            d = b - a;
+            e = d;
+        }
+        if (muc::abs(fc) < muc::abs(fb)) {
+            a = b;
+            b = c;
+            c = a;
+            fa = fb;
+            fb = fc;
+            fc = fa;
+        }
+        const auto tol1{2 * std::numeric_limits<T>::epsilon() * muc::abs(b) +
+                        tolerance / 2};
+        const auto xm{(c - b) / 2};
+        if (muc::abs(xm) <= tol1 or fb == 0) {
+            return {b, true};
+        }
+        if (muc::abs(e) >= tol1 and muc::abs(fa) > muc::abs(fb)) {
+            T p;
+            T q;
+            const auto s{fb / fa};
+            if (a == c) {
+                p = 2 * xm * s;
+                q = 1 - s;
+            } else {
+                q = fa / fc;
+                const auto r1{fb / fc};
+                p = s * (2 * xm * q * (q - r1) - (b - a) * (r1 - 1));
+                q = (q - 1) * (r1 - 1) * (s - 1);
+            }
+            if (p > 0)
+                q = -q;
+            p = muc::abs(p);
+            if (2 * p <
+                std::min(3 * xm * q - muc::abs(tol1 * q), muc::abs(e * q))) {
+                e = d;
+                d = p / q;
+            } else {
+                d = xm;
+                e = d;
+            }
+        } else {
+            d = xm;
+            e = d;
+        }
+        a = b;
+        fa = fb;
+        if (muc::abs(d) > tol1) {
+            b += d;
+        } else {
+            b += (xm > 1) ? tol1 : -tol1;
+        }
+        fb = f(b);
+    }
+
+    return {b, false};
+}
+
 } // namespace muc::find_root
 
 #ifdef MUC_STATIC_TEST
@@ -2906,6 +2991,16 @@ static_assert([] {
             return x * x - 1;
         },
         0.5)};
+    return converged and
+           muc::abs(x - 1) < 2 * muc::find_root::default_tolerance<>;
+}());
+
+static_assert([] {
+    const auto [x, converged]{muc::find_root::zbrent(
+        [](auto x) {
+            return x * x - 1;
+        },
+        0.5, 2.5)};
     return converged and
            muc::abs(x - 1) < 2 * muc::find_root::default_tolerance<>;
 }());
