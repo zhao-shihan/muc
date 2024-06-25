@@ -36,28 +36,21 @@
 
 namespace muc::find_root {
 
-///
 /// @brief Default tolerance value for convergence in root-finding algorithms.
-///
 /// This constexpr variable provides a default tolerance value for convergence
 /// in root-finding algorithms. It is calculated as half of the number of
 /// significant digits of the floating-point type T.
-///
 /// @tparam T The type of the input value (default is double).
-///
 template<typename T = double,
          std::enable_if_t<std::is_floating_point_v<T>, bool> = true>
 inline constexpr auto default_tolerance{
     muc::pow<std::numeric_limits<T>::digits / 2, T>(2) *
     std::numeric_limits<T>::epsilon()};
 
-///
 /// @brief Newton-Raphson method for finding roots of a function.
-///
 /// This function implements the Newton-Raphson method for finding roots of a
 /// function. It iteratively calculates the next value using the function and
 /// its derivative until convergence.
-///
 /// @tparam T The type of the input value.
 /// @tparam F The type of the function to evaluate.
 /// @tparam DF The type of the derivative function.
@@ -69,7 +62,6 @@ inline constexpr auto default_tolerance{
 /// default_tolerance<T>).
 /// @return A pair containing the root value and a boolean indicating if
 /// convergence was achieved.
-///
 template<typename T, typename F, typename DF,
          std::enable_if_t<std::is_floating_point_v<T> and
                               std::is_invocable_r_v<T, F, T> and
@@ -92,13 +84,10 @@ newton_raphson(const F& f, const DF& df, T x0, int max_iter = 1000,
     return {x1, false};
 }
 
-///
 /// @brief Secant method for finding roots of a function.
-///
 /// This function implements the secant method for finding roots of a function.
 /// It iteratively calculates the next value using two initial guesses until
 /// convergence.
-///
 /// @tparam T The type of the input value.
 /// @tparam F The type of the function to evaluate.
 /// @param f The function to evaluate.
@@ -110,7 +99,6 @@ newton_raphson(const F& f, const DF& df, T x0, int max_iter = 1000,
 /// default_tolerance<T>).
 /// @return A pair containing the root value and a boolean indicating if
 /// convergence was achieved.
-///
 template<typename T, typename F,
          std::enable_if_t<std::is_floating_point_v<T> and
                               std::is_invocable_r_v<T, F, T>,
@@ -142,16 +130,12 @@ secant(const F& f, T x0, std::optional<T> x1O = {}, int max_iter = 1000,
     return {x2, false};
 }
 
-///
 /// @brief Brent's method for finding roots of a function.
-///
 /// This function implements Brent's method for finding roots of a function.
 /// It iteratively narrows down the root using a combination of bisection,
 /// secant, and inverse quadratic interpolation.
-///
 /// @tparam T The type of the input value.
 /// @tparam F The type of the function to evaluate.
-///
 /// @param f The function to evaluate.
 /// @param x1 The first initial guess for the root.
 /// @param x2 The second initial guess for the root.
@@ -159,10 +143,8 @@ secant(const F& f, T x0, std::optional<T> x1O = {}, int max_iter = 1000,
 /// 100000).
 /// @param tolerance The tolerance value for convergence (default is
 /// default_tolerance<T>).
-///
 /// @return A pair containing the root value and a boolean indicating if
 /// convergence was achieved.
-///
 template<typename T, typename F,
          std::enable_if_t<std::is_floating_point_v<T> and
                               std::is_invocable_r_v<T, F, T>,
@@ -178,12 +160,10 @@ zbrent(const F& f, T x1, T x2, int max_iter = 100000,
     auto fa{f(a)};
     auto fb{f(b)};
     auto fc{fb};
-
     // Check if there is a single zero in range
     if (fa * fb > 0) {
         return {b, false};
     }
-
     // Start search
     for (auto iter{0ll}; iter < max_iter; ++iter) {
         if ((fb > 0 and fc > 0) or (fb < 0 and fc < 0)) {
@@ -200,13 +180,13 @@ zbrent(const F& f, T x1, T x2, int max_iter = 100000,
             fb = fc;
             fc = fa;
         }
-        const auto tol1{2 * std::numeric_limits<T>::epsilon() * muc::abs(b) +
-                        tolerance / 2};
+        const auto tol{2 * std::numeric_limits<T>::epsilon() * muc::abs(b) +
+                       tolerance / 2};
         const auto xm{(c - b) / 2};
-        if (muc::abs(xm) <= tol1 or fb == 0) {
+        if (muc::abs(xm) <= tol or fb == 0) {
             return {b, true};
         }
-        if (muc::abs(e) >= tol1 and muc::abs(fa) > muc::abs(fb)) {
+        if (muc::abs(e) >= tol and muc::abs(fa) > muc::abs(fb)) {
             T p;
             T q;
             const auto s{fb / fa};
@@ -223,7 +203,7 @@ zbrent(const F& f, T x1, T x2, int max_iter = 100000,
                 q = -q;
             p = muc::abs(p);
             if (2 * p <
-                std::min(3 * xm * q - muc::abs(tol1 * q), muc::abs(e * q))) {
+                std::min(3 * xm * q - muc::abs(tol * q), muc::abs(e * q))) {
                 e = d;
                 d = p / q;
             } else {
@@ -236,14 +216,14 @@ zbrent(const F& f, T x1, T x2, int max_iter = 100000,
         }
         a = b;
         fa = fb;
-        if (muc::abs(d) > tol1) {
+        if (muc::abs(d) > tol) {
             b += d;
         } else {
-            b += (xm > 1) ? tol1 : -tol1;
+            b += (xm > 1) ? tol : -tol;
         }
         fb = f(b);
     }
-
+    // max_iter reached
     return {b, false};
 }
 
