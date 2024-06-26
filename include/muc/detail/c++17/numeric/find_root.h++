@@ -68,7 +68,7 @@ template<typename T, typename F, typename DF,
                               std::is_invocable_r_v<T, DF, T>,
                           bool> = true>
 constexpr auto
-newton_raphson(const F& f, const DF& df, T x0, int max_iter = 1000,
+newton_raphson(F&& f, DF&& df, T x0, int max_iter = 1000,
                T tolerance = default_tolerance<T>) -> std::pair<T, bool> {
     auto x1{x0 - f(x0) / df(x0)};
     for (int i{}; i < max_iter; ++i) {
@@ -104,7 +104,7 @@ template<typename T, typename F,
                               std::is_invocable_r_v<T, F, T>,
                           bool> = true>
 constexpr auto
-secant(const F& f, T x0, std::optional<T> x1O = {}, int max_iter = 1000,
+secant(F&& f, T x0, std::optional<T> x1O = {}, int max_iter = 1000,
        T tolerance = default_tolerance<T>) -> std::pair<T, bool> {
     auto fx0{f(x0)};
     if (fx0 == 0) {
@@ -150,7 +150,7 @@ template<typename T, typename F,
                               std::is_invocable_r_v<T, F, T>,
                           bool> = true>
 constexpr auto
-zbrent(const F& f, T x1, T x2, int max_iter = 100000,
+zbrent(F&& f, T x1, T x2, int max_iter = 100000,
        T tolerance = default_tolerance<T>) -> std::pair<T, bool> {
     auto a{x1};
     auto b{x2};
@@ -179,6 +179,9 @@ zbrent(const F& f, T x1, T x2, int max_iter = 100000,
             fa = fb;
             fb = fc;
             fc = fa;
+        }
+        if (muc::isnan(fb)) {
+            break;
         }
         const auto tol{2 * std::numeric_limits<T>::epsilon() * muc::abs(b) +
                        tolerance / 2};
@@ -223,7 +226,7 @@ zbrent(const F& f, T x1, T x2, int max_iter = 100000,
         }
         fb = f(b);
     }
-    // max_iter reached
+    // nan or max_iter reached
     return {b, false};
 }
 
