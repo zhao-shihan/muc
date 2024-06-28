@@ -5831,6 +5831,7 @@ inline constexpr auto is_type_set_v = is_type_set<Ts...>::value;
 
 #ifdef MUC_STATIC_TEST
 
+static_assert(muc::is_type_set_v<>);
 static_assert(muc::is_type_set_v<int>);
 static_assert(muc::is_type_set_v<int, double>);
 static_assert(not muc::is_type_set_v<int, int>);

@@ -23,6 +23,7 @@
 #pragma once
 
 #include "muc/detail/c++17/type_traits/impl/has_binary_arithmetic_with.h++"
+#include "muc/detail/c++17/type_traits/is_general_arithmetic.h++"
 
 #include <type_traits>
 #include <utility>
