@@ -21,24 +21,29 @@
 // SOFTWARE.
 
 #pragma once
-#ifndef MUC_TYPE_TRAITS_35fd64e5dd5518762ebc391025fd06efd3f82687e245b5830b55c4a3ab96d768
-#define MUC_TYPE_TRAITS_35fd64e5dd5518762ebc391025fd06efd3f82687e245b5830b55c4a3ab96d768
 
-#if __cplusplus >= 202002L
-#include "muc/detail/c++20/type_traits/is_type_set.h++"
-#endif
+#include "muc/detail/c++20/tuple/tuple_contains.h++"
 
-#if __cplusplus >= 201703L
-#include "muc/detail/c++17/type_traits/is_arithmetic_operable_with.h++"
-#include "muc/detail/c++17/type_traits/is_bounded_array.h++"
-#include "muc/detail/c++17/type_traits/is_general_arithmetic.h++"
-#include "muc/detail/c++17/type_traits/is_scoped_enum.h++"
-#include "muc/detail/c++17/type_traits/is_template_of.h++"
-#include "muc/detail/c++17/type_traits/is_unbounded_array.h++"
-#include "muc/detail/c++17/type_traits/remove_cref.h++"
-#include "muc/detail/c++17/type_traits/remove_cvref.h++"
-#include "muc/detail/c++17/type_traits/remove_vref.h++"
-#include "muc/detail/c++17/type_traits/type_identity.h++"
-#endif
+#include <tuple>
+#include <type_traits>
+
+namespace muc {
+
+template<typename... Ts>
+struct is_type_set :
+    std::bool_constant<(... and tuple_contains_unique_v<std::tuple<Ts...>, Ts>)> {
+};
+
+template<typename... Ts>
+inline constexpr auto is_type_set_v = is_type_set<Ts...>::value;
+
+} // namespace muc
+
+#ifdef MUC_STATIC_TEST
+
+static_assert(muc::is_type_set_v<int>);
+static_assert(muc::is_type_set_v<int, double>);
+static_assert(not muc::is_type_set_v<int, int>);
+static_assert(not muc::is_type_set_v<int, int, double>);
 
 #endif
