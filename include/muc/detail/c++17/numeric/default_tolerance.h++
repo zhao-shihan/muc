@@ -21,21 +21,22 @@
 // SOFTWARE.
 
 #pragma once
-#ifndef MUC_NUMERIC_35fd64e5dd5518762ebc391025fd06efd3f82687e245b5830b55c4a3ab96d768
-#define MUC_NUMERIC_35fd64e5dd5518762ebc391025fd06efd3f82687e245b5830b55c4a3ab96d768
 
-#if __cplusplus >= 202002L
-#include "muc/detail/c++20/numeric/ranges_iota.h++"
-#include "muc/detail/c++20/numeric/ranges_numeric.h++"
-#endif
+#include "muc/detail/c++17/math/pow.h++"
 
-#if __cplusplus >= 201703L
-#include "muc/detail/c++17/numeric/bilerp.h++"
-#include "muc/detail/c++17/numeric/default_tolerance.h++"
-#include "muc/detail/c++17/numeric/find_root.h++"
-#include "muc/detail/c++17/numeric/lerp.h++"
-#include "muc/detail/c++17/numeric/midpoint.h++"
-#include "muc/detail/c++17/numeric/trilerp.h++"
-#endif
+#include <limits>
+#include <type_traits>
 
-#endif
+namespace muc {
+
+/// @brief Default tolerance value for floating-point type.
+/// This constexpr variable provides a default tolerance value for
+/// floating-points. It is calculated as half of the number of significant
+/// digits of the floating-point type T.
+/// @tparam T The floating-point type.
+template<typename T, std::enable_if_t<std::is_floating_point_v<T>, bool> = true>
+inline constexpr auto default_tolerance{
+    muc::pow<std::numeric_limits<T>::digits / 2, T>(2) *
+    std::numeric_limits<T>::epsilon()};
+
+} // namespace muc
