@@ -21,21 +21,16 @@
 // SOFTWARE.
 
 #pragma once
-#ifndef MUC_UTILITY_35fd64e5dd5518762ebc391025fd06efd3f82687e245b5830b55c4a3ab96d768
-#define MUC_UTILITY_35fd64e5dd5518762ebc391025fd06efd3f82687e245b5830b55c4a3ab96d768
 
-#if __cplusplus >= 202002L
-#include "muc/detail/c++20/tuple/pair_like.h++"
-#endif
+namespace muc {
 
-#if __cplusplus >= 201703L
-#include "muc/detail/c++17/utility/assume.h++"
-#include "muc/detail/c++17/utility/dependent_constexpr.h++"
-#include "muc/detail/c++17/utility/forward_like.h++"
-#include "muc/detail/c++17/utility/to_signed.h++"
-#include "muc/detail/c++17/utility/to_underlying.h++"
-#include "muc/detail/c++17/utility/to_unsigned.h++"
-#include "muc/detail/c++17/utility/unreachable.h++"
-#endif
+template<typename>
+inline constexpr bool dependent_true{true};
 
-#endif
+template<typename>
+inline constexpr bool dependent_false{false};
+
+template<auto A, typename>
+inline constexpr auto dependent_constexpr{A};
+
+} // namespace muc
