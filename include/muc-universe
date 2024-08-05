@@ -2600,7 +2600,7 @@ constexpr struct {
 
     auto operator()(auto&& policy, std::ranges::forward_range auto&& r,
                     auto&&... args) const -> decltype(auto) {
-        return std::reduce(std::forward<decltypr(policy)>(policy),
+        return std::reduce(std::forward<decltype(policy)>(policy),
                            std::ranges::cbegin(r), std::ranges::cend(r),
                            std::forward<decltype(args)>(args)...);
     }
@@ -2626,14 +2626,14 @@ constexpr struct {
                     std::forward_iterator auto i,
                     auto&&... args) const -> decltype(auto) {
         return std::transform_reduce(
-            std::forward<decltypr(policy)>(policy), std::ranges::cbegin(r),
+            std::forward<decltype(policy)>(policy), std::ranges::cbegin(r),
             std::ranges::cend(r), i, std::forward<decltype(args)>(args)...);
     }
 
     auto operator()(auto&& policy, std::ranges::forward_range auto&& r,
                     auto&&... args) const -> decltype(auto) {
         return std::transform_reduce(
-            std::forward<decltypr(policy)>(policy), std::ranges::cbegin(r),
+            std::forward<decltype(policy)>(policy), std::ranges::cbegin(r),
             std::ranges::cend(r), std::forward<decltype(args)>(args)...);
     }
 } transform_reduce{};
@@ -2660,7 +2660,7 @@ constexpr struct {
                     std::forward_iterator auto o,
                     auto&&... args) const -> decltype(auto) {
         return std::adjacent_difference(
-            std::forward<decltypr(policy)>(policy), std::ranges::cbegin(r),
+            std::forward<decltype(policy)>(policy), std::ranges::cbegin(r),
             std::ranges::cend(r), o, std::forward<decltype(args)>(args)...);
     }
 } adjacent_difference{};
@@ -2685,7 +2685,7 @@ constexpr struct {
     auto operator()(auto&& policy, std::ranges::forward_range auto&& r,
                     std::forward_iterator auto o,
                     auto&&... args) const -> decltype(auto) {
-        return std::inclusive_scan(std::forward<decltypr(policy)>(policy),
+        return std::inclusive_scan(std::forward<decltype(policy)>(policy),
                                    std::ranges::cbegin(r), std::ranges::cend(r),
                                    o, std::forward<decltype(args)>(args)...);
     }
@@ -2702,7 +2702,7 @@ constexpr struct {
     auto operator()(auto&& policy, std::ranges::forward_range auto&& r,
                     std::forward_iterator auto o,
                     auto&&... args) const -> decltype(auto) {
-        return std::exclusive_scan(std::forward<decltypr(policy)>(policy),
+        return std::exclusive_scan(std::forward<decltype(policy)>(policy),
                                    std::ranges::cbegin(r), std::ranges::cend(r),
                                    o, std::forward<decltype(args)>(args)...);
     }
@@ -2721,7 +2721,7 @@ constexpr struct {
                     std::forward_iterator auto o,
                     auto&&... args) const -> decltype(auto) {
         return std::transform_inclusive_scan(
-            std::forward<decltypr(policy)>(policy), std::ranges::cbegin(r),
+            std::forward<decltype(policy)>(policy), std::ranges::cbegin(r),
             std::ranges::cend(r), o, std::forward<decltype(args)>(args)...);
     }
 } transform_inclusive_scan{};
@@ -2739,7 +2739,7 @@ constexpr struct {
                     std::forward_iterator auto o,
                     auto&&... args) const -> decltype(auto) {
         return std::transform_exclusive_scan(
-            std::forward<decltypr(policy)>(policy), std::ranges::cbegin(r),
+            std::forward<decltype(policy)>(policy), std::ranges::cbegin(r),
             std::ranges::cend(r), o, std::forward<decltype(args)>(args)...);
     }
 } transform_exclusive_scan{};
@@ -5646,6 +5646,15 @@ concept pair_like = requires {
 };
 
 } // namespace muc
+
+#ifdef MUS_STATIC_TEST
+
+static_assert(muc::pair_like<std::pair<int, double>>);
+static_assert(muc::pair_like<std::tuple<int, double>>);
+static_assert(not muc::pair_like<std::tuple<double>>);
+static_assert(not muc::pair_like<int>);
+
+#endif
 // -*- C++ -*-
 //
 // Copyright 2024  Shihan Zhao
@@ -5699,6 +5708,24 @@ template<tuple_like T>
 using to_std_tuple_t = typename to_std_tuple<T>::type;
 
 } // namespace muc
+
+#ifdef MUC_STATIC_TEST
+
+#include <concepts>
+
+static_assert(
+    std::same_as<muc::to_std_tuple_t<std::tuple<int>>, std::tuple<int>>);
+static_assert(
+    std::same_as<muc::to_std_tuple_t<std::tuple<int>>, std::tuple<int>>);
+static_assert(
+    std::same_as<muc::to_std_tuple_t<std::pair<int, int>>, std::tuple<int, int>>);
+static_assert(std::same_as<muc::to_std_tuple_t<std::pair<int, double>>,
+                           std::tuple<int, double>>);
+static_assert(std::same_as<muc::to_std_tuple_t<std::tuple<int, double>>,
+                           std::tuple<int, double>>);
+static_assert(std::same_as<muc::to_std_tuple_t<std::tuple<>>, std::tuple<>>);
+
+#endif
 // -*- C++ -*-
 //
 // Copyright 2024  Shihan Zhao
@@ -5758,6 +5785,37 @@ template<tuple_like... Ts>
 using tuple_concat_t = typename tuple_concat<Ts...>::type;
 
 } // namespace muc
+
+#ifdef MUC_STATIC_TEST
+
+#include <concepts>
+
+static_assert(std::same_as<muc::tuple_concat_t<std::tuple<double, int>,
+                                               std::tuple<float, short>>,
+                           std::tuple<double, int, float, short>>);
+static_assert(std::same_as<muc::tuple_concat_t<std::tuple<double, int>,
+                                               std::pair<float, short>>,
+                           std::tuple<double, int, float, short>>);
+static_assert(std::same_as<muc::tuple_concat_t<std::pair<double, int>,
+                                               std::tuple<float, short>>,
+                           std::tuple<double, int, float, short>>);
+static_assert(std::same_as<muc::tuple_concat_t<std::pair<double, int>,
+                                               std::pair<float, short>>,
+                           std::tuple<double, int, float, short>>);
+static_assert(
+    std::same_as<muc::tuple_concat_t<std::tuple<double, int>, std::tuple<>>,
+                 std::tuple<double, int>>);
+static_assert(
+    std::same_as<muc::tuple_concat_t<std::tuple<>, std::tuple<double, int>>,
+                 std::tuple<double, int>>);
+static_assert(std::same_as<muc::tuple_concat_t<std::tuple<int>, std::tuple<>>,
+                           std::tuple<int>>);
+static_assert(std::same_as<muc::tuple_concat_t<std::tuple<>, std::tuple<int>>,
+                           std::tuple<int>>);
+static_assert(std::same_as<muc::tuple_concat_t<std::tuple<>, std::tuple<>>,
+                           std::tuple<>>);
+
+#endif
 // -*- C++ -*-
 //
 // Copyright 2024  Shihan Zhao
@@ -5818,8 +5876,9 @@ struct std_tuple_count;
 
 template<typename... Ts, typename T>
 struct std_tuple_count<std::tuple<Ts...>, T> :
-    std::integral_constant<std::size_t, (... + static_cast<std::size_t>(
-                                                   std::same_as<T, Ts>))> {};
+    std::integral_constant<std::size_t,
+                           (0 + ... +
+                            static_cast<std::size_t>(std::same_as<T, Ts>))> {};
 
 } // namespace impl
 
@@ -5830,6 +5889,15 @@ template<tuple_like T, typename U>
 inline constexpr auto tuple_count_v{tuple_count<T, U>::value};
 
 } // namespace muc
+
+#ifdef MUC_STATIC_TEST
+
+static_assert(muc::tuple_count_v<std::tuple<int, double>, int> == 1);
+static_assert(muc::tuple_count_v<std::tuple<int, int>, int> == 2);
+static_assert(muc::tuple_count_v<std::tuple<int, double>, float> == 0);
+static_assert(muc::tuple_count_v<std::tuple<>, float> == 0);
+
+#endif
 
 #include <type_traits>
 
@@ -5853,6 +5921,98 @@ inline constexpr auto tuple_contains_unique_v{
     tuple_contains_unique<T, U>::value};
 
 } // namespace muc
+
+#ifdef MUC_STATIC_TEST
+
+static_assert(muc::tuple_contains_v<std::pair<double, int>, int>);
+static_assert(muc::tuple_contains_v<std::tuple<int, double, int>, int>);
+static_assert(not muc::tuple_contains_v<std::tuple<>, int>);
+
+static_assert(muc::tuple_contains_unique_v<std::pair<double, int>, int>);
+static_assert(
+    not muc::tuple_contains_unique_v<std::tuple<int, double, int>, int>);
+static_assert(not muc::tuple_contains_unique_v<std::tuple<>, int>);
+
+#endif
+// -*- C++ -*-
+//
+// Copyright 2024  Shihan Zhao
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
+
+
+#include <tuple>
+#include <type_traits>
+
+namespace muc {
+
+namespace impl {
+
+template<typename, typename>
+struct tuple_unique;
+
+template<typename... Us>
+struct tuple_unique<std::tuple<>, std::tuple<Us...>> {
+    using type = std::tuple<Us...>;
+};
+
+template<typename T, typename... Ts, typename... Us>
+struct tuple_unique<std::tuple<T, Ts...>, std::tuple<Us...>> {
+    using type = std::conditional_t<
+        tuple_contains_v<std::tuple<Us...>, T>,
+        typename tuple_unique<std::tuple<Ts...>, std::tuple<Us...>>::type,
+        typename tuple_unique<std::tuple<Ts...>, std::tuple<Us..., T>>::type>;
+};
+
+} // namespace impl
+
+template<tuple_like T>
+struct tuple_unique {
+    using type =
+        typename impl::tuple_unique<to_std_tuple_t<T>, std::tuple<>>::type;
+};
+
+template<tuple_like T>
+using tuple_unique_t = typename tuple_unique<T>::type;
+
+} // namespace muc
+
+#ifdef MUC_STATIC_TEST
+
+#include <concepts>
+
+static_assert(std::same_as<muc::tuple_unique_t<std::tuple<>>, std::tuple<>>);
+static_assert(
+    std::same_as<muc::tuple_unique_t<std::tuple<int>>, std::tuple<int>>);
+static_assert(
+    std::same_as<muc::tuple_unique_t<std::tuple<int, int>>, std::tuple<int>>);
+static_assert(std::same_as<muc::tuple_unique_t<std::tuple<int, int, int>>,
+                           std::tuple<int>>);
+static_assert(
+    std::same_as<muc::tuple_unique_t<std::tuple<int, double, short, short>>,
+                 std::tuple<int, double, short>>);
+static_assert(std::same_as<
+              muc::tuple_unique_t<std::tuple<short, int, short, long, short>>,
+              std::tuple<short, int, long>>);
+
+#endif
 #endif
 
 #endif
