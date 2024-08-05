@@ -60,3 +60,34 @@ template<tuple_like... Ts>
 using tuple_concat_t = typename tuple_concat<Ts...>::type;
 
 } // namespace muc
+
+#ifdef MUC_STATIC_TEST
+
+#include <concepts>
+
+static_assert(std::same_as<muc::tuple_concat_t<std::tuple<double, int>,
+                                               std::tuple<float, short>>,
+                           std::tuple<double, int, float, short>>);
+static_assert(std::same_as<muc::tuple_concat_t<std::tuple<double, int>,
+                                               std::pair<float, short>>,
+                           std::tuple<double, int, float, short>>);
+static_assert(std::same_as<muc::tuple_concat_t<std::pair<double, int>,
+                                               std::tuple<float, short>>,
+                           std::tuple<double, int, float, short>>);
+static_assert(std::same_as<muc::tuple_concat_t<std::pair<double, int>,
+                                               std::pair<float, short>>,
+                           std::tuple<double, int, float, short>>);
+static_assert(
+    std::same_as<muc::tuple_concat_t<std::tuple<double, int>, std::tuple<>>,
+                 std::tuple<double, int>>);
+static_assert(
+    std::same_as<muc::tuple_concat_t<std::tuple<>, std::tuple<double, int>>,
+                 std::tuple<double, int>>);
+static_assert(std::same_as<muc::tuple_concat_t<std::tuple<int>, std::tuple<>>,
+                           std::tuple<int>>);
+static_assert(std::same_as<muc::tuple_concat_t<std::tuple<>, std::tuple<int>>,
+                           std::tuple<int>>);
+static_assert(std::same_as<muc::tuple_concat_t<std::tuple<>, std::tuple<>>,
+                           std::tuple<>>);
+
+#endif

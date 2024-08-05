@@ -33,3 +33,12 @@ concept pair_like = requires {
 };
 
 } // namespace muc
+
+#ifdef MUS_STATIC_TEST
+
+static_assert(muc::pair_like<std::pair<int, double>>);
+static_assert(muc::pair_like<std::tuple<int, double>>);
+static_assert(not muc::pair_like<std::tuple<double>>);
+static_assert(not muc::pair_like<int>);
+
+#endif

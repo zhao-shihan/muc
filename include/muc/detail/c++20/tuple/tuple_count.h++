@@ -38,8 +38,9 @@ struct std_tuple_count;
 
 template<typename... Ts, typename T>
 struct std_tuple_count<std::tuple<Ts...>, T> :
-    std::integral_constant<std::size_t, (... + static_cast<std::size_t>(
-                                                   std::same_as<T, Ts>))> {};
+    std::integral_constant<std::size_t,
+                           (0 + ... +
+                            static_cast<std::size_t>(std::same_as<T, Ts>))> {};
 
 } // namespace impl
 
@@ -50,3 +51,12 @@ template<tuple_like T, typename U>
 inline constexpr auto tuple_count_v{tuple_count<T, U>::value};
 
 } // namespace muc
+
+#ifdef MUC_STATIC_TEST
+
+static_assert(muc::tuple_count_v<std::tuple<int, double>, int> == 1);
+static_assert(muc::tuple_count_v<std::tuple<int, int>, int> == 2);
+static_assert(muc::tuple_count_v<std::tuple<int, double>, float> == 0);
+static_assert(muc::tuple_count_v<std::tuple<>, float> == 0);
+
+#endif

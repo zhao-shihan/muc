@@ -47,3 +47,16 @@ inline constexpr auto tuple_contains_unique_v{
     tuple_contains_unique<T, U>::value};
 
 } // namespace muc
+
+#ifdef MUC_STATIC_TEST
+
+static_assert(muc::tuple_contains_v<std::pair<double, int>, int>);
+static_assert(muc::tuple_contains_v<std::tuple<int, double, int>, int>);
+static_assert(not muc::tuple_contains_v<std::tuple<>, int>);
+
+static_assert(muc::tuple_contains_unique_v<std::pair<double, int>, int>);
+static_assert(
+    not muc::tuple_contains_unique_v<std::tuple<int, double, int>, int>);
+static_assert(not muc::tuple_contains_unique_v<std::tuple<>, int>);
+
+#endif

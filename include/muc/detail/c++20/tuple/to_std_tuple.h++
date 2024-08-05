@@ -53,3 +53,21 @@ template<tuple_like T>
 using to_std_tuple_t = typename to_std_tuple<T>::type;
 
 } // namespace muc
+
+#ifdef MUC_STATIC_TEST
+
+#include <concepts>
+
+static_assert(
+    std::same_as<muc::to_std_tuple_t<std::tuple<int>>, std::tuple<int>>);
+static_assert(
+    std::same_as<muc::to_std_tuple_t<std::tuple<int>>, std::tuple<int>>);
+static_assert(
+    std::same_as<muc::to_std_tuple_t<std::pair<int, int>>, std::tuple<int, int>>);
+static_assert(std::same_as<muc::to_std_tuple_t<std::pair<int, double>>,
+                           std::tuple<int, double>>);
+static_assert(std::same_as<muc::to_std_tuple_t<std::tuple<int, double>>,
+                           std::tuple<int, double>>);
+static_assert(std::same_as<muc::to_std_tuple_t<std::tuple<>>, std::tuple<>>);
+
+#endif
