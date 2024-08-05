@@ -42,11 +42,16 @@ struct tuple_unique<std::tuple<>, std::tuple<Us...>> {
 };
 
 template<typename T, typename... Ts, typename... Us>
+    requires tuple_contains_v<std::tuple<Us...>, T>
 struct tuple_unique<std::tuple<T, Ts...>, std::tuple<Us...>> {
-    using type = std::conditional_t<
-        tuple_contains_v<std::tuple<Us...>, T>,
-        typename tuple_unique<std::tuple<Ts...>, std::tuple<Us...>>::type,
-        typename tuple_unique<std::tuple<Ts...>, std::tuple<Us..., T>>::type>;
+    using type =
+        typename tuple_unique<std::tuple<Ts...>, std::tuple<Us...>>::type;
+};
+
+template<typename T, typename... Ts, typename... Us>
+struct tuple_unique<std::tuple<T, Ts...>, std::tuple<Us...>> {
+    using type =
+        typename tuple_unique<std::tuple<Ts...>, std::tuple<Us..., T>>::type;
 };
 
 } // namespace impl
