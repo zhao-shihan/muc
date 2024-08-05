@@ -46,7 +46,7 @@ constexpr struct {
 
     auto operator()(auto&& policy, std::ranges::forward_range auto&& r,
                     auto&&... args) const -> decltype(auto) {
-        return std::reduce(std::forward<decltypr(policy)>(policy),
+        return std::reduce(std::forward<decltype(policy)>(policy),
                            std::ranges::cbegin(r), std::ranges::cend(r),
                            std::forward<decltype(args)>(args)...);
     }
@@ -72,14 +72,14 @@ constexpr struct {
                     std::forward_iterator auto i,
                     auto&&... args) const -> decltype(auto) {
         return std::transform_reduce(
-            std::forward<decltypr(policy)>(policy), std::ranges::cbegin(r),
+            std::forward<decltype(policy)>(policy), std::ranges::cbegin(r),
             std::ranges::cend(r), i, std::forward<decltype(args)>(args)...);
     }
 
     auto operator()(auto&& policy, std::ranges::forward_range auto&& r,
                     auto&&... args) const -> decltype(auto) {
         return std::transform_reduce(
-            std::forward<decltypr(policy)>(policy), std::ranges::cbegin(r),
+            std::forward<decltype(policy)>(policy), std::ranges::cbegin(r),
             std::ranges::cend(r), std::forward<decltype(args)>(args)...);
     }
 } transform_reduce{};
@@ -106,7 +106,7 @@ constexpr struct {
                     std::forward_iterator auto o,
                     auto&&... args) const -> decltype(auto) {
         return std::adjacent_difference(
-            std::forward<decltypr(policy)>(policy), std::ranges::cbegin(r),
+            std::forward<decltype(policy)>(policy), std::ranges::cbegin(r),
             std::ranges::cend(r), o, std::forward<decltype(args)>(args)...);
     }
 } adjacent_difference{};
@@ -131,7 +131,7 @@ constexpr struct {
     auto operator()(auto&& policy, std::ranges::forward_range auto&& r,
                     std::forward_iterator auto o,
                     auto&&... args) const -> decltype(auto) {
-        return std::inclusive_scan(std::forward<decltypr(policy)>(policy),
+        return std::inclusive_scan(std::forward<decltype(policy)>(policy),
                                    std::ranges::cbegin(r), std::ranges::cend(r),
                                    o, std::forward<decltype(args)>(args)...);
     }
@@ -148,7 +148,7 @@ constexpr struct {
     auto operator()(auto&& policy, std::ranges::forward_range auto&& r,
                     std::forward_iterator auto o,
                     auto&&... args) const -> decltype(auto) {
-        return std::exclusive_scan(std::forward<decltypr(policy)>(policy),
+        return std::exclusive_scan(std::forward<decltype(policy)>(policy),
                                    std::ranges::cbegin(r), std::ranges::cend(r),
                                    o, std::forward<decltype(args)>(args)...);
     }
@@ -167,7 +167,7 @@ constexpr struct {
                     std::forward_iterator auto o,
                     auto&&... args) const -> decltype(auto) {
         return std::transform_inclusive_scan(
-            std::forward<decltypr(policy)>(policy), std::ranges::cbegin(r),
+            std::forward<decltype(policy)>(policy), std::ranges::cbegin(r),
             std::ranges::cend(r), o, std::forward<decltype(args)>(args)...);
     }
 } transform_inclusive_scan{};
@@ -185,7 +185,7 @@ constexpr struct {
                     std::forward_iterator auto o,
                     auto&&... args) const -> decltype(auto) {
         return std::transform_exclusive_scan(
-            std::forward<decltypr(policy)>(policy), std::ranges::cbegin(r),
+            std::forward<decltype(policy)>(policy), std::ranges::cbegin(r),
             std::ranges::cend(r), o, std::forward<decltype(args)>(args)...);
     }
 } transform_exclusive_scan{};
