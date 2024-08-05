@@ -33,6 +33,7 @@
 #include "muc/detail/c++20/tuple/tuple_contains.h++"
 #include "muc/detail/c++20/tuple/tuple_count.h++"
 #include "muc/detail/c++20/tuple/tuple_like.h++"
+#include "muc/detail/c++20/tuple/tuple_unique.h++"
 #endif
 
 #endif
