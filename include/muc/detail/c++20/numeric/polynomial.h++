@@ -30,9 +30,9 @@
 namespace muc {
 
 template<std::floating_point T, std::ranges::range C = std::initializer_list<T>>
-constexpr auto polynomial(C&& c, T x) -> T {
-    auto c{std::ranges::crbegin(c)};
-    const auto end{std::ranges::crend(c)};
+constexpr auto polynomial(C&& coeff, T x) -> T {
+    auto c{std::ranges::crbegin(coeff)};
+    const auto end{std::ranges::crend(coeff)};
     if (c == end) {
         using nl = std::numeric_limits<T>;
         return nl::has_quiet_NaN ? nl::quiet_NaN() : 0;
@@ -46,8 +46,8 @@ constexpr auto polynomial(C&& c, T x) -> T {
 
 template<std::floating_point T = double,
          std::ranges::range C = std::initializer_list<T>>
-constexpr auto polynomial(C&& c, std::integral auto x) -> T {
-    return polynomial<T>(c, x);
+constexpr auto polynomial(C&& coeff, std::integral auto x) -> T {
+    return polynomial<T>(coeff, x);
 }
 
 } // namespace muc
