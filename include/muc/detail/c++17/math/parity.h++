@@ -21,21 +21,33 @@
 // SOFTWARE.
 
 #pragma once
-#ifndef MUC_MATH_35fd64e5dd5518762ebc391025fd06efd3f82687e245b5830b55c4a3ab96d768
-#define MUC_MATH_35fd64e5dd5518762ebc391025fd06efd3f82687e245b5830b55c4a3ab96d768
 
-#if __cplusplus >= 202002L
-#include "muc/detail/c++20/math/clamp.h++"
-#endif
+#include <type_traits>
 
-#if __cplusplus >= 201703L
-#include "muc/detail/c++17/math/constexpr_cmath.h++"
-#include "muc/detail/c++17/math/digits_of.h++"
-#include "muc/detail/c++17/math/hypot.h++"
-#include "muc/detail/c++17/math/llround.h++"
-#include "muc/detail/c++17/math/lltrunc.h++"
-#include "muc/detail/c++17/math/parity.h++"
-#include "muc/detail/c++17/math/pow.h++"
-#endif
+namespace muc {
+
+template<typename T, std::enable_if_t<std::is_integral_v<T>, bool> = true>
+constexpr auto odd(T n) -> auto {
+    return n & static_cast<decltype(n)>(1);
+}
+
+template<typename T, std::enable_if_t<std::is_integral_v<T>, bool> = true>
+constexpr auto even(T n) -> auto {
+    return not odd(n);
+}
+
+} // namespace muc
+
+#ifdef MUC_STATIC_TEST
+
+static_assert(not muc::odd(0));
+static_assert(not muc::odd(2));
+static_assert(muc::odd(1));
+static_assert(muc::odd(3));
+
+static_assert(muc::even(0));
+static_assert(muc::even(2));
+static_assert(not muc::even(1));
+static_assert(not muc::even(3));
 
 #endif
