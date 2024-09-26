@@ -21,23 +21,33 @@
 // SOFTWARE.
 
 #pragma once
-#ifndef MUC_NUMERIC_35fd64e5dd5518762ebc391025fd06efd3f82687e245b5830b55c4a3ab96d768
-#define MUC_NUMERIC_35fd64e5dd5518762ebc391025fd06efd3f82687e245b5830b55c4a3ab96d768
 
-#if __cplusplus >= 202002L
-#include "muc/detail/c++20/numeric/polynomial.h++"
-#include "muc/detail/c++20/numeric/ranges_iota.h++"
-#include "muc/detail/c++20/numeric/ranges_numeric.h++"
-#include "muc/detail/c++20/numeric/rational.h++"
-#endif
+#include <concepts>
+#include <initializer_list>
+#include <limits>
+#include <ranges>
 
-#if __cplusplus >= 201703L
-#include "muc/detail/c++17/numeric/bilerp.h++"
-#include "muc/detail/c++17/numeric/default_tolerance.h++"
-#include "muc/detail/c++17/numeric/find_root.h++"
-#include "muc/detail/c++17/numeric/lerp.h++"
-#include "muc/detail/c++17/numeric/midpoint.h++"
-#include "muc/detail/c++17/numeric/trilerp.h++"
-#endif
+namespace muc {
 
-#endif
+template<std::floating_point T, std::ranges::range C = std::initializer_list<T>>
+constexpr auto polynomial(C&& c, T x) -> T {
+    auto c{std::ranges::crbegin(c)};
+    const auto end{std::ranges::crend(c)};
+    if (c == end) {
+        using nl = std::numeric_limits<T>;
+        return nl::has_quiet_NaN ? nl::quiet_NaN() : 0;
+    }
+    T p{*c++};
+    while (c != end) {
+        p = p * x + *c++;
+    }
+    return p;
+}
+
+template<std::floating_point T = double,
+         std::ranges::range C = std::initializer_list<T>>
+constexpr auto polynomial(C&& c, std::integral auto x) -> T {
+    return polynomial<T>(c, x);
+}
+
+} // namespace muc

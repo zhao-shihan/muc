@@ -21,23 +21,26 @@
 // SOFTWARE.
 
 #pragma once
-#ifndef MUC_NUMERIC_35fd64e5dd5518762ebc391025fd06efd3f82687e245b5830b55c4a3ab96d768
-#define MUC_NUMERIC_35fd64e5dd5518762ebc391025fd06efd3f82687e245b5830b55c4a3ab96d768
 
-#if __cplusplus >= 202002L
 #include "muc/detail/c++20/numeric/polynomial.h++"
-#include "muc/detail/c++20/numeric/ranges_iota.h++"
-#include "muc/detail/c++20/numeric/ranges_numeric.h++"
-#include "muc/detail/c++20/numeric/rational.h++"
-#endif
 
-#if __cplusplus >= 201703L
-#include "muc/detail/c++17/numeric/bilerp.h++"
-#include "muc/detail/c++17/numeric/default_tolerance.h++"
-#include "muc/detail/c++17/numeric/find_root.h++"
-#include "muc/detail/c++17/numeric/lerp.h++"
-#include "muc/detail/c++17/numeric/midpoint.h++"
-#include "muc/detail/c++17/numeric/trilerp.h++"
-#endif
+#include <concepts>
+#include <initializer_list>
+#include <ranges>
 
-#endif
+namespace muc {
+
+template<std::floating_point T, std::ranges::range A = std::initializer_list<T>,
+         std::ranges::range B = std::initializer_list<T>>
+constexpr auto rational(A&& numer, B&& denom, T x) -> T {
+    return polynomial(numer, x) / polynomial(denom, x);
+}
+
+template<std::floating_point T = double,
+         std::ranges::range A = std::initializer_list<T>,
+         std::ranges::range B = std::initializer_list<T>>
+constexpr auto rational(A&& numer, B&& denom, std::integral auto x) -> T {
+    return rational<T>(numer, denom, x);
+}
+
+} // namespace muc
