@@ -31,7 +31,7 @@ namespace muc {
 
 /// @brief A class to perform soft comparisons between floating-point values.
 ///
-/// This class uses a softening parameter to create a non-binary comparison
+/// This class uses a softening factor to create a non-binary comparison
 /// between two floating-point values, allowing for smooth transitions. The
 /// comparisons are based on sigmoid functions to provide soft decision
 /// boundaries.
@@ -87,7 +87,7 @@ private:
         T m_result;
     };
 
-    /// @brief Represents a value with an associated softening parameter.
+    /// @brief Represents a value with an associated softening factor.
     class value {
         friend class soft_cmp;
 
@@ -142,26 +142,26 @@ private:
     };
 
 public:
-    /// @brief Constructs a soft_cmp object with a given softening parameter.
-    /// @param soft The softening parameter to use in comparisons.
+    /// @brief Constructs a soft_cmp object with a given softening factor.
+    /// @param soft The softening factor to use in comparisons.
     constexpr explicit soft_cmp(T soft) :
         m_soft{soft} {}
 
-    /// @brief Sets a new softening parameter for the comparisons.
-    /// @param soft The new softening parameter.
+    /// @brief Sets a new softening factor for the comparisons.
+    /// @param soft The new softening factor.
     constexpr auto soft(T soft) -> void {
         m_soft = soft;
     }
 
-    /// @brief Gets the current softening parameter.
-    /// @return The current softening parameter.
+    /// @brief Gets the current softening factor.
+    /// @return The current softening factor.
     constexpr auto soft() const -> T {
         return m_soft;
     }
 
     /// @brief Creates a value for comparison using the current softening
     /// parameter.
-    /// @param val The value to be wrapped with the current softening parameter.
+    /// @param val The value to be wrapped with the current softening factor.
     /// @return A value object containing the given value and the softening
     /// parameter.
     constexpr auto operator()(T val) const -> value {
