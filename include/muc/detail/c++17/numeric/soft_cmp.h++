@@ -53,33 +53,33 @@ private:
 
     public:
         /// @brief Converts the result to the underlying type T.
-        constexpr operator T() {
+        constexpr operator T() const {
             return m_result;
         }
 
         /// @brief Dereference operator to access the underlying result.
         /// @return The underlying result value.
-        constexpr auto operator*() -> T {
+        constexpr auto operator*() const -> T {
             return m_result;
         }
 
         /// @brief Negation operator to invert the result.
         /// @return A new result object representing 1 - m_result.
-        constexpr auto operator not() -> result {
+        constexpr auto operator not() const -> result {
             return 1 - m_result;
         }
 
         /// @brief Logical AND operation between two soft comparison results.
         /// @param other Another result to compare against.
         /// @return The result of the logical AND operation.
-        constexpr auto operator and(result other) -> result {
+        constexpr auto operator and(result other) const -> result {
             return m_result * other.m_result;
         }
 
         /// @brief Logical OR operation between two soft comparison results.
         /// @param other Another result to compare against.
         /// @return The result of the logical OR operation.
-        constexpr auto operator or(result other) -> result {
+        constexpr auto operator or(result other) const -> result {
             return std::min(m_result + other.m_result, static_cast<T>(1));
         }
 
@@ -100,21 +100,21 @@ private:
         /// @brief Greater-than operator comparing two soft values.
         /// @param other The other value to compare against.
         /// @return The result of the soft comparison.
-        auto operator>(value other) -> result {
+        auto operator>(value other) const -> result {
             return muc::sigmoid((m_value - other.m_value) / m_soft);
         }
 
         /// @brief Less-than operator comparing two soft values.
         /// @param other The other value to compare against.
         /// @return The result of the soft comparison.
-        auto operator<(value other) -> result {
+        auto operator<(value other) const -> result {
             return muc::sigmoid((other.m_value - m_value) / m_soft);
         }
 
         /// @brief Equality operator comparing two soft values.
         /// @param other The other value to compare against.
         /// @return The result of the equality comparison.
-        auto operator==(value other) -> result {
+        auto operator==(value other) const -> result {
             const auto x{(m_value - other.m_value) / m_soft};
             return 4 * muc::sigmoid(x) * (1 - muc::sigmoid(x));
         }
@@ -122,18 +122,18 @@ private:
         /// @brief Inequality operator comparing two soft values.
         /// @param other The other value to compare against.
         /// @return The result of the inequality comparison.
-        auto operator!=(value other) -> result {
+        auto operator!=(value other) const -> result {
             const auto x{(m_value - other.m_value) / m_soft};
             return 1 - 4 * muc::sigmoid(x) * (1 - muc::sigmoid(x));
         }
 
         /// @brief Greater than or equal is same as greater-than.
-        auto operator>=(value) -> result = delete;
+        auto operator>=(value) const -> result = delete;
         /// @brief Less than or equal is same as less-than.
-        auto operator<=(value) -> result = delete;
+        auto operator<=(value) const -> result = delete;
 #if __cplusplus >= 202002L
         /// @brief Three-way comparison is not well-defined.
-        auto operator<=>(value) -> result = delete;
+        auto operator<=>(value) const -> result = delete;
 #endif
 
     private:
@@ -155,7 +155,7 @@ public:
 
     /// @brief Gets the current softening parameter.
     /// @return The current softening parameter.
-    constexpr auto soft() -> T {
+    constexpr auto soft() const -> T {
         return m_soft;
     }
 
@@ -164,7 +164,7 @@ public:
     /// @param val The value to be wrapped with the current softening parameter.
     /// @return A value object containing the given value and the softening
     /// parameter.
-    constexpr auto operator()(T val) -> value {
+    constexpr auto operator()(T val) const -> value {
         return {val, m_soft};
     }
 
