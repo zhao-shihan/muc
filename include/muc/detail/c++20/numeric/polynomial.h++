@@ -29,6 +29,29 @@
 
 namespace muc {
 
+/// @brief Evaluates a polynomial at a given value using Qin Jiushao's method.
+///
+/// This function takes a collection of coefficients representing a polynomial,
+/// and evaluates it at the specified point `x`. The coefficients should be
+/// provided in standard order (i.e., starting from the constant term).
+///
+/// The polynomial is evaluated using Qin Jiushao's method for improved
+/// numerical stability and efficiency. If the coefficients collection is empty,
+/// the function returns either NaN (if the type supports it) or 0.
+///
+/// @tparam T The type of the polynomial evaluation, constrained to
+/// floating-point types.
+/// @tparam C The type of the coefficients collection, which defaults to an
+/// initializer_list.
+///            It must satisfy the requirements of a range.
+/// @param coeff A collection of coefficients representing the polynomial. The
+/// coefficients
+///              should be specified in standard order, where the first element
+///              is the coefficient of the constant term.
+/// @param x The value at which the polynomial is to be evaluated.
+/// @return The result of evaluating the polynomial at the point `x`.
+///         If the coefficients are empty, returns NaN or 0 depending on the
+///         type.
 template<std::floating_point T, std::ranges::range C = std::initializer_list<T>>
 constexpr auto polynomial(C&& coeff, T x) -> T {
     auto c{std::ranges::crbegin(coeff)};
@@ -44,6 +67,29 @@ constexpr auto polynomial(C&& coeff, T x) -> T {
     return p;
 }
 
+/// @brief Evaluates a polynomial at a given integral value using Horner's
+/// method.
+///
+/// This function acts as an overload for evaluating a polynomial at an integral
+/// input value. It ensures that the coefficient collection is passed in its
+/// appropriate type while converting the integral `x` to the specified
+/// floating-point type for evaluation. The coefficients should be defined in
+/// standard order, starting from the constant term.
+///
+/// @tparam T The type of the polynomial evaluation, constrained to
+/// floating-point types.
+///           The default type is double.
+/// @tparam C The type of the coefficients collection, which defaults to an
+/// initializer_list.
+///            It must satisfy the requirements of a range.
+/// @param coeff A collection of coefficients representing the polynomial.
+///              The coefficients should be specified in standard order,
+///              where the first element is the coefficient of the constant
+///              term.
+/// @param x The integral value at which the polynomial is to be evaluated.
+/// @return The result of evaluating the polynomial at the point `x`.
+///         The integral `x` is implicitly converted to type `T` for the
+///         evaluation.
 template<std::floating_point T = double,
          std::ranges::range C = std::initializer_list<T>>
 constexpr auto polynomial(C&& coeff, std::integral auto x) -> T {

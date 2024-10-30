@@ -30,12 +30,75 @@
 
 namespace muc {
 
+/// @brief Evaluates a rational function at a given point using polynomial
+/// evaluation.
+///
+/// This function computes the value of a rational function defined by a
+/// numerator and denominator, where both are represented as polynomial
+/// coefficients. The function evaluates the numerator and denominator
+/// polynomials at the specified floating-point value `x`, and returns the
+/// result of the division.
+///
+/// @tparam T The type of the polynomial evaluation, constrained to
+/// floating-point types.
+/// @tparam A The type of the coefficients collection for the numerator, which
+/// defaults to an
+///            initializer_list. It must satisfy the requirements of a range.
+/// @tparam B The type of the coefficients collection for the denominator, which
+/// defaults to an
+///            initializer_list. It must satisfy the requirements of a range.
+/// @param numer A collection of coefficients representing the numerator
+/// polynomial.
+///              The coefficients should be specified in standard order,
+///              starting from the constant term.
+/// @param denom A collection of coefficients representing the denominator
+/// polynomial.
+///              The coefficients should also be specified in standard order,
+///              starting from the constant term.
+/// @param x The floating-point value at which the rational function is to be
+/// evaluated.
+/// @return The result of evaluating the rational function at the point `x`,
+/// which is the
+///         quotient of the evaluated numerator and denominator polynomials.
+///         Note: The function does not check for division by zero.
 template<std::floating_point T, std::ranges::range A = std::initializer_list<T>,
          std::ranges::range B = std::initializer_list<T>>
 constexpr auto rational(A&& numer, B&& denom, T x) -> T {
     return polynomial(numer, x) / polynomial(denom, x);
 }
 
+/// @brief Evaluates a rational function at a given integral point using
+/// polynomial evaluation.
+///
+/// This function serves as an overload for evaluating a rational function with
+/// integral input. It takes a numerator and denominator represented as
+/// polynomial coefficients and evaluates the rational function at the integral
+/// point `x`. The integral `x` is implicitly converted to the specified
+/// floating-point type `T` for evaluation.
+///
+/// @tparam T The type of the polynomial evaluation, constrained to
+/// floating-point types.
+///           The default type is double.
+/// @tparam A The type of the coefficients collection for the numerator, which
+/// defaults to an
+///            initializer_list. It must satisfy the requirements of a range.
+/// @tparam B The type of the coefficients collection for the denominator, which
+/// defaults to an
+///            initializer_list. It must satisfy the requirements of a range.
+/// @param numer A collection of coefficients representing the numerator
+/// polynomial.
+///              The coefficients should be specified in standard order,
+///              starting from the constant term.
+/// @param denom A collection of coefficients representing the denominator
+/// polynomial.
+///              The coefficients should also be specified in standard order,
+///              starting from the constant term.
+/// @param x The integral value at which the rational function is to be
+/// evaluated.
+/// @return The result of evaluating the rational function at the point `x`,
+/// which is the
+///         quotient of the evaluated numerator and denominator polynomials.
+///         Note: The function does not check for division by zero.
 template<std::floating_point T = double,
          std::ranges::range A = std::initializer_list<T>,
          std::ranges::range B = std::initializer_list<T>>
