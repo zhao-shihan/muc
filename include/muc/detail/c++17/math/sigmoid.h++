@@ -41,7 +41,7 @@ namespace muc {
 /// @return The computed sigmoid value of the input `x`, which will be in the
 /// range (0, 1).
 template<typename T, std::enable_if_t<std::is_floating_point_v<T>, bool> = true>
-constexpr auto sigmoid(T x) -> T {
+auto sigmoid(T x) -> T {
     return 1 / (1 + std::exp(-x));
 }
 
@@ -64,7 +64,7 @@ constexpr auto sigmoid(T x) -> T {
 template<typename T = double, typename U,
          std::enable_if_t<std::is_floating_point_v<T> and std::is_integral_v<U>,
                           bool> = true>
-constexpr auto sigmoid(U x) -> T {
+auto sigmoid(U x) -> T {
     return muc::sigmoid(static_cast<T>(x));
 }
 
