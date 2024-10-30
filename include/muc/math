@@ -36,6 +36,7 @@
 #include "muc/detail/c++17/math/lltrunc.h++"
 #include "muc/detail/c++17/math/parity.h++"
 #include "muc/detail/c++17/math/pow.h++"
+#include "muc/detail/c++17/math/relu.h++"
 #include "muc/detail/c++17/math/sigmoid.h++"
 #endif
 
