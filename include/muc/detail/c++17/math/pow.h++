@@ -88,7 +88,7 @@ constexpr auto pow(T x) -> T {
 /// @param x base
 /// @return x^N
 template<int N, typename T = double, typename U,
-         std::enable_if_t<std::is_floating_point_v<T> and std::is_integral_v<T>,
+         std::enable_if_t<std::is_floating_point_v<T> and std::is_integral_v<U>,
                           bool> = true>
 constexpr auto pow(U x) -> T {
     return muc::pow<N>(static_cast<T>(x));
