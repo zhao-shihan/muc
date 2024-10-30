@@ -102,10 +102,9 @@ static_assert(muc::relu(1) == +1);
 static_assert(muc::relu(2) == +2);
 static_assert(muc::relu(3) == +3);
 
-static_assert(muc::llround(-std::numeric_limits<double>::infinity()) == 0);
-static_assert(muc::llround(std::numeric_limits<double>::infinity()) ==
+static_assert(muc::relu(-std::numeric_limits<double>::infinity()) == 0);
+static_assert(muc::relu(std::numeric_limits<double>::infinity()) ==
               std::numeric_limits<double>::infinity());
-static_assert(muc::llround(std::numeric_limits<double>::quiet_NaN()) ==
-              std::numeric_limits<double>::quiet_NaN());
+static_assert(muc::isnan(muc::relu(std::numeric_limits<double>::quiet_NaN())));
 
 #endif
