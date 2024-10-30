@@ -37,7 +37,7 @@ namespace muc {
 ///
 /// The polynomial is evaluated using Qin Jiushao's method for improved
 /// numerical stability and efficiency. If the coefficients collection is empty,
-/// the function returns either NaN (if the type supports it) or 0.
+/// the function returns NaN.
 ///
 /// @tparam T The type of the polynomial evaluation, constrained to
 /// floating-point types.
@@ -57,8 +57,7 @@ constexpr auto polynomial(C&& coeff, T x) -> T {
     auto c{std::ranges::crbegin(coeff)};
     const auto end{std::ranges::crend(coeff)};
     if (c == end) {
-        using nl = std::numeric_limits<T>;
-        return nl::has_quiet_NaN ? nl::quiet_NaN() : 0;
+        return std::numeric_limits<T>::quiet_NaN();
     }
     T p{*c++};
     while (c != end) {
