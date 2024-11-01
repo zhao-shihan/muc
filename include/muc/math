@@ -29,15 +29,19 @@
 #endif
 
 #if __cplusplus >= 201703L
+#include "muc/detail/c++17/math/ceil_to.h++"
 #include "muc/detail/c++17/math/constexpr_cmath.h++"
 #include "muc/detail/c++17/math/digits_of.h++"
+#include "muc/detail/c++17/math/floor_to.h++"
 #include "muc/detail/c++17/math/hypot.h++"
 #include "muc/detail/c++17/math/llround.h++"
 #include "muc/detail/c++17/math/lltrunc.h++"
 #include "muc/detail/c++17/math/parity.h++"
 #include "muc/detail/c++17/math/pow.h++"
 #include "muc/detail/c++17/math/relu.h++"
+#include "muc/detail/c++17/math/round_to.h++"
 #include "muc/detail/c++17/math/sigmoid.h++"
+#include "muc/detail/c++17/math/trunc_to.h++"
 #endif
 
 #endif
