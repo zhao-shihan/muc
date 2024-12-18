@@ -27,6 +27,6 @@
 namespace muc {
 
 template<typename T>
-concept general_arithmetic = muc::is_general_arithmetic_v<T>;
+concept general_arithmetic = is_general_arithmetic_v<T>;
 
 } // namespace muc
