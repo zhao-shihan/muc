@@ -35,6 +35,7 @@
 #include "muc/detail/c++17/utility/to_signed.h++"
 #include "muc/detail/c++17/utility/to_underlying.h++"
 #include "muc/detail/c++17/utility/to_unsigned.h++"
+#include "muc/detail/c++17/utility/try_demangle.h++"
 #include "muc/detail/c++17/utility/unreachable.h++"
 #endif
 
