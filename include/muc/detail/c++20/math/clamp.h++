@@ -22,7 +22,7 @@
 
 #pragma once
 
-#include "muc/detail/c++20/ceta_string.h++"
+#include "muc/detail/c++20/ceta_string/ceta_string.h++"
 
 #include <cassert>
 #include <cmath>
