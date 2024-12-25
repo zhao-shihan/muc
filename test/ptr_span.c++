@@ -1,9 +1,5 @@
-#ifndef MUC_TEST_UNIVERSE
 #include "muc/ptr_span"
 #include "muc/ptr_vector"
-#else
-#include "muc-universe"
-#endif
 
 #include <algorithm>
 #include <iostream>

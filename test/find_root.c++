@@ -1,8 +1,4 @@
-#ifndef MUC_TEST_UNIVERSE
 #include "muc/numeric"
-#else
-#include "muc-universe"
-#endif
 
 #include <cmath>
 #include <iomanip>

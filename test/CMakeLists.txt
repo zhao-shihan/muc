@@ -36,12 +36,6 @@ macro(add_executable_with_feature prefix feature)
     target_compile_features(${prefix}_${feature} PRIVATE ${feature})
     target_compile_definitions(${prefix}_${feature} PRIVATE MUC_STATIC_TEST)
     target_compile_options(${prefix}_${feature} PRIVATE ${MUC_COMPILE_OPTIONS})
-
-    # add_executable(${prefix}_${feature}_universe ${prefix}.c++)
-    # target_include_directories(${prefix}_${feature}_universe PRIVATE ${CMAKE_HOME_DIRECTORY}/include)
-    # target_compile_features(${prefix}_${feature}_universe PRIVATE ${feature})
-    # target_compile_definitions(${prefix}_${feature}_universe PRIVATE MUC_STATIC_TEST MUC_TEST_UNIVERSE)
-    # target_compile_options(${prefix}_${feature} PRIVATE ${MUC_COMPILE_OPTIONS})
 endmacro(add_executable_with_feature)
 
 add_executable_with_feature(find_root cxx_std_17)
