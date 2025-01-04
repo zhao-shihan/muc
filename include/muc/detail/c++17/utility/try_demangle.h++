@@ -38,9 +38,13 @@ inline auto try_demangle(const char* name, int& status) -> std::string {
                   }) {
         const auto c_result{
             abi::__cxa_demangle(name, nullptr, nullptr, &status)};
-        const std::string result{c_result};
-        std::free(c_result);
-        return result;
+        if (c_result) {
+            const std::string result{c_result};
+            std::free(c_result);
+            return result;
+        } else {
+            return {};
+        }
     } else {
         return name;
     }
