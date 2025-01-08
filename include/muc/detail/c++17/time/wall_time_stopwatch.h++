@@ -62,7 +62,7 @@ namespace muc {
 /// @brief high-precision cross-platform (linux/bsd/windows/etc.) simple
 /// stopwatch class
 template<typename Time = double>
-class wall_time_stopwatch : protected impl::wall_time_stopwatch<Time> {
+class wall_time_stopwatch {
     static_assert(std::is_floating_point_v<Time>,
                   "the value type for stopwatch should be a floating point");
     static_assert(std::numeric_limits<Time>::digits >=
@@ -74,20 +74,27 @@ public:
 
 public:
     auto s_elapsed() const noexcept -> value_type {
-        return impl::wall_time_stopwatch<Time>::s_elapsed();
+        return m_impl.s_elapsed();
     }
 
     auto ms_elapsed() const noexcept -> value_type {
-        return impl::wall_time_stopwatch<Time>::ms_elapsed();
+        return m_impl.ms_elapsed();
     }
 
     auto us_elapsed() const noexcept -> value_type {
-        return impl::wall_time_stopwatch<Time>::us_elapsed();
+        return m_impl.us_elapsed();
     }
 
     auto ns_elapsed() const noexcept -> value_type {
-        return impl::wall_time_stopwatch<Time>::ns_elapsed();
+        return m_impl.ns_elapsed();
     }
+
+    auto reset() noexcept -> void {
+        m_impl = {};
+    }
+
+private:
+    impl::wall_time_stopwatch<Time> m_impl;
 };
 
 } // namespace muc

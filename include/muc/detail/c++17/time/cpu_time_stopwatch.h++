@@ -42,7 +42,7 @@ namespace muc {
 
 /// @brief CPU stopwatch better than std::clock() when available.
 template<typename Time = double>
-class cpu_time_stopwatch final : protected impl::cpu_time_stopwatch<Time> {
+class cpu_time_stopwatch {
     static_assert(std::is_floating_point_v<Time>,
                   "the value type for stopwatch should be a floating point");
     static_assert(std::numeric_limits<Time>::digits >=
@@ -54,20 +54,27 @@ public:
 
 public:
     auto s_used() const noexcept -> value_type {
-        return impl::cpu_time_stopwatch<Time>::s_used();
+        return m_impl.s_used();
     }
 
     auto ms_used() const noexcept -> value_type {
-        return impl::cpu_time_stopwatch<Time>::ms_used();
+        return m_impl.ms_used();
     }
 
     auto us_used() const noexcept -> value_type {
-        return impl::cpu_time_stopwatch<Time>::us_used();
+        return m_impl.us_used();
     }
 
     auto ns_used() const noexcept -> value_type {
-        return impl::cpu_time_stopwatch<Time>::ns_used();
+        return m_impl.ns_used();
     }
+
+    auto reset() noexcept -> void {
+        m_impl = {};
+    }
+
+private:
+    impl::cpu_time_stopwatch<Time> m_impl;
 };
 
 } // namespace muc
