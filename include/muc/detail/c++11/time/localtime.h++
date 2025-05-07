@@ -21,16 +21,13 @@
 // SOFTWARE.
 
 #pragma once
-#ifndef MUC_TIME_35fd64e5dd5518762ebc391025fd06efd3f82687e245b5830b55c4a3ab96d768
-#define MUC_TIME_35fd64e5dd5518762ebc391025fd06efd3f82687e245b5830b55c4a3ab96d768
 
-#if __cplusplus >= 201703L
-#include "muc/detail/c++17/time/cpu_time_stopwatch.h++"
-#include "muc/detail/c++17/time/wall_time_stopwatch.h++"
-#endif
+#include <ctime>
 
-#if __cplusplus >= 201103L
-#include "muc/detail/c++11/time/localtime.h++"
-#endif
+namespace muc {
 
-#endif
+auto localtime(const std::time_t& time) -> const std::tm& {
+    return *std::localtime(&time);
+}
+
+} // namespace muc
