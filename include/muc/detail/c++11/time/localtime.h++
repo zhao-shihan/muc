@@ -26,8 +26,12 @@
 
 namespace muc {
 
-auto localtime(const std::time_t& time) -> const std::tm& {
-    return *std::localtime(&time);
+inline auto localtime(const std::time_t& time) noexcept -> std::tm {
+    if (const auto local_time{std::localtime(&time)}) {
+        return *local_time;
+    } else {
+        return {};
+    }
 }
 
 } // namespace muc
