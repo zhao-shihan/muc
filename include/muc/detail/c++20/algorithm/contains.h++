@@ -29,7 +29,7 @@
 #include <ranges>
 #include <utility>
 
-namespace muc {
+namespace muc::ranges {
 
 namespace impl {
 
@@ -62,4 +62,4 @@ struct contains_fn {
 
 inline constexpr impl::contains_fn contains{};
 
-} // namespace muc
+} // namespace muc::ranges
