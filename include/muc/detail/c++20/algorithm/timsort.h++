@@ -113,14 +113,13 @@ struct run {
 template<typename RandomAccessIterator>
 class TimSort {
     using iter_t = RandomAccessIterator;
-    using value_t = typename std::iterator_traits<iter_t>::value_type;
-    using diff_t = typename std::iterator_traits<iter_t>::difference_type;
+    using diff_t = std::iter_difference_t<iter_t>;
 
     static constexpr int MIN_MERGE = 32;
     static constexpr int MIN_GALLOP = 7;
 
     int minGallop_ = MIN_GALLOP;
-    std::vector<value_t> tmp_; // temp storage for merges
+    std::vector<std::iter_value_t<iter_t>> tmp_; // temp storage for merges
     std::vector<run<RandomAccessIterator>> pending_;
 
     template<typename Compare, typename Projection>
@@ -389,7 +388,7 @@ class TimSort {
     }
 
     static void rotateLeft(iter_t first, iter_t last) {
-        auto tmp = std::ranges::iter_move(first);
+        std::iter_value_t<iter_t> tmp = std::ranges::iter_move(first);
         auto [_, last_1] =
             std::ranges::move(std::ranges::next(first), last, first);
         *last_1 = std::move(tmp);
@@ -397,7 +396,7 @@ class TimSort {
 
     static void rotateRight(iter_t first, iter_t last) {
         auto last_1 = std::ranges::prev(last);
-        auto tmp = std::ranges::iter_move(last_1);
+        std::iter_value_t<iter_t> tmp = std::ranges::iter_move(last_1);
         std::ranges::move_backward(first, last_1, last);
         *first = std::move(tmp);
     }
@@ -779,8 +778,8 @@ template<std::ranges::random_access_range Range,
          typename Projection = std::identity>
     requires std::sortable<std::ranges::iterator_t<Range>, Compare, Projection>
 auto timmerge(Range&& range, std::ranges::iterator_t<Range> middle,
-              Compare comp = {},
-              Projection proj = {}) -> std::ranges::borrowed_iterator_t<Range> {
+              Compare comp = {}, Projection proj = {})
+    -> std::ranges::borrowed_iterator_t<Range> {
     return muc::timmerge(std::begin(range), middle, std::end(range), comp,
                          proj);
 }
@@ -808,8 +807,8 @@ template<std::ranges::random_access_range Range,
          typename Compare = std::ranges::less,
          typename Projection = std::identity>
     requires std::sortable<std::ranges::iterator_t<Range>, Compare, Projection>
-auto timsort(Range&& range, Compare comp = {},
-             Projection proj = {}) -> std::ranges::borrowed_iterator_t<Range> {
+auto timsort(Range&& range, Compare comp = {}, Projection proj = {})
+    -> std::ranges::borrowed_iterator_t<Range> {
     return muc::timsort(std::begin(range), std::end(range), comp, proj);
 }
 
