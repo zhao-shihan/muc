@@ -43,8 +43,9 @@ struct contains_subrange_fn {
                               Pred pred = {}, Proj1 proj1 = {},
                               Proj2 proj2 = {}) const -> bool {
         return (first2 == last2) or
-               not std::ranges::search(first1, last1, first2, last2, pred,
-                                       proj1, proj2)
+               not std::ranges::search(first1, last1, first2, last2,
+                                       std::move(pred), std::move(proj1),
+                                       std::move(proj2))
                        .empty();
     }
 
@@ -57,11 +58,11 @@ struct contains_subrange_fn {
     constexpr auto operator()(R1&& r1, R2&& r2, Pred pred = {},
                               Proj1 proj1 = {}, Proj2 proj2 = {}) const
         -> bool {
-        return (first2 == last2) or
-               not std::ranges::search(std::ranges::begin(r1),
-                                       std::ranges::end(r1),
-                                       std::ranges::begin(r2),
-                                       std::ranges::end(r2), pred, proj1, proj2)
+        return std::ranges::empty(r2) or
+               not std::ranges::search(
+                       std::ranges::begin(r1), std::ranges::end(r1),
+                       std::ranges::begin(r2), std::ranges::end(r2),
+                       std::move(pred), std::move(proj1), std::move(proj2))
                        .empty();
     }
 };

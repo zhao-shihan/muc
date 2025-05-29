@@ -41,7 +41,8 @@ struct contains_fn {
             std::ranges::equal_to, std::projected<I, Proj>, const T*>
     constexpr auto operator()(I first, S last, const T& value,
                               Proj proj = {}) const -> bool {
-        return std::ranges::find(std::move(first), last, value, proj) != last;
+        return std::ranges::find(std::move(first), last, value,
+                                 std::move(proj)) != last;
     }
 
     template<
@@ -54,7 +55,7 @@ struct contains_fn {
         -> bool {
         return std::ranges::find(std::move(std::ranges::begin(r)),
                                  std::ranges::end(r), value,
-                                 proj) != std::ranges::end(r);
+                                 std::move(proj)) != std::ranges::end(r);
     }
 };
 
