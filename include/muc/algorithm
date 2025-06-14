@@ -26,7 +26,6 @@
 
 #if __cplusplus >= 202002L
 #include "muc/detail/c++20/algorithm/contains.h++"
-#include "muc/detail/c++20/algorithm/contains_subrange.h++"
 #include "muc/detail/c++20/algorithm/timsort.h++"
 #endif
 

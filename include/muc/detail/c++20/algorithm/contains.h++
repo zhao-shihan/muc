@@ -31,9 +31,7 @@
 
 namespace muc::ranges {
 
-namespace impl {
-
-struct contains_fn {
+inline constexpr struct {
     template<std::input_iterator I, std::sentinel_for<I> S,
              typename Proj = std::identity,
              typename T = muc::projected_value_t<I, Proj>>
@@ -57,10 +55,40 @@ struct contains_fn {
                                  std::ranges::end(r), value,
                                  std::move(proj)) != std::ranges::end(r);
     }
-};
+} contains{};
 
-} // namespace impl
+inline constexpr struct {
+    template<std::forward_iterator I1, std::sentinel_for<I1> S1,
+             std::forward_iterator I2, std::sentinel_for<I2> S2,
+             typename Pred = std::ranges::equal_to,
+             typename Proj1 = std::identity, typename Proj2 = std::identity>
+        requires std::indirectly_comparable<I1, I2, Pred, Proj1, Proj2>
+    constexpr auto operator()(I1 first1, S1 last1, I2 first2, S2 last2,
+                              Pred pred = {}, Proj1 proj1 = {},
+                              Proj2 proj2 = {}) const -> bool {
+        return (first2 == last2) or
+               not std::ranges::search(first1, last1, first2, last2,
+                                       std::move(pred), std::move(proj1),
+                                       std::move(proj2))
+                       .empty();
+    }
 
-inline constexpr impl::contains_fn contains{};
+    template<std::ranges::forward_range R1, std::ranges::forward_range R2,
+             typename Pred = std::ranges::equal_to,
+             typename Proj1 = std::identity, typename Proj2 = std::identity>
+        requires std::indirectly_comparable<std::ranges::iterator_t<R1>,
+                                            std::ranges::iterator_t<R2>, Pred,
+                                            Proj1, Proj2>
+    constexpr auto operator()(R1&& r1, R2&& r2, Pred pred = {},
+                              Proj1 proj1 = {}, Proj2 proj2 = {}) const
+        -> bool {
+        return std::ranges::empty(r2) or
+               not std::ranges::search(
+                       std::ranges::begin(r1), std::ranges::end(r1),
+                       std::ranges::begin(r2), std::ranges::end(r2),
+                       std::move(pred), std::move(proj1), std::move(proj2))
+                       .empty();
+    }
+} contains_subrange{};
 
 } // namespace muc::ranges

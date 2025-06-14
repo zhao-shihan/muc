@@ -29,7 +29,7 @@
 
 namespace muc::ranges {
 
-constexpr struct {
+inline constexpr struct {
     constexpr auto operator()(std::ranges::input_range auto&& r,
                               auto&&... args) const -> decltype(auto) {
         return std::accumulate(std::ranges::cbegin(r), std::ranges::cend(r),
@@ -37,7 +37,7 @@ constexpr struct {
     }
 } accumulate{};
 
-constexpr struct {
+inline constexpr struct {
     constexpr auto operator()(std::ranges::input_range auto&& r,
                               auto&&... args) const -> decltype(auto) {
         return std::reduce(std::ranges::cbegin(r), std::ranges::cend(r),
@@ -52,7 +52,7 @@ constexpr struct {
     }
 } reduce{};
 
-constexpr struct {
+inline constexpr struct {
     constexpr auto operator()(std::ranges::input_range auto&& r,
                               std::input_iterator auto i,
                               auto&&... args) const -> decltype(auto) {
@@ -84,7 +84,7 @@ constexpr struct {
     }
 } transform_reduce{};
 
-constexpr struct {
+inline constexpr struct {
     constexpr auto operator()(std::ranges::input_range auto&& r,
                               std::input_iterator auto i,
                               auto&&... args) const -> decltype(auto) {
@@ -93,7 +93,7 @@ constexpr struct {
     }
 } inner_product{};
 
-constexpr struct {
+inline constexpr struct {
     constexpr auto operator()(std::ranges::input_range auto&& r,
                               /* std::output_iterator */ auto o,
                               auto&&... args) const -> decltype(auto) {
@@ -111,7 +111,7 @@ constexpr struct {
     }
 } adjacent_difference{};
 
-constexpr struct {
+inline constexpr struct {
     constexpr auto operator()(std::ranges::input_range auto&& r,
                               /* std::output_iterator */ auto o,
                               auto&&... args) const -> decltype(auto) {
@@ -120,7 +120,7 @@ constexpr struct {
     }
 } partial_sum{};
 
-constexpr struct {
+inline constexpr struct {
     constexpr auto operator()(std::ranges::input_range auto&& r,
                               /* std::output_iterator */ auto o,
                               auto&&... args) const -> decltype(auto) {
@@ -137,7 +137,7 @@ constexpr struct {
     }
 } inclusive_scan{};
 
-constexpr struct {
+inline constexpr struct {
     constexpr auto operator()(std::ranges::input_range auto&& r,
                               /* std::output_iterator */ auto o,
                               auto&&... args) const -> decltype(auto) {
@@ -154,7 +154,7 @@ constexpr struct {
     }
 } exclusive_scan{};
 
-constexpr struct {
+inline constexpr struct {
     constexpr auto operator()(std::ranges::input_range auto&& r,
                               /* std::output_iterator */ auto o,
                               auto&&... args) const -> decltype(auto) {
@@ -172,7 +172,7 @@ constexpr struct {
     }
 } transform_inclusive_scan{};
 
-constexpr struct {
+inline constexpr struct {
     constexpr auto operator()(std::ranges::input_range auto&& r,
                               /* std::output_iterator */ auto o,
                               auto&&... args) const -> decltype(auto) {
