@@ -24,8 +24,8 @@
 #ifndef MUC_HASH_SET_35fd64e5dd5518762ebc391025fd06efd3f82687e245b5830b55c4a3ab96d768
 #define MUC_HASH_SET_35fd64e5dd5518762ebc391025fd06efd3f82687e245b5830b55c4a3ab96d768
 
-#if __cplusplus >= 201103L
-#include "muc/detail/c++11/hash_set/hash_set.h++"
+#if __cplusplus >= 201703L
+#include "muc/detail/c++17/hash_set/hash_set.h++"
 #endif
 
 #endif
