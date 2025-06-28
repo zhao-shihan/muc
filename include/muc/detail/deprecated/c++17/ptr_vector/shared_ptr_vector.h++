@@ -22,8 +22,7 @@
 
 #pragma once
 
-#include "muc/detail/c++17/memory/allocate_unique.h++"
-#include "muc/detail/c++17/ptr_vector/impl/ptr_vector_base.h++"
+#include "muc/detail/deprecated/c++17/ptr_vector/impl/ptr_vector_base.h++"
 
 #include <initializer_list>
 #include <iterator>
@@ -36,38 +35,36 @@
 namespace muc {
 
 template<typename T, typename Allocator = typename std::allocator<T>>
-class unique_ptr_vector :
+class shared_ptr_vector :
     public impl::ptr_vector_base<
-        unique_ptr_vector<T, Allocator>,
-        std::vector<
-            std::unique_ptr<T, allocator_delete<Allocator>>,
-            typename std::allocator_traits<Allocator>::template rebind_alloc<
-                std::unique_ptr<T, allocator_delete<Allocator>>>>> {
+        shared_ptr_vector<T, Allocator>,
+        std::vector<std::shared_ptr<T>,
+                    typename std::allocator_traits<Allocator>::
+                        template rebind_alloc<std::shared_ptr<T>>>> {
     static_assert(not std::is_reference_v<T>,
-                  "value type of muc::unique_ptr_vector cannot be a reference");
+                  "value type of muc::shared_ptr_vector cannot be a reference");
     static_assert(not std::is_array_v<T>,
-                  "value type of muc::unique_ptr_vector cannot be an array");
+                  "value type of muc::shared_ptr_vector cannot be an array");
     static_assert(std::is_same_v<typename Allocator::value_type, T>,
                   "muc::shared_ptr_vector must have the same value_type as its "
                   "allocator");
 
 private:
     using base = impl::ptr_vector_base<
-        unique_ptr_vector<T, Allocator>,
-        std::vector<
-            std::unique_ptr<T, allocator_delete<Allocator>>,
-            typename std::allocator_traits<Allocator>::template rebind_alloc<
-                std::unique_ptr<T, allocator_delete<Allocator>>>>>;
+        shared_ptr_vector<T, Allocator>,
+        std::vector<std::shared_ptr<T>,
+                    typename std::allocator_traits<
+                        Allocator>::template rebind_alloc<std::shared_ptr<T>>>>;
 
     friend base; // for access allocate_ptr
 
 public:
-    unique_ptr_vector() noexcept(noexcept(Allocator{})) = default;
+    shared_ptr_vector() noexcept(noexcept(Allocator{})) = default;
 
-    explicit unique_ptr_vector(const Allocator& alloc) noexcept :
+    explicit shared_ptr_vector(const Allocator& alloc) noexcept :
         base{typename base::raw_ptr_vector::allocator_type{alloc}} {}
 #if false
-    unique_ptr_vector(size_type count, const T& value,
+    shared_ptr_vector(size_type count, const T& value,
                       const Allocator& alloc = {}) :
         base{count, alloc} {
         for (auto&& ptr : this->m_ptr_vector) {
@@ -75,7 +72,7 @@ public:
         }
     }
 
-    explicit unique_ptr_vector(size_type count, const Allocator& alloc = {}) :
+    shared_ptr_vector(size_type count, const Allocator& alloc = {}) :
         base{count, alloc} {
         for (auto&& ptr : this->m_ptr_vector) {
             ptr = allocate_ptr();
@@ -83,30 +80,30 @@ public:
     }
 
     template<typename InputIt>
-    unique_ptr_vector(InputIt first, InputIt last,
+    shared_ptr_vector(InputIt first, InputIt last,
                       const Allocator& alloc = {}) :
         base{alloc} {
         this->insert(this->cend(), first, last);
     }
 #endif
-    unique_ptr_vector(const unique_ptr_vector&) = default;
+    shared_ptr_vector(const shared_ptr_vector&) = default;
 
-    unique_ptr_vector(unique_ptr_vector&&) noexcept = default;
+    shared_ptr_vector(shared_ptr_vector&&) noexcept = default;
 
-    unique_ptr_vector(const unique_ptr_vector& other, const Allocator& alloc) :
+    shared_ptr_vector(const shared_ptr_vector& other, const Allocator& alloc) :
         base{other.m_ptr_vector,
              typename base::raw_ptr_vector::allocator_type{alloc}} {}
 
-    unique_ptr_vector(unique_ptr_vector&& other, const Allocator& alloc) :
+    shared_ptr_vector(shared_ptr_vector&& other, const Allocator& alloc) :
         base{std::move(other.m_ptr_vector),
              typename base::raw_ptr_vector::allocator_type{alloc}} {}
 
-    unique_ptr_vector(const typename base::raw_ptr_vector& ptr_vector,
+    shared_ptr_vector(const typename base::raw_ptr_vector& ptr_vector,
                       const Allocator& alloc = {}) :
         base{ptr_vector, typename base::raw_ptr_vector::allocator_type{alloc}} {
     }
 
-    unique_ptr_vector(typename base::raw_ptr_vector&& ptr_vector,
+    shared_ptr_vector(typename base::raw_ptr_vector&& ptr_vector,
                       const Allocator& alloc = {}) :
         base{std::move(ptr_vector),
              typename base::raw_ptr_vector::allocator_type{alloc}} {}
@@ -120,8 +117,8 @@ public:
             std::is_constructible_v<typename base::raw_ptr_vector::value_type,
                                     decltype(*std::begin(std::declval<C>())++)>,
             bool> = true>
-    unique_ptr_vector(const C& ptr_vector, const Allocator& alloc = {}) :
-        unique_ptr_vector{alloc} {
+    shared_ptr_vector(const C& ptr_vector, const Allocator& alloc = {}) :
+        shared_ptr_vector{alloc} {
         auto first{std::begin(ptr_vector)};
         const auto last{std::end(ptr_vector)};
         this->reserve(std::distance(first, last));
@@ -140,8 +137,8 @@ public:
                      typename base::raw_ptr_vector::value_type,
                      decltype(std::move(*std::begin(std::declval<C>())++))>,
                  bool> = true>
-    unique_ptr_vector(C&& ptr_vector, const Allocator& alloc = {}) :
-        unique_ptr_vector{alloc} {
+    shared_ptr_vector(C&& ptr_vector, const Allocator& alloc = {}) :
+        shared_ptr_vector{alloc} {
         auto first{std::begin(ptr_vector)};
         const auto last{std::end(ptr_vector)};
         this->reserve(std::distance(first, last));
@@ -151,7 +148,7 @@ public:
         }
     }
 #if false
-    unique_ptr_vector(std::initializer_list<T> init,
+    shared_ptr_vector(std::initializer_list<T> init,
                       const Allocator& alloc = {}) :
         base{alloc} {
         this->insert(this->cend(), std::move(init));
@@ -159,16 +156,15 @@ public:
 #endif
 private:
     template<typename... Args>
-    auto allocate_ptr(Args&&... args) const
-        -> std::unique_ptr<T, allocator_delete<Allocator>> {
-        return allocate_unique<T>(this->get_allocator(),
-                                  std::forward<Args>(args)...);
+    auto allocate_ptr(Args&&... args) const -> std::shared_ptr<T> {
+        return std::allocate_shared<T>(this->get_allocator(),
+                                       std::forward<Args>(args)...);
     }
 };
 
 template<typename T, typename Allocator>
-auto swap(unique_ptr_vector<T, Allocator>& lhs,
-          unique_ptr_vector<T, Allocator>&
+auto swap(shared_ptr_vector<T, Allocator>& lhs,
+          shared_ptr_vector<T, Allocator>&
               rhs) noexcept(noexcept(lhs.swap(rhs))) -> void {
     lhs.swap(rhs);
 }
@@ -176,8 +172,8 @@ auto swap(unique_ptr_vector<T, Allocator>& lhs,
 namespace pmr {
 
 template<typename T>
-using unique_ptr_vector =
-    ::muc::unique_ptr_vector<T, std::pmr::polymorphic_allocator<T>>;
+using shared_ptr_vector =
+    ::muc::shared_ptr_vector<T, std::pmr::polymorphic_allocator<T>>;
 
 } // namespace pmr
 

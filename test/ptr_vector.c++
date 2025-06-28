@@ -1,4 +1,4 @@
-#include "muc/ptr_vector"
+#include "muc/deprecated/ptr_vector"
 
 #include <algorithm>
 #include <iostream>
