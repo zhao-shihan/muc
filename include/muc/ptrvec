@@ -24,8 +24,8 @@
 #ifndef MUC_PTRVEC_35fd64e5dd5518762ebc391025fd06efd3f82687e245b5830b55c4a3ab96d768
 #define MUC_PTRVEC_35fd64e5dd5518762ebc391025fd06efd3f82687e245b5830b55c4a3ab96d768
 
-#if __cplusplus >= 201103L
-#include "muc/detail/c++11/ptrvec/ptrvec.h++"
+#if __cplusplus >= 201703L
+#include "muc/detail/c++17/ptrvec/ptrvec.h++"
 #endif
 
 #endif

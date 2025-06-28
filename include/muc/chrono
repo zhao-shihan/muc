@@ -24,8 +24,8 @@
 #ifndef MUC_CHRONO_35fd64e5dd5518762ebc391025fd06efd3f82687e245b5830b55c4a3ab96d768
 #define MUC_CHRONO_35fd64e5dd5518762ebc391025fd06efd3f82687e245b5830b55c4a3ab96d768
 
-#if __cplusplus >= 201402L
-#include "muc/detail/c++14/chrono/steady_high_resolution_clock.h++"
+#if __cplusplus >= 201703L
+#include "muc/detail/c++17/chrono/steady_high_resolution_clock.h++"
 #endif
 
 #endif

@@ -26,11 +26,8 @@
 
 #if __cplusplus >= 201703L
 #include "muc/detail/c++17/time/cpu_time_stopwatch.h++"
+#include "muc/detail/c++17/time/localtime.h++"
 #include "muc/detail/c++17/time/wall_time_stopwatch.h++"
-#endif
-
-#if __cplusplus >= 201103L
-#include "muc/detail/c++11/time/localtime.h++"
 #endif
 
 #endif
