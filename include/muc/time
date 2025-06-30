@@ -25,7 +25,6 @@
 #define MUC_TIME_35fd64e5dd5518762ebc391025fd06efd3f82687e245b5830b55c4a3ab96d768
 
 #if __cplusplus >= 201703L
-#include "muc/detail/c++17/time/cpu_time_stopwatch.h++"
 #include "muc/detail/c++17/time/localtime.h++"
 #endif
 

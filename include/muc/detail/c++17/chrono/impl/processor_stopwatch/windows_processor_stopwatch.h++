@@ -35,57 +35,43 @@
 #include <windows.h>
 #endif
 
-#include <cstring>
-#include <type_traits>
-
-namespace muc::impl {
+namespace muc::chrono::impl {
 
 template<typename Time>
-class cpu_time_stopwatch {
+class processor_stopwatch {
 public:
-    cpu_time_stopwatch() noexcept :
+    processor_stopwatch() noexcept :
         m_current_process{GetCurrentProcess()},
         m_t0{clock_in_100ns()} {}
 
-    auto s_used() const noexcept -> Time {
-        return hecto_ns_used() / 10'000'000;
+    auto reset() noexcept -> void {
+        m_t0 = clock_in_100ns();
     }
 
-    auto ms_used() const noexcept -> Time {
-        return hecto_ns_used() / 10'000;
-    }
-
-    auto us_used() const noexcept -> Time {
-        return hecto_ns_used() / 10;
-    }
-
-    auto ns_used() const noexcept -> Time {
-        return hecto_ns_used() * 100;
+    auto read() const noexcept -> nanoseconds<Time> {
+        return nanoseconds<Time>{static_cast<Time>(clock_in_100ns() - m_t0) *
+                                 100};
     }
 
 private:
-    auto hecto_ns_used() const noexcept -> Time {
-        return static_cast<Time>(clock_in_100ns().QuadPart - m_t0.QuadPart);
-    }
-
-    auto clock_in_100ns() const noexcept -> ULARGE_INTEGER {
-        FILETIME t_creation;
-        FILETIME t_exit;
-        FILETIME t_kernel;
-        FILETIME t_user;
-        GetProcessTimes(m_current_process, &t_creation, &t_exit, &t_kernel,
-                        &t_user);
-        ULARGE_INTEGER t;
-        static_assert(sizeof(FILETIME) == sizeof(ULARGE_INTEGER));
-        static_assert(std::is_trivially_copyable_v<FILETIME>);
-        static_assert(std::is_trivially_copyable_v<ULARGE_INTEGER>);
-        std::memcpy(&t, &t_user, sizeof(FILETIME));
-        return t;
+    auto clock_in_100ns() const noexcept -> ULONGLONG {
+        FILETIME _1;
+        FILETIME _2;
+        FILETIME t_k{};
+        FILETIME t_u{};
+        GetProcessTimes(m_current_process, &_1, &_2, &t_k, &t_u);
+        ULARGE_INTEGER t_kernel;
+        t_kernel.LowPart = t_k.dwLowDateTime;
+        t_kernel.HighPart = t_k.dwHighDateTime;
+        ULARGE_INTEGER t_user;
+        t_user.LowPart = t_u.dwLowDateTime;
+        t_user.HighPart = t_u.dwHighDateTime;
+        return t_kernel.QuadPart + t_user.QuadPart;
     }
 
 private:
     HANDLE m_current_process;
-    ULARGE_INTEGER m_t0;
+    ULONGLONG m_t0;
 };
 
-} // namespace muc::impl
+} // namespace muc::chrono::impl

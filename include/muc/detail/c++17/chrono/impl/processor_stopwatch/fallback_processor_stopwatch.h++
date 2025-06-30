@@ -22,40 +22,29 @@
 
 #pragma once
 
-#include <ctime>
-#include <sys/time.h>
+#include "muc/detail/c++17/chrono/duration.h++"
 
-namespace muc::impl {
+#include <ctime>
+
+namespace muc::chrono::impl {
 
 template<typename Time>
-class cpu_time_stopwatch {
+class processor_stopwatch {
 public:
-    cpu_time_stopwatch() noexcept :
-        m_t0{} {
-        clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &m_t0);
+    processor_stopwatch() noexcept :
+        m_t0{std::clock()} {}
+
+    auto reset() noexcept -> void {
+        m_t0 = std::clock();
     }
 
-    auto s_used() const noexcept -> Time {
-        return ns_used() / 1'000'000'000;
-    }
-
-    auto ms_used() const noexcept -> Time {
-        return ns_used() / 1'000'000;
-    }
-
-    auto us_used() const noexcept -> Time {
-        return ns_used() / 1'000;
-    }
-
-    auto ns_used() const noexcept -> Time {
-        std::timespec t;
-        clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &t);
-        return static_cast<Time>(t.tv_sec - m_t0.tv_sec) * 1'000'000'000 +
-               static_cast<Time>(t.tv_nsec - m_t0.tv_nsec);
+    auto read() const noexcept -> nanoseconds<Time> {
+        return nanoseconds<Time>{
+            (static_cast<Time>(std::clock() - m_t0) / CLOCKS_PER_SEC) * 1e9};
     }
 
 private:
-    std::timespec m_t0;
+    std::clock_t m_t0;
 };
 
-} // namespace muc::impl
+} // namespace muc::chrono::impl
