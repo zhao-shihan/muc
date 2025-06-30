@@ -24,13 +24,11 @@
 
 #include <chrono>
 
-namespace muc {
-namespace chrono {
+namespace muc::chrono {
 
 using steady_high_resolution_clock =
     std::conditional_t<std::chrono::high_resolution_clock::is_steady,
                        std::chrono::high_resolution_clock,
                        std::chrono::steady_clock>;
 
-} // namespace chrono
-} // namespace muc
+} // namespace muc::chrono

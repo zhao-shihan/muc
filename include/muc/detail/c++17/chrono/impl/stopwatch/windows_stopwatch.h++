@@ -41,60 +41,45 @@
 
 #pragma once
 
-// Linux/BSD implementation:
-#if (defined linux or defined __linux__ or defined __linux) or             \
-    (defined __DragonFly__ or defined __FreeBSD__ or defined __NetBSD__ or \
-     defined __OpenBSD__)
-#include "muc/detail/c++17/time/impl/wall_time_stopwatch/linux_bsd_wall_time_stopwatch.h++"
-// Windows implementation:
-#elif defined _WIN32
-#include "muc/detail/c++17/time/impl/wall_time_stopwatch/windows_wall_time_stopwatch.h++"
-// Fallback implementation:
+#if defined _MSC_VER and not defined __clang__ and not defined __GNUC__ and \
+    not defined NOMINMAX
+#define NOMINMAX // Otherwise MS compilers act like idiots when using
+                 // std::numeric_limits<>::max() and including windows.h
+#endif
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#undef WIN32_LEAN_AND_MEAN
 #else
-#include "muc/detail/c++17/time/impl/wall_time_stopwatch/fallback_wall_time_stopwatch.h++"
+#include <windows.h>
 #endif
 
-#include <limits>
-#include <type_traits>
+namespace muc::chrono::impl {
 
-namespace muc {
-
-/// @brief high-precision cross-platform (linux/bsd/windows/etc.) simple
-/// stopwatch class
-template<typename Time = double>
-class wall_time_stopwatch {
-    static_assert(std::is_floating_point_v<Time>,
-                  "the value type for stopwatch should be a floating point");
-    static_assert(std::numeric_limits<Time>::digits >=
-                      std::numeric_limits<double>::digits,
-                  "stopwatch value type should be at least as long as double");
-
+template<typename Time>
+class stopwatch {
 public:
-    using value_type = Time;
-
-public:
-    auto s_elapsed() const noexcept -> value_type {
-        return m_impl.s_elapsed();
-    }
-
-    auto ms_elapsed() const noexcept -> value_type {
-        return m_impl.ms_elapsed();
-    }
-
-    auto us_elapsed() const noexcept -> value_type {
-        return m_impl.us_elapsed();
-    }
-
-    auto ns_elapsed() const noexcept -> value_type {
-        return m_impl.ns_elapsed();
+    stopwatch() :
+        m_frequency{},
+        m_t0{} {
+        QueryPerformanceFrequency(&m_frequency);
+        reset();
     }
 
     auto reset() noexcept -> void {
-        m_impl = {};
+        QueryPerformanceCounter(&m_t0);
+    }
+
+    auto read() const noexcept -> nanoseconds<Time> {
+        LARGE_INTEGER t{};
+        QueryPerformanceCounter(&t);
+        return nanoseconds<Time>{static_cast<Time>(t.QuadPart - m_t0.QuadPart) *
+                                 1e9 / m_frequency.QuadPart};
     }
 
 private:
-    impl::wall_time_stopwatch<Time> m_impl;
+    LARGE_INTEGER m_frequency;
+    LARGE_INTEGER m_t0;
 };
 
-} // namespace muc
+} // namespace muc::chrono::impl

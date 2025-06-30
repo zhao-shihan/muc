@@ -1,3 +1,4 @@
+#include "muc/chrono"
 #include "muc/time"
 
 #include <iostream>
@@ -17,23 +18,17 @@ auto main() -> int {
     using namespace std::chrono_literals;
 
     {
-        muc::wall_time_stopwatch wts;
+        muc::chrono::stopwatch wts;
         std::cout << "Sleep 500 ms.\n";
         std::this_thread::sleep_for(500ms);
-        std::cout << "Wall time elapsed: " << wts.ns_elapsed() << " ns\n"
-                  << "Wall time elapsed: " << wts.us_elapsed() << " us\n"
-                  << "Wall time elapsed: " << wts.ms_elapsed() << " ms\n"
-                  << "Wall time elapsed: " << wts.s_elapsed() << " s\n";
+        std::cout << "Wall time elapsed: " << wts.read().count() << " ns\n";
 
         std::cout << "Reset wall time stopwatch.\n";
-        wts = {};
+        wts.reset();
 
         std::cout << "Sleep 1 s.\n";
         std::this_thread::sleep_for(1s);
-        std::cout << "Wall time elapsed: " << wts.ns_elapsed() << " ns\n"
-                  << "Wall time elapsed: " << wts.us_elapsed() << " us\n"
-                  << "Wall time elapsed: " << wts.ms_elapsed() << " ms\n"
-                  << "Wall time elapsed: " << wts.s_elapsed() << " s\n";
+        std::cout << "Wall time elapsed: " << wts.read().count() << " ns\n";
     }
     {
         muc::cpu_time_stopwatch cts;
@@ -45,7 +40,7 @@ auto main() -> int {
                   << "CPU time used: " << cts.s_used() << " s\n";
 
         std::cout << "Reset CPU time stopwatch.\n";
-        cts = {};
+        cts.reset();
 
         std::cout << "Do some task.\n";
         task();

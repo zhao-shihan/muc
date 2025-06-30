@@ -26,6 +26,7 @@
 
 #if __cplusplus >= 201703L
 #include "muc/detail/c++17/chrono/steady_high_resolution_clock.h++"
+#include "muc/detail/c++17/chrono/stopwatch.h++"
 #endif
 
 #endif

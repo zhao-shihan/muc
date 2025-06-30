@@ -41,40 +41,34 @@
 
 #pragma once
 
-#include <ctime>
+#include "muc/detail/c++17/chrono/duration.h++"
+
 #include <sys/time.h>
 
-namespace muc::impl {
+namespace muc::chrono::impl {
 
 template<typename Time>
-class wall_time_stopwatch {
+class stopwatch {
 public:
-    wall_time_stopwatch() noexcept :
+    stopwatch() noexcept :
         m_t0{} {
+        reset();
+    }
+
+    auto reset() noexcept -> void {
         clock_gettime(CLOCK_MONOTONIC, &m_t0);
     }
 
-    auto s_elapsed() const noexcept -> Time {
-        return ns_elapsed() / 1'000'000'000;
-    }
-
-    auto ms_elapsed() const noexcept -> Time {
-        return ns_elapsed() / 1'000'000;
-    }
-
-    auto us_elapsed() const noexcept -> Time {
-        return ns_elapsed() / 1'000;
-    }
-
-    auto ns_elapsed() const noexcept -> Time {
-        std::timespec t;
+    auto read() const noexcept -> nanoseconds<Time> {
+        struct timespec t{};
         clock_gettime(CLOCK_MONOTONIC, &t);
-        return static_cast<Time>(t.tv_sec - m_t0.tv_sec) * 1'000'000'000 +
-               static_cast<Time>(t.tv_nsec - m_t0.tv_nsec);
+        return nanoseconds<Time>{static_cast<Time>(t.tv_sec - m_t0.tv_sec) *
+                                     1e9 +
+                                 static_cast<Time>(t.tv_nsec - m_t0.tv_nsec)};
     }
 
 private:
-    std::timespec m_t0;
+    struct timespec m_t0;
 };
 
-} // namespace muc::impl
+} // namespace muc::chrono::impl

@@ -22,41 +22,32 @@
 
 #pragma once
 
+#include "muc/detail/c++17/chrono/duration.h++"
+#include "muc/detail/c++17/chrono/steady_high_resolution_clock.h++"
+
 #include <chrono>
 
-namespace muc::impl {
+namespace muc::chrono::impl {
 
 template<typename Time>
-class wall_time_stopwatch {
+class stopwatch {
 private:
-    using sc = std::chrono::steady_clock;
-    using s = std::chrono::duration<Time, std::ratio<1>>;
-    using ms = std::chrono::duration<Time, std::milli>;
-    using us = std::chrono::duration<Time, std::micro>;
-    using ns = std::chrono::duration<Time, std::nano>;
+    using clock = chrono::steady_high_resolution_clock;
 
 public:
-    wall_time_stopwatch() noexcept :
-        m_t0{sc::now()} {}
+    stopwatch() noexcept :
+        m_t0{clock::now()} {}
 
-    auto s_elapsed() const noexcept -> Time {
-        s{sc::now() - m_t0}.count();
+    auto reset() noexcept -> void {
+        m_t0 = clock::now();
     }
 
-    auto ms_elapsed() const noexcept -> Time {
-        ms{sc::now() - m_t0}.count();
-    }
-
-    auto us_elapsed() const noexcept -> Time {
-        us{sc::now() - m_t0}.count();
-    }
-
-    auto ns_elapsed() const noexcept -> Time {
-        ns{sc::now() - m_t0}.count();
+    auto read() const noexcept -> nanoseconds<Time> {
+        return clock::now() - m_t0;
     }
 
 private:
-    sc::time_point m_t0;
+    clock::time_point m_t0;
 };
 
-} // namespace muc::impl
+} // namespace muc::chrono::impl
