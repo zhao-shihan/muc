@@ -21,23 +21,19 @@
 // SOFTWARE.
 
 #pragma once
-#ifndef MUC_UTILITY_35fd64e5dd5518762ebc391025fd06efd3f82687e245b5830b55c4a3ab96d768
-#define MUC_UTILITY_35fd64e5dd5518762ebc391025fd06efd3f82687e245b5830b55c4a3ab96d768
 
-#if __cplusplus >= 202002L
-#include "muc/detail/c++20/tuple/pair_like.h++"
-#endif
+#include <type_traits>
 
-#if __cplusplus >= 201703L
-#include "muc/detail/c++17/utility/assume.h++"
-#include "muc/detail/c++17/utility/dependent_constexpr.h++"
-#include "muc/detail/c++17/utility/forward_like.h++"
-#include "muc/detail/c++17/utility/to_signed.h++"
-#include "muc/detail/c++17/utility/to_underlying.h++"
-#include "muc/detail/c++17/utility/to_unsigned.h++"
-#include "muc/detail/c++17/utility/try_demangle.h++"
-#include "muc/detail/c++17/utility/type_tag.h++"
-#include "muc/detail/c++17/utility/unreachable.h++"
-#endif
+namespace muc {
 
-#endif
+/// @brief For template type parameter deduction.
+/// @tparam T A type.
+template<typename T,
+         std::enable_if_t<std::is_default_constructible_v<T>, bool> = true>
+struct type_tag {
+    using type = T;
+
+    constexpr type_tag(T&&) noexcept {}
+};
+
+} // namespace muc
