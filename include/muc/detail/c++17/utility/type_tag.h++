@@ -30,10 +30,6 @@ namespace muc {
 /// @tparam T A type.
 template<typename T,
          std::enable_if_t<std::is_default_constructible_v<T>, bool> = true>
-struct type_tag {
-    using type = T;
-
-    constexpr type_tag(T&&) noexcept {}
-};
+using type_tag = const T&&;
 
 } // namespace muc
