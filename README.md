@@ -19,6 +19,7 @@ MUC is a C++ STL-style header-only library, requires C++17 or higher. Some utili
 - `muc/iterator`: Iterator library.
 - `muc/math`: Mathematical functions that are useful or high-performance.
 - `muc/memory`: Basic memory management and pointer operations.
+- `muc/mutex`: Mutual exclusion primitives.
 - `muc/numeric`: Numeric operations on values in ranges.
 - `muc/ptrvec`: Aliases for `std::vector<pointer-like-type>`.
 - `muc/time`: Timing and high-resolution stopwatch.
