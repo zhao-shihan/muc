@@ -35,9 +35,10 @@
 #include <windows.h>
 #endif
 
+#include <chrono>
+
 namespace muc::chrono::impl {
 
-template<typename Time>
 class processor_stopwatch {
 public:
     processor_stopwatch() noexcept :
@@ -48,9 +49,8 @@ public:
         m_t0 = clock_in_100ns();
     }
 
-    auto read() const noexcept -> nanoseconds<Time> {
-        return nanoseconds<Time>{static_cast<Time>(clock_in_100ns() - m_t0) *
-                                 100};
+    auto read() const noexcept -> std::chrono::nanoseconds {
+        return std::chrono::nanoseconds{(clock_in_100ns() - m_t0) * 100};
     }
 
 private:

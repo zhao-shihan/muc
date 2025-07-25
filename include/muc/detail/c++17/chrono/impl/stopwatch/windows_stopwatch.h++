@@ -20,25 +20,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-// Copyright (c) 2022, Matthew Bentley (mattreecebentley@gmail.com)
-// www.plflib.org
-
-// This software is provided 'as-is', without any express or implied
-// warranty. In no event will the authors be held liable for any damages
-// arising from the use of this software.
-//
-// Permission is granted to anyone to use this software for any purpose,
-// including commercial applications, and to alter it and redistribute it
-// freely, subject to the following restrictions:
-//
-// 1. The origin of this software must not be misrepresented; you must not
-//    claim that you wrote the original software. If you use this software
-//    in a product, an acknowledgement in the product documentation would be
-//    appreciated but is not required.
-// 2. Altered source versions must be plainly marked as such, and must not be
-//    misrepresented as being the original software.
-// 3. This notice may not be removed or altered from any source distribution.
-
 #pragma once
 
 #if defined _MSC_VER and not defined __clang__ and not defined __GNUC__ and \
@@ -54,15 +35,26 @@
 #include <windows.h>
 #endif
 
+#include "muc/detail/c++17/math/constexpr_cmath.h++"
+
+#include <chrono>
+#include <variant>
+
 namespace muc::chrono::impl {
 
-template<typename Time>
 class stopwatch {
 public:
-    stopwatch() :
-        m_frequency{},
+    stopwatch() noexcept :
+        m_tick{},
         m_t0{} {
-        QueryPerformanceFrequency(&m_frequency);
+        LARGE_INTEGER frequency{};
+        QueryPerformanceFrequency(&frequency);
+        const auto tick{div(1'000'000'000ll, frequency.QuadPart)};
+        if (tick.rem == 0) {
+            m_tick = tick.quot;
+        } else {
+            m_tick = 1e9 / frequency.QuadPart;
+        }
         reset();
     }
 
@@ -70,15 +62,20 @@ public:
         QueryPerformanceCounter(&m_t0);
     }
 
-    auto read() const noexcept -> nanoseconds<Time> {
+    auto read() const noexcept -> std::chrono::nanoseconds {
         LARGE_INTEGER t{};
         QueryPerformanceCounter(&t);
-        return nanoseconds<Time>{static_cast<Time>(t.QuadPart - m_t0.QuadPart) *
-                                 1e9 / m_frequency.QuadPart};
+        const auto clocks{t.QuadPart - m_t0.QuadPart};
+        if (m_tick.index() == 0) {
+            return std::chrono::nanoseconds{clocks * get<LONGLONG>(m_tick)};
+        } else {
+            return std::chrono::nanoseconds{
+                llround(clocks * get<double>(m_tick))};
+        }
     }
 
 private:
-    LARGE_INTEGER m_frequency;
+    std::variant<LONGLONG, double> m_tick;
     LARGE_INTEGER m_t0;
 };
 

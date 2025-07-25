@@ -22,14 +22,12 @@
 
 #pragma once
 
-#include "muc/detail/c++17/chrono/duration.h++"
 #include "muc/detail/c++17/chrono/steady_high_resolution_clock.h++"
 
 #include <chrono>
 
 namespace muc::chrono::impl {
 
-template<typename Time>
 class stopwatch {
 private:
     using clock = chrono::steady_high_resolution_clock;
@@ -42,8 +40,9 @@ public:
         m_t0 = clock::now();
     }
 
-    auto read() const noexcept -> nanoseconds<Time> {
-        return clock::now() - m_t0;
+    auto read() const noexcept -> std::chrono::nanoseconds {
+        return std::chrono::duration_cast<std::chrono::nanoseconds>(
+            clock::now() - m_t0);
     }
 
 private:

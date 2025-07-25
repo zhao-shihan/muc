@@ -58,22 +58,38 @@ template<typename T = std::chrono::hours::rep,
          std::enable_if_t<sizeof(T) * CHAR_BIT >= 23, bool> = true>
 using hours = std::chrono::duration<T, std::ratio<3600>>;
 
-template<typename T = std::chrono::hours::rep, // C++17 workaround
+#if __cplusplus >= 202002L
+template<typename T = std::chrono::days::rep,
+#else // C++17 workaround
+template<typename T = std::chrono::hours::rep,
+#endif
          std::enable_if_t<std::is_signed_v<T>, bool> = true,
          std::enable_if_t<sizeof(T) * CHAR_BIT >= 25, bool> = true>
 using days = std::chrono::duration<T, std::ratio<86400>>;
 
-template<typename T = std::chrono::hours::rep, // C++17 workaround
+#if __cplusplus >= 202002L
+template<typename T = std::chrono::weeks::rep,
+#else // C++17 workaround
+template<typename T = std::chrono::hours::rep,
+#endif
          std::enable_if_t<std::is_signed_v<T>, bool> = true,
          std::enable_if_t<sizeof(T) * CHAR_BIT >= 22, bool> = true>
 using weeks = std::chrono::duration<T, std::ratio<604800>>;
 
-template<typename T = std::chrono::hours::rep, // C++17 workaround
+#if __cplusplus >= 202002L
+template<typename T = std::chrono::months::rep,
+#else // C++17 workaround
+template<typename T = std::chrono::hours::rep,
+#endif
          std::enable_if_t<std::is_signed_v<T>, bool> = true,
          std::enable_if_t<sizeof(T) * CHAR_BIT >= 20, bool> = true>
 using months = std::chrono::duration<T, std::ratio<2629746>>;
 
-template<typename T = std::chrono::hours::rep, // C++17 workaround
+#if __cplusplus >= 202002L
+template<typename T = std::chrono::years::rep,
+#else // C++17 workaround
+template<typename T = std::chrono::hours::rep,
+#endif
          std::enable_if_t<std::is_signed_v<T>, bool> = true,
          std::enable_if_t<sizeof(T) * CHAR_BIT >= 17, bool> = true>
 using years = std::chrono::duration<T, std::ratio<31556952>>;

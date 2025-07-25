@@ -20,34 +20,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-// Copyright (c) 2022, Matthew Bentley (mattreecebentley@gmail.com)
-// www.plflib.org
-
-// This software is provided 'as-is', without any express or implied
-// warranty. In no event will the authors be held liable for any damages
-// arising from the use of this software.
-//
-// Permission is granted to anyone to use this software for any purpose,
-// including commercial applications, and to alter it and redistribute it
-// freely, subject to the following restrictions:
-//
-// 1. The origin of this software must not be misrepresented; you must not
-//    claim that you wrote the original software. If you use this software
-//    in a product, an acknowledgement in the product documentation would be
-//    appreciated but is not required.
-// 2. Altered source versions must be plainly marked as such, and must not be
-//    misrepresented as being the original software.
-// 3. This notice may not be removed or altered from any source distribution.
-
 #pragma once
 
-#include "muc/detail/c++17/chrono/duration.h++"
-
+#include <chrono>
 #include <sys/time.h>
 
 namespace muc::chrono::impl {
 
-template<typename Time>
 class stopwatch {
 public:
     stopwatch() noexcept :
@@ -59,12 +38,12 @@ public:
         clock_gettime(CLOCK_MONOTONIC, &m_t0);
     }
 
-    auto read() const noexcept -> nanoseconds<Time> {
+    auto read() const noexcept -> std::chrono::nanoseconds {
         struct timespec t{};
         clock_gettime(CLOCK_MONOTONIC, &t);
-        return nanoseconds<Time>{static_cast<Time>(t.tv_sec - m_t0.tv_sec) *
-                                     1e9 +
-                                 static_cast<Time>(t.tv_nsec - m_t0.tv_nsec)};
+        return std::chrono::nanoseconds{(t.tv_sec - m_t0.tv_sec) *
+                                            1'000'000'000 +
+                                        (t.tv_nsec - m_t0.tv_nsec)};
     }
 
 private:

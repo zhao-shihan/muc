@@ -35,33 +35,28 @@
 #include "muc/detail/c++17/chrono/impl/processor_stopwatch/fallback_processor_stopwatch.h++"
 #endif
 
-#include "muc/detail/c++17/chrono/duration.h++"
-
+#include <chrono>
 #include <limits>
 #include <type_traits>
 
 namespace muc::chrono {
 
 /// @brief Processor stopwatch better than std::clock() when available.
-template<typename Time = double>
 class processor_stopwatch {
-    static_assert(std::is_floating_point_v<Time>,
-                  "the value type for stopwatch should be a floating point");
-    static_assert(std::numeric_limits<Time>::digits >=
-                      std::numeric_limits<double>::digits,
-                  "stopwatch value type should be at least as long as double");
+public:
+    using duration = std::chrono::nanoseconds;
 
 public:
     auto reset() noexcept -> void {
         m_impl.reset();
     }
 
-    auto read() const noexcept -> nanoseconds<Time> {
+    auto read() const noexcept -> duration {
         return m_impl.read();
     }
 
 private:
-    impl::processor_stopwatch<Time> m_impl;
+    impl::processor_stopwatch m_impl;
 };
 
 } // namespace muc::chrono

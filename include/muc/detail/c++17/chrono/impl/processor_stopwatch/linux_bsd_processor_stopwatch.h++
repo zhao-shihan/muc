@@ -22,13 +22,11 @@
 
 #pragma once
 
-#include "muc/detail/c++17/chrono/duration.h++"
-
+#include <chrono>
 #include <sys/time.h>
 
 namespace muc::chrono::impl {
 
-template<typename Time>
 class processor_stopwatch {
 public:
     processor_stopwatch() noexcept :
@@ -40,12 +38,12 @@ public:
         clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &m_t0);
     }
 
-    auto read() const noexcept -> nanoseconds<Time> {
+    auto read() const noexcept -> std::chrono::nanoseconds {
         struct timespec t{};
         clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &t);
-        return nanoseconds<Time>{static_cast<Time>(t.tv_sec - m_t0.tv_sec) *
-                                     1e9 +
-                                 static_cast<Time>(t.tv_nsec - m_t0.tv_nsec)};
+        return std::chrono::nanoseconds{(t.tv_sec - m_t0.tv_sec) *
+                                            1'000'000'000 +
+                                        (t.tv_nsec - m_t0.tv_nsec)};
     }
 
 private:

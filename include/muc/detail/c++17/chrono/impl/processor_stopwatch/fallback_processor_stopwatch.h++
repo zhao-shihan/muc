@@ -22,13 +22,14 @@
 
 #pragma once
 
-#include "muc/detail/c++17/chrono/duration.h++"
+#include "muc/detail/c++17/math/constexpr_cmath.h++"
+#include "muc/detail/c++17/math/llround.h++"
 
+#include <chrono>
 #include <ctime>
 
 namespace muc::chrono::impl {
 
-template<typename Time>
 class processor_stopwatch {
 public:
     processor_stopwatch() noexcept :
@@ -38,9 +39,16 @@ public:
         m_t0 = std::clock();
     }
 
-    auto read() const noexcept -> nanoseconds<Time> {
-        return nanoseconds<Time>{
-            (static_cast<Time>(std::clock() - m_t0) / CLOCKS_PER_SEC) * 1e9};
+    auto read() const noexcept -> std::chrono::nanoseconds {
+        const auto clocks{std::clock() - m_t0};
+        constexpr auto tick{
+            div(static_cast<clock_t>(1'000'000'000), CLOCKS_PER_SEC)};
+        if constexpr (tick.rem == 0) {
+            return std::chrono::nanoseconds{clocks * tick.quot};
+        } else {
+            return std::chrono::nanoseconds{
+                llround(clocks * (1e9 / CLOCKS_PER_SEC))};
+        }
     }
 
 private:
