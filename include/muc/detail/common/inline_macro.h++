@@ -22,8 +22,6 @@
 
 #pragma once
 
-#pragma once
-
 #if defined _MSC_VER
 #define MUC_STRONG_INLINE __forceinline
 #else
