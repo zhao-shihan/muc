@@ -22,6 +22,9 @@
 
 #pragma once
 
+#include "muc/detail/c++17/utility/cpu_relax.h++"
+#include "muc/detail/common/inline_macro.h++"
+
 #include <atomic>
 
 namespace muc {
@@ -41,25 +44,21 @@ public:
     /// @details Continuously tries to set the atomic flag until successful.
     ///          Uses architecture-specific pause/yield instructions to
     ///          reduce contention and improve power efficiency.
-    auto lock() noexcept -> void {
+    MUC_ALWAYS_INLINE auto lock() noexcept -> void {
         while (m_flag.test_and_set(std::memory_order::acquire)) {
-#if defined __x86_64__ or defined __i386__
-            __builtin_ia32_pause(); // SMT optimization for x86
-#elif defined __aarch64__
-            asm volatile("yield"); // SMT optimization for ARM
-#endif
+            cpu_relax();
         }
     }
 
     /// @brief Attempts to acquire the lock without blocking
     /// @return true if lock was acquired, false if already locked
-    auto try_lock() noexcept -> bool {
+    MUC_ALWAYS_INLINE auto try_lock() noexcept -> bool {
         return not m_flag.test_and_set(std::memory_order::acquire);
     }
 
     /// @brief Releases the lock
     /// @pre Must be called by the current lock owner
-    auto unlock() noexcept -> void {
+    MUC_ALWAYS_INLINE auto unlock() noexcept -> void {
         m_flag.clear(std::memory_order::release);
     }
 
