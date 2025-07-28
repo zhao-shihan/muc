@@ -30,6 +30,7 @@
 
 #if __cplusplus >= 201703L
 #include "muc/detail/c++17/utility/assume.h++"
+#include "muc/detail/c++17/utility/cpu_relax.h++"
 #include "muc/detail/c++17/utility/dependent_constexpr.h++"
 #include "muc/detail/c++17/utility/forward_like.h++"
 #include "muc/detail/c++17/utility/to_signed.h++"
