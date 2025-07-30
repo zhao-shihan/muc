@@ -27,18 +27,47 @@
 
 namespace muc {
 
+/// @brief Computes the sum of squares for floating-point values
+///
+/// Calculates the square of the Euclidean norm (Σx²) for 2 or more
+/// floating-point values. Compile-time enabled only for floating-point types
+/// with 2+ arguments.
+///
+/// @tparam Ts Floating-point types (at least 2 required)
+/// @param x Floating-point values to square and sum
+///
+/// @return Sum of squares: x₁² + x₂² + ... + xₙ²
+///
+/// @note Compile-time constraints:
+///       - All types must be floating-point (float/double/etc)
+///       - Minimum 2 arguments required
+/// @see muc::hypot() for the Euclidean norm
 template<typename... Ts, std::enable_if_t<((sizeof...(Ts) >= 2) and ... and
                                            std::is_floating_point_v<Ts>),
                                           bool> = true>
-constexpr auto hypot2(Ts... x) -> auto {
+constexpr auto hypot_sq(Ts... x) -> auto {
     return (... + (x * x));
 }
 
+/// @brief Computes the Euclidean norm (hypotenuse) for floating-point values
+///
+/// Calculates √(Σx²) for 2 or more floating-point values. The multi-dimensional
+/// generalization of the Pythagorean theorem.
+///
+/// @tparam Ts Floating-point types (at least 2 required)
+/// @param x Floating-point values to include in norm calculation
+///
+/// @return Euclidean norm: √(x₁² + x₂² + ... + xₙ²)
+///
+/// @note Compile-time constraints:
+///       - All types must be floating-point (float/double/etc)
+///       - Minimum 2 arguments required
+/// @note Delegates to muc::hypot_sq() for sum of squares
 template<typename... Ts, std::enable_if_t<((sizeof...(Ts) >= 2) and ... and
                                            std::is_floating_point_v<Ts>),
                                           bool> = true>
 auto hypot(Ts... x) -> auto {
-    return std::sqrt(muc::hypot2(x...));
+    return std::sqrt(muc::hypot_sq(x...));
 }
 
 } // namespace muc
