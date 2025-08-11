@@ -21,18 +21,15 @@
 // SOFTWARE.
 
 #pragma once
-#ifndef MUC_CONCEPTS_35fd64e5dd5518762ebc391025fd06efd3f82687e245b5830b55c4a3ab96d768
-#define MUC_CONCEPTS_35fd64e5dd5518762ebc391025fd06efd3f82687e245b5830b55c4a3ab96d768
 
-#if __cplusplus >= 202002L
-#include "muc/detail/c++20/concepts/arithmetic.h++"
-#include "muc/detail/c++20/concepts/boolean_testable.h++"
-#include "muc/detail/c++20/concepts/character.h++"
-#include "muc/detail/c++20/concepts/copy_assignable.h++"
-#include "muc/detail/c++20/concepts/fundamental.h++"
-#include "muc/detail/c++20/concepts/general_arithmetic.h++"
-#include "muc/detail/c++20/concepts/instantiated_from.h++"
-#include "muc/detail/c++20/concepts/move_assignable.h++"
-#endif
+#include <concepts>
 
-#endif
+namespace muc {
+
+template<typename T>
+concept character = std::same_as<T, signed char> or
+                    std::same_as<T, unsigned char> or std::same_as<T, char> or
+                    std::same_as<T, char8_t> or std::same_as<T, char16_t> or
+                    std::same_as<T, char32_t> or std::same_as<T, wchar_t>;
+
+} // namespace muc
