@@ -21,19 +21,27 @@
 // SOFTWARE.
 
 #pragma once
-#ifndef MUC_CONCEPTS_35fd64e5dd5518762ebc391025fd06efd3f82687e245b5830b55c4a3ab96d768
-#define MUC_CONCEPTS_35fd64e5dd5518762ebc391025fd06efd3f82687e245b5830b55c4a3ab96d768
 
-#if __cplusplus >= 202002L
-#include "muc/detail/c++20/concepts/arithmetic.h++"
-#include "muc/detail/c++20/concepts/boolean_testable.h++"
-#include "muc/detail/c++20/concepts/character.h++"
-#include "muc/detail/c++20/concepts/copy_assignable.h++"
-#include "muc/detail/c++20/concepts/fundamental.h++"
-#include "muc/detail/c++20/concepts/general_arithmetic.h++"
-#include "muc/detail/c++20/concepts/instantiated_from.h++"
-#include "muc/detail/c++20/concepts/move_assignable.h++"
-#include "muc/detail/c++20/concepts/stream_ioable.h++"
-#endif
+#include <istream>
+#include <ostream>
 
-#endif
+namespace muc {
+
+template<typename T>
+concept stream_inputable =
+    requires(std::istream& is, std::wistream& wis, T& obj) {
+        { is >> obj } -> std::same_as<std::istream&>;
+        { wis >> obj } -> std::same_as<std::wistream&>;
+    };
+
+template<typename T>
+concept stream_outputable =
+    requires(std::ostream& os, std::wostream& wos, const T obj) {
+        { os << obj } -> std::same_as<std::ostream&>;
+        { wos << obj } -> std::same_as<std::wostream&>;
+    };
+
+template<typename T>
+concept stream_ioable = stream_inputable<T> and stream_outputable<T>;
+
+} // namespace muc
