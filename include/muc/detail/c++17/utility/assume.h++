@@ -22,14 +22,12 @@
 
 #pragma once
 
-#if not __has_cpp_attribute(assume) and \
-    not(defined __clang__ or defined __GNUC__ or defined _MSC_VER)
-#include "muc/detail/c++17/utility/unreachable.h++"
-#endif
+#include "muc/detail/common/inline_macro.h++"
 
 namespace muc {
 
-constexpr auto assume(bool condition) noexcept -> void {
+MUC_ALWAYS_INLINE constexpr auto
+assume([[maybe_unused]] bool condition) noexcept -> void {
 #if __has_cpp_attribute(assume)
     [[assume(condition)]]; // C++23
 #elif defined __clang__
@@ -40,10 +38,6 @@ constexpr auto assume(bool condition) noexcept -> void {
     }
 #elif defined _MSC_VER
     __assume(condition);
-#else
-    if (not condition) {
-        unreachable();
-    }
 #endif
 }
 
