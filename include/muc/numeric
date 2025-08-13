@@ -35,6 +35,7 @@
 #include "muc/detail/c++17/numeric/bilerp.h++"
 #include "muc/detail/c++17/numeric/default_tolerance.h++"
 #include "muc/detail/c++17/numeric/find_root.h++"
+#include "muc/detail/c++17/numeric/isclose.h++"
 #include "muc/detail/c++17/numeric/lerp.h++"
 #include "muc/detail/c++17/numeric/midpoint.h++"
 #include "muc/detail/c++17/numeric/soft_cmp.h++"
