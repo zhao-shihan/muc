@@ -21,28 +21,22 @@
 // SOFTWARE.
 
 #pragma once
-#ifndef MUC_MATH_35fd64e5dd5518762ebc391025fd06efd3f82687e245b5830b55c4a3ab96d768
-#define MUC_MATH_35fd64e5dd5518762ebc391025fd06efd3f82687e245b5830b55c4a3ab96d768
 
-#if __cplusplus >= 202002L
-#include "muc/detail/c++20/math/clamp.h++"
-#endif
+#include <cmath>
+#include <type_traits>
 
-#if __cplusplus >= 201703L
-#include "muc/detail/c++17/math/ceil_to.h++"
-#include "muc/detail/c++17/math/constexpr_cmath.h++"
-#include "muc/detail/c++17/math/digits_of.h++"
-#include "muc/detail/c++17/math/floor_to.h++"
-#include "muc/detail/c++17/math/hypot.h++"
-#include "muc/detail/c++17/math/llround.h++"
-#include "muc/detail/c++17/math/lltrunc.h++"
-#include "muc/detail/c++17/math/parity.h++"
-#include "muc/detail/c++17/math/pow.h++"
-#include "muc/detail/c++17/math/relu.h++"
-#include "muc/detail/c++17/math/round.h++"
-#include "muc/detail/c++17/math/round_to.h++"
-#include "muc/detail/c++17/math/sigmoid.h++"
-#include "muc/detail/c++17/math/trunc_to.h++"
-#endif
+namespace muc {
 
-#endif
+/// @brief A fast implementation of std::round but never be aware of rounding
+/// mode nor raise floating point exceptions. Computes the nearest integer value
+/// to x (in floating-point format), rounding halfway cases away from zero.
+/// @tparam T floating-point type
+/// @param x floating-point value
+/// @return the nearest integer value to x, rounding halfway cases away from
+/// zero
+template<typename T, std::enable_if_t<std::is_floating_point_v<T>, bool> = true>
+auto round(T x) -> T {
+    return std::trunc(x + (x >= 0 ? 0.5 : -0.5));
+}
+
+} // namespace muc

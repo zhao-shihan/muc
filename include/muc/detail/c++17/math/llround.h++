@@ -29,8 +29,8 @@
 namespace muc {
 
 /// @brief A fast implementation of std::llround but never raise floating point
-/// exceptions. Computes the nearest integer value to x (in floating-point
-/// format), rounding halfway cases away from zero.
+/// exceptions. Computes the nearest integer value to x, rounding halfway cases
+/// away from zero.
 /// @tparam T floating-point type
 /// @param x floating-point value
 /// @return the nearest integer value to x, rounding halfway cases away from
