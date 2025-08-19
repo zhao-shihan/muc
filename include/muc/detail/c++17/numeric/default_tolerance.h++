@@ -36,7 +36,7 @@ namespace muc {
 /// @tparam T The floating-point type.
 template<typename T, std::enable_if_t<std::is_floating_point_v<T>, bool> = true>
 inline constexpr auto default_tolerance{
-    muc::pow<std::numeric_limits<T>::digits / 2, T>(2) *
+    ipow(2ull, std::numeric_limits<T>::digits / 2) *
     std::numeric_limits<T>::epsilon()};
 
 } // namespace muc

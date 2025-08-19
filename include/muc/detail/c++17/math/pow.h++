@@ -22,76 +22,108 @@
 
 #pragma once
 
+#include "muc/detail/c++17/math/parity.h++"
+#include "muc/detail/common/inline_macro.h++"
+
 #include <type_traits>
 
 namespace muc {
 
-/// @brief Calculate m^N, where both m and N are integers.
-/// @tparam T integral type
-/// @tparam N power, N>=0
-/// @param m base
-/// @return m^N of type T.
-template<int N, typename T,
-         std::enable_if_t<N >= 0 and std::is_integral_v<T>, bool> = true>
-constexpr auto ipow(T m) -> T {
-    if constexpr (N == 0) {
-        return 1;
+/// @brief Fast floating-point exponentiation with integer exponent
+///
+/// Computes x^n using exponentiation by squaring for efficient evaluation.
+/// Handles both positive and negative exponents.
+///
+/// @tparam T Floating-point type (auto-deduced)
+/// @param x Base value
+/// @param n Integer exponent (positive, negative, or zero)
+/// @return x raised to the power of n
+///
+/// @note Behavior:
+///   - Uses exponentiation by squaring (O(log n) complexity)
+///   - Negative exponents: returns 1/pow(x, -n)
+///   - Zero exponent: returns 1 (for any x, including 0 and NaN)
+///
+/// @warning Precision may differ from std::pow near representability limits
+/// @see std::pow() for standards-compliant implementation
+/// @see ipow() for integer base version
+template<typename T, std::enable_if_t<std::is_floating_point_v<T>, bool> = true>
+MUC_ALWAYS_INLINE constexpr auto pow(T x, int n) -> T {
+    if (n < 0) {
+        return 1 / pow(x, -n);
     }
-    if constexpr (N == 1) {
-        return m;
+    T z{1};
+    while (n > 0) {
+        if (odd(n)) {
+            z *= x;
+        }
+        x *= x;
+        n /= 2;
     }
-    if constexpr (N % 2 == 0) {
-        const auto k{muc::ipow<N / 2>(m)};
-        return k * k;
-    }
-    if constexpr (N % 3 == 0) {
-        const auto k{muc::ipow<N / 3>(m)};
-        return k * k * k;
-    }
-    const auto k{muc::ipow<(N - 1) / 2>(m)};
-    return k * m * k;
+    return z;
 }
 
-/// @brief Calculate x^N, where x is an floating point and N is an integer.
-/// @tparam T floating point type
-/// @tparam N power
-/// @param x base
-/// @return x^N
-template<int N, typename T,
-         std::enable_if_t<std::is_floating_point_v<T>, bool> = true>
-constexpr auto pow(T x) -> T {
-    if constexpr (N < 0) {
-        return muc::pow<-N>(1 / x);
-    }
-    if constexpr (N == 0) {
-        return 1;
-    }
-    if constexpr (N == 1) {
-        return x;
-    }
-    if constexpr (N % 2 == 0) {
-        const auto u{muc::pow<N / 2>(x)};
-        return u * u;
-    }
-    if constexpr (N % 3 == 0) {
-        const auto u{muc::pow<N / 3>(x)};
-        return u * u * u;
-    }
-    const auto u{muc::pow<(N - 1) / 2>(x)};
-    return u * x * u;
-}
-
-/// @brief Calculate x^N, where x is an integral converted to floating point, N
-/// is an integer.
-/// @tparam T floating point type
-/// @tparam N power
-/// @param x base
-/// @return x^N
-template<int N, typename T = double, typename U,
+/// @brief Floating-point exponentiation with integral base conversion
+///
+/// Computes x^n by first converting integral base to floating-point.
+/// More efficient than std::pow for integer bases with integer exponents.
+///
+/// @tparam T Floating-point result type (default: double)
+/// @tparam U Integral base type (auto-deduced)
+/// @param x Integral base value
+/// @param n Integer exponent (positive, negative, or zero)
+/// @return x converted to T and raised to the power of n
+///
+/// @see ipow() for pure integer version (may overflow)
+/// @see pow() for floating-point base version
+template<typename T = double, typename U,
          std::enable_if_t<std::is_floating_point_v<T> and std::is_integral_v<U>,
                           bool> = true>
-constexpr auto pow(U x) -> T {
-    return muc::pow<N>(static_cast<T>(x));
+MUC_ALWAYS_INLINE constexpr auto pow(U x, int n) -> T {
+    return pow(static_cast<T>(x), n);
+}
+
+/// @brief Integer exponentiation
+///
+/// Computes m^n using exponentiation by squaring with integral arithmetic.
+///
+/// @tparam T Integral type of base and result (auto-deduced)
+/// @param m Base value
+/// @param n Integer exponent
+/// @return m raised to the power of n
+///
+/// @note Special cases for negative exponents:
+///   - If m = 1: returns 1 (1^n = 1 for any n)
+///   - If m = -1: returns 1 for even exponents, -1 for odd exponents
+///   - Otherwise: returns 0
+///
+/// @warning May overflow for large values of m and n
+/// @see pow() for floating-point version
+template<typename T, std::enable_if_t<std::is_integral_v<T>, bool> = true>
+MUC_ALWAYS_INLINE constexpr auto ipow(T m, int n) -> T {
+    if (n < 0) {
+        if constexpr (std::is_signed_v<T>) {
+            if (m == 1) {
+                return 1;
+            } else if (m == -1) {
+                return even(n) ? 1 : -1;
+            }
+        } else {
+            if (m == 1) {
+                return 1;
+            }
+        }
+        return 0;
+    }
+    T k{1};
+    while (n > 0) {
+        if (odd(n)) {
+            k *= m;
+        }
+        m *= m;
+        n /= 2;
+    }
+    return k;
 }
 
 } // namespace muc
