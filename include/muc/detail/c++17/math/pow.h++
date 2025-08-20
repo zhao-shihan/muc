@@ -50,11 +50,11 @@ namespace muc {
 template<typename T, std::enable_if_t<std::is_floating_point_v<T>, bool> = true>
 MUC_ALWAYS_INLINE constexpr auto pow(T x, int n) -> T {
     if (n < 0) {
-        return 1 / pow(x, -n);
+        return 1 / muc::pow(x, -n);
     }
     T z{1};
     while (n > 0) {
-        if (odd(n)) {
+        if (muc::odd(n)) {
             z *= x;
         }
         x *= x;
@@ -80,7 +80,7 @@ template<typename T = double, typename U,
          std::enable_if_t<std::is_floating_point_v<T> and std::is_integral_v<U>,
                           bool> = true>
 MUC_ALWAYS_INLINE constexpr auto pow(U x, int n) -> T {
-    return pow(static_cast<T>(x), n);
+    return muc::pow(static_cast<T>(x), n);
 }
 
 /// @brief Integer exponentiation
@@ -106,7 +106,7 @@ MUC_ALWAYS_INLINE constexpr auto ipow(T m, int n) -> T {
             if (m == 1) {
                 return 1;
             } else if (m == -1) {
-                return even(n) ? 1 : -1;
+                return muc::even(n) ? 1 : -1;
             }
         } else {
             if (m == 1) {
@@ -117,7 +117,7 @@ MUC_ALWAYS_INLINE constexpr auto ipow(T m, int n) -> T {
     }
     T k{1};
     while (n > 0) {
-        if (odd(n)) {
+        if (muc::odd(n)) {
             k *= m;
         }
         m *= m;

@@ -62,33 +62,34 @@ constexpr auto isclose(T a, T b, T rel_epsilon = default_tolerance<T>,
     return abs(a - b) <= epsilon;
 }
 
+} // namespace muc
+
 #ifdef MUC_STATIC_TEST
 
-static_assert(isclose(0., 0.));
-static_assert(isclose(1., 1. + std::numeric_limits<double>::epsilon()));
-static_assert(isclose(-1., -1. + std::numeric_limits<double>::epsilon()));
-static_assert(not isclose(-1., 0.));
-static_assert(not isclose(0., 1.));
-static_assert(not isclose(1., 2.));
-static_assert(not isclose(0., default_tolerance<double>));
+static_assert(muc::isclose(0., 0.));
+static_assert(muc::isclose(1., 1. + std::numeric_limits<double>::epsilon()));
+static_assert(muc::isclose(-1., -1. + std::numeric_limits<double>::epsilon()));
+static_assert(not muc::isclose(-1., 0.));
+static_assert(not muc::isclose(0., 1.));
+static_assert(not muc::isclose(1., 2.));
+static_assert(not muc::isclose(0., muc::default_tolerance<double>));
 
-static_assert(isclose(0.f, 0.f));
-static_assert(isclose(1.f, 1.f + std::numeric_limits<float>::epsilon()));
-static_assert(isclose(-1.f, -1.f + std::numeric_limits<float>::epsilon()));
-static_assert(not isclose(-1.f, 0.f));
-static_assert(not isclose(0.f, 1.f));
-static_assert(not isclose(1.f, 2.f));
-static_assert(not isclose(0.f, default_tolerance<float>));
+static_assert(muc::isclose(0.f, 0.f));
+static_assert(muc::isclose(1.f, 1.f + std::numeric_limits<float>::epsilon()));
+static_assert(muc::isclose(-1.f, -1.f + std::numeric_limits<float>::epsilon()));
+static_assert(not muc::isclose(-1.f, 0.f));
+static_assert(not muc::isclose(0.f, 1.f));
+static_assert(not muc::isclose(1.f, 2.f));
+static_assert(not muc::isclose(0.f, muc::default_tolerance<float>));
 
-static_assert(isclose(0.l, 0.l));
-static_assert(isclose(1.l, 1.l + std::numeric_limits<long double>::epsilon()));
-static_assert(isclose(-1.l,
-                      -1.l + std::numeric_limits<long double>::epsilon()));
-static_assert(not isclose(-1.l, 0.l));
-static_assert(not isclose(0.l, 1.l));
-static_assert(not isclose(1.l, 2.l));
-static_assert(not isclose(0.l, default_tolerance<long double>));
+static_assert(muc::isclose(0.l, 0.l));
+static_assert(muc::isclose(1.l,
+                           1.l + std::numeric_limits<long double>::epsilon()));
+static_assert(muc::isclose(-1.l,
+                           -1.l + std::numeric_limits<long double>::epsilon()));
+static_assert(not muc::isclose(-1.l, 0.l));
+static_assert(not muc::isclose(0.l, 1.l));
+static_assert(not muc::isclose(1.l, 2.l));
+static_assert(not muc::isclose(0.l, muc::default_tolerance<long double>));
 
 #endif
-
-} // namespace muc
