@@ -45,7 +45,7 @@ public:
     ///          Uses architecture-specific pause/yield instructions to
     ///          reduce contention and improve power efficiency.
     MUC_ALWAYS_INLINE auto lock() noexcept -> void {
-        while (m_flag.test_and_set(std::memory_order::acquire)) {
+        while (m_flag.test_and_set(std::memory_order::acquire)) [[unlikely]] {
             cpu_relax();
         }
     }
