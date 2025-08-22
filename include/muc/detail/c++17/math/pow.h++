@@ -48,7 +48,7 @@ namespace muc {
 /// @see std::pow() for standards-compliant implementation
 /// @see ipow() for integer base version
 template<typename T, std::enable_if_t<std::is_floating_point_v<T>, bool> = true>
-MUC_ALWAYS_INLINE constexpr auto pow(T x, int n) -> T {
+MUC_STRONG_INLINE constexpr auto pow(T x, int n) -> T {
     if (n < 0) {
         return 1 / muc::pow(x, -n);
     }
@@ -79,7 +79,7 @@ MUC_ALWAYS_INLINE constexpr auto pow(T x, int n) -> T {
 template<typename T = double, typename U,
          std::enable_if_t<std::is_floating_point_v<T> and std::is_integral_v<U>,
                           bool> = true>
-MUC_ALWAYS_INLINE constexpr auto pow(U x, int n) -> T {
+MUC_STRONG_INLINE constexpr auto pow(U x, int n) -> T {
     return muc::pow(static_cast<T>(x), n);
 }
 
@@ -100,7 +100,7 @@ MUC_ALWAYS_INLINE constexpr auto pow(U x, int n) -> T {
 /// @warning May overflow for large values of m and n
 /// @see pow() for floating-point version
 template<typename T, std::enable_if_t<std::is_integral_v<T>, bool> = true>
-MUC_ALWAYS_INLINE constexpr auto ipow(T m, int n) -> T {
+MUC_STRONG_INLINE constexpr auto ipow(T m, int n) -> T {
     if (n < 0) {
         if constexpr (std::is_signed_v<T>) {
             if (m == 1) {
