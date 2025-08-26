@@ -115,16 +115,16 @@ private:
         /// @param other The other value to compare against.
         /// @return The result of the equality comparison.
         auto operator==(value other) const -> result {
-            const auto x{(m_value - other.m_value) / m_soft};
-            return 4 * muc::sigmoid(x) * (1 - muc::sigmoid(x));
+            const auto x{muc::sigmoid((m_value - other.m_value) / m_soft)};
+            return 4 * x * (1 - x);
         }
 
         /// @brief Inequality operator comparing two soft values.
         /// @param other The other value to compare against.
         /// @return The result of the inequality comparison.
         auto operator!=(value other) const -> result {
-            const auto x{(m_value - other.m_value) / m_soft};
-            return 1 - 4 * muc::sigmoid(x) * (1 - muc::sigmoid(x));
+            const auto x{muc::sigmoid((m_value - other.m_value) / m_soft)};
+            return 1 - 4 * x * (1 - x);
         }
 
         /// @brief Greater than or equal is same as greater-than.
