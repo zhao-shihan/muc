@@ -2990,7 +2990,7 @@ public:
     parallel_hash_set() noexcept(
         std::is_nothrow_default_constructible<hasher>::value &&
         std::is_nothrow_default_constructible<key_equal>::value &&
-        std::is_nothrow_default_constructible<allocator_type>::value) {}
+        std::is_nothrow_default_constructible<allocator_type>::value){}
 
 #if (__cplusplus >= 201703L || _MSVC_LANG >= 201402) && \
     (defined(_MSC_VER) || defined(__clang__) ||         \
@@ -3001,7 +3001,8 @@ public:
                                const allocator_type& alloc = allocator_type()) :
         parallel_hash_set(
             typename Inner::Params{bucket_cnt, hash_param, eq, alloc},
-            phmap::make_index_sequence<num_tables>{}) {}
+            phmap::make_index_sequence<num_tables>{}) {
+    }
 
     template<std::size_t... i>
     parallel_hash_set(typename Inner::Params const& p,

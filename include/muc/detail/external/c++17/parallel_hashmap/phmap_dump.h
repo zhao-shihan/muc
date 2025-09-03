@@ -24,7 +24,7 @@
 #include <fstream>
 #include <functional>
 #include <iostream>
-namespace phmap {
+namespace muc::impl::phmap {
 
 namespace type_traits_internal {
 
@@ -261,7 +261,7 @@ private:
     std::function<void()> destruct_;
 };
 
-} // namespace phmap
+} // namespace muc::impl::phmap
 
 #ifdef CEREAL_SIZE_TYPE
 

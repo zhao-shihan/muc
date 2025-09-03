@@ -45,7 +45,7 @@ struct Hash;
 }; // namespace absl
 #endif
 
-namespace phmap {
+namespace muc::impl::phmap {
 
 // ---------------------------------------------------------------
 // ---------------------------------------------------------------
@@ -390,7 +390,7 @@ private:
 
 #endif
 
-} // namespace phmap
+} // namespace muc::impl::phmap
 
 #ifdef _MSC_VER
 #pragma warning(pop)
