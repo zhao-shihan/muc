@@ -30,13 +30,12 @@ template<typename Key, typename Value,
          typename Compare = impl::phmap::Less<Key>,
          typename Alloc =
              impl::phmap::Allocator<impl::phmap::priv::Pair<const Key, Value>>>
-class btree_map : public impl::phmap::btree_map<Key, Value, Compare, Alloc> {};
+using btree_map = impl::phmap::btree_map<Key, Value, Compare, Alloc>;
 
 template<typename Key, typename Value,
          typename Compare = impl::phmap::Less<Key>,
          typename Alloc =
              impl::phmap::Allocator<impl::phmap::priv::Pair<const Key, Value>>>
-class btree_multimap :
-    public impl::phmap::btree_multimap<Key, Value, Compare, Alloc> {};
+using btree_multimap = impl::phmap::btree_multimap<Key, Value, Compare, Alloc>;
 
 } // namespace muc

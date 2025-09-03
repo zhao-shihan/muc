@@ -28,11 +28,10 @@ namespace muc {
 
 template<typename Key, typename Compare = impl::phmap::Less<Key>,
          typename Alloc = impl::phmap::Allocator<Key>>
-class btree_set : public impl::phmap::btree_set<Key, Compare, Alloc> {};
+using btree_set = impl::phmap::btree_set<Key, Compare, Alloc>;
 
 template<typename Key, typename Compare = impl::phmap::Less<Key>,
          typename Alloc = impl::phmap::Allocator<Key>>
-class btree_multiset :
-    public impl::phmap::btree_multiset<Key, Compare, Alloc> {};
+using btree_multiset = impl::phmap::btree_multiset<Key, Compare, Alloc>;
 
 } // namespace muc

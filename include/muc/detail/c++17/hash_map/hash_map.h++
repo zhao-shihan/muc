@@ -26,42 +26,40 @@
 
 namespace muc {
 
-template<class K, class V, class Hash = impl::phmap::priv::hash_default_hash<K>,
-         class Eq = impl::phmap::priv::hash_default_eq<K>,
-         class Alloc = impl::phmap::priv::Allocator<
+template<typename K, typename V,
+         typename Hash = impl::phmap::priv::hash_default_hash<K>,
+         typename Eq = impl::phmap::priv::hash_default_eq<K>,
+         typename Alloc = impl::phmap::priv::Allocator<
              impl::phmap::priv::Pair<const K, V>>> // alias for std::allocator
-class flat_hash_map :
-    public impl::phmap::flat_hash_map<K, V, Hash, Eq, Alloc> {};
+using flat_hash_map = impl::phmap::flat_hash_map<K, V, Hash, Eq, Alloc>;
 
-template<class Key, class Value,
-         class Hash = impl::phmap::priv::hash_default_hash<Key>,
-         class Eq = impl::phmap::priv::hash_default_eq<Key>,
-         class Alloc = impl::phmap::priv::Allocator<impl::phmap::priv::Pair<
+template<typename Key, typename Value,
+         typename Hash = impl::phmap::priv::hash_default_hash<Key>,
+         typename Eq = impl::phmap::priv::hash_default_eq<Key>,
+         typename Alloc = impl::phmap::priv::Allocator<impl::phmap::priv::Pair<
              const Key, Value>>> // alias for std::allocator
-class node_hash_map :
-    public impl::phmap::node_hash_map<Key, Value, Hash, Eq, Alloc> {};
+using node_hash_map = impl::phmap::node_hash_map<Key, Value, Hash, Eq, Alloc>;
 
-template<class K, class V, class Hash = impl::phmap::priv::hash_default_hash<K>,
-         class Eq = impl::phmap::priv::hash_default_eq<K>,
-         class Alloc = impl::phmap::priv::Allocator<
+template<typename K, typename V,
+         typename Hash = impl::phmap::priv::hash_default_hash<K>,
+         typename Eq = impl::phmap::priv::hash_default_eq<K>,
+         typename Alloc = impl::phmap::priv::Allocator<
              impl::phmap::priv::Pair<const K, V>>, // alias for std::allocator
-         size_t N = 4,                             // 2**N submaps
-         class Mutex =
+         std::size_t N = 4,                        // 2**N submaps
+         typename Mutex =
              impl::phmap::NullMutex> // use std::mutex to enable internal locks
-class parallel_flat_hash_map :
-    public impl::phmap::parallel_flat_hash_map<K, V, Hash, Eq, Alloc, N,
-                                               Mutex> {};
+using parallel_flat_hash_map =
+    impl::phmap::parallel_flat_hash_map<K, V, Hash, Eq, Alloc, N, Mutex>;
 
-template<class Key, class Value,
-         class Hash = impl::phmap::priv::hash_default_hash<Key>,
-         class Eq = impl::phmap::priv::hash_default_eq<Key>,
-         class Alloc = impl::phmap::priv::Allocator<impl::phmap::priv::Pair<
+template<typename Key, typename Value,
+         typename Hash = impl::phmap::priv::hash_default_hash<Key>,
+         typename Eq = impl::phmap::priv::hash_default_eq<Key>,
+         typename Alloc = impl::phmap::priv::Allocator<impl::phmap::priv::Pair<
              const Key, Value>>, // alias for std::allocator
-         size_t N = 4,           // 2**N submaps
-         class Mutex =
+         std::size_t N = 4,      // 2**N submaps
+         typename Mutex =
              impl::phmap::NullMutex> // use std::mutex to enable internal locks
-class parallel_node_hash_map :
-    public impl::phmap::parallel_node_hash_map<Key, Value, Hash, Eq, Alloc, N,
-                                               Mutex> {};
+using parallel_node_hash_map =
+    impl::phmap::parallel_node_hash_map<Key, Value, Hash, Eq, Alloc, N, Mutex>;
 
 } // namespace muc
