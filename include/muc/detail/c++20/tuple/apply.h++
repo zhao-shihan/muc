@@ -25,6 +25,7 @@
 #include "muc/detail/c++20/tuple/tuple_like.h++"
 
 #include <functional>
+#include <tuple>
 #include <utility>
 
 namespace muc {
@@ -34,8 +35,8 @@ namespace impl {
 template<typename F, typename T, std::size_t... Is>
     requires tuple_like<std::decay_t<T>>
 constexpr auto apply(F&& f, T&& t, std::index_sequence<Is...>) noexcept(
-    noexcept(std::invoke(std::forward<F>(f),
-                         get<Is>(std::forward<T>(t))...))) -> decltype(auto) {
+    noexcept(std::invoke(std::forward<F>(f), get<Is>(std::forward<T>(t))...)))
+    -> decltype(auto) {
     return std::invoke(std::forward<F>(f), get<Is>(std::forward<T>(t))...);
 }
 

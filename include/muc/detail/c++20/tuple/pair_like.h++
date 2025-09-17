@@ -24,6 +24,8 @@
 
 #include "muc/detail/c++20/tuple/tuple_like.h++"
 
+#include <tuple>
+
 namespace muc {
 
 template<typename T>
