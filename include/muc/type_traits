@@ -31,6 +31,7 @@
 #if __cplusplus >= 201703L
 #include "muc/detail/c++17/type_traits/is_arithmetic_operable_with.h++"
 #include "muc/detail/c++17/type_traits/is_bounded_array.h++"
+#include "muc/detail/c++17/type_traits/is_complete.h++"
 #include "muc/detail/c++17/type_traits/is_general_arithmetic.h++"
 #include "muc/detail/c++17/type_traits/is_scoped_enum.h++"
 #include "muc/detail/c++17/type_traits/is_template_of.h++"
