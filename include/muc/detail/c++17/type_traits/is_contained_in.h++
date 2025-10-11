@@ -21,26 +21,32 @@
 // SOFTWARE.
 
 #pragma once
-#ifndef MUC_TYPE_TRAITS_35fd64e5dd5518762ebc391025fd06efd3f82687e245b5830b55c4a3ab96d768
-#define MUC_TYPE_TRAITS_35fd64e5dd5518762ebc391025fd06efd3f82687e245b5830b55c4a3ab96d768
 
-#if __cplusplus >= 202002L
-#include "muc/detail/c++20/type_traits/is_type_set.h++"
-#endif
+#include <type_traits>
 
-#if __cplusplus >= 201703L
-#include "muc/detail/c++17/type_traits/is_arithmetic_operable_with.h++"
-#include "muc/detail/c++17/type_traits/is_bounded_array.h++"
-#include "muc/detail/c++17/type_traits/is_complete.h++"
-#include "muc/detail/c++17/type_traits/is_contained_in.h++"
-#include "muc/detail/c++17/type_traits/is_general_arithmetic.h++"
-#include "muc/detail/c++17/type_traits/is_scoped_enum.h++"
-#include "muc/detail/c++17/type_traits/is_template_of.h++"
-#include "muc/detail/c++17/type_traits/is_unbounded_array.h++"
-#include "muc/detail/c++17/type_traits/remove_cref.h++"
-#include "muc/detail/c++17/type_traits/remove_cvref.h++"
-#include "muc/detail/c++17/type_traits/remove_vref.h++"
-#include "muc/detail/c++17/type_traits/type_identity.h++"
-#endif
+namespace muc {
+
+template<typename T, typename... Us>
+struct is_contained_in : std::bool_constant<(... or std::is_same_v<T, Us>)> {};
+
+template<typename T, typename... Us>
+inline constexpr bool is_contained_in_v{is_contained_in<T, Us...>::value};
+
+} // namespace muc
+
+#ifdef MUC_STATIC_TEST
+
+static_assert(muc::is_contained_in_v<int, int>);
+static_assert(muc::is_contained_in_v<void, void>);
+static_assert(muc::is_contained_in_v<int[], int[]>);
+static_assert(muc::is_contained_in_v<int[4], int[4], int[4], int[3]>);
+static_assert(muc::is_contained_in_v<int, int, void, int[4], int>);
+static_assert(muc::is_contained_in_v<void, void, double, void>);
+static_assert(not muc::is_contained_in_v<int, float>);
+static_assert(not muc::is_contained_in_v<void, int[]>);
+static_assert(not muc::is_contained_in_v<int[3], int[4]>);
+static_assert(not muc::is_contained_in_v<int, float, float, double>);
+static_assert(not muc::is_contained_in_v<void, int[3], double, double>);
+static_assert(not muc::is_contained_in_v<int[], void*, void>);
 
 #endif
