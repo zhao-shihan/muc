@@ -21,27 +21,35 @@
 // SOFTWARE.
 
 #pragma once
-#ifndef MUC_TYPE_TRAITS_35fd64e5dd5518762ebc391025fd06efd3f82687e245b5830b55c4a3ab96d768
-#define MUC_TYPE_TRAITS_35fd64e5dd5518762ebc391025fd06efd3f82687e245b5830b55c4a3ab96d768
 
-#if __cplusplus >= 202002L
-#include "muc/detail/c++20/type_traits/is_type_set.h++"
-#endif
+#include <cstddef>
+#include <type_traits>
 
-#if __cplusplus >= 201703L
-#include "muc/detail/c++17/type_traits/is_arithmetic_operable_with.h++"
-#include "muc/detail/c++17/type_traits/is_bounded_array.h++"
-#include "muc/detail/c++17/type_traits/is_complete.h++"
-#include "muc/detail/c++17/type_traits/is_contained_in.h++"
-#include "muc/detail/c++17/type_traits/is_general_arithmetic.h++"
-#include "muc/detail/c++17/type_traits/is_scoped_enum.h++"
-#include "muc/detail/c++17/type_traits/is_template_of.h++"
-#include "muc/detail/c++17/type_traits/is_unbounded_array.h++"
-#include "muc/detail/c++17/type_traits/remove_cref.h++"
-#include "muc/detail/c++17/type_traits/remove_cvref.h++"
-#include "muc/detail/c++17/type_traits/remove_vref.h++"
-#include "muc/detail/c++17/type_traits/type_count.h++"
-#include "muc/detail/c++17/type_traits/type_identity.h++"
-#endif
+namespace muc {
+
+template<typename T, typename... Ts>
+struct type_count :
+    std::integral_constant<std::size_t, (... + static_cast<std::size_t>(
+                                                   std::is_same_v<T, Ts>))> {};
+
+template<typename T, typename... Ts>
+inline constexpr auto type_count_v{type_count<T, Ts...>::value};
+
+} // namespace muc
+
+#ifdef MUC_STATIC_TEST
+
+static_assert(muc::type_count_v<int, int> == 1);
+static_assert(muc::type_count_v<void, void> == 1);
+static_assert(muc::type_count_v<int[], int[]> == 1);
+static_assert(muc::type_count_v<int[4], int[4], int[4], int[3]> == 2);
+static_assert(muc::type_count_v<int, int, void, int[4], int> == 2);
+static_assert(muc::type_count_v<void, void, double, void> == 2);
+static_assert(muc::type_count_v<int, float> == 0);
+static_assert(muc::type_count_v<void, int[]> == 0);
+static_assert(muc::type_count_v<int[3], int[4]> == 0);
+static_assert(muc::type_count_v<int, float, float, double> == 0);
+static_assert(muc::type_count_v<void, int[3], double, double> == 0);
+static_assert(muc::type_count_v<int[], void*, void> == 0);
 
 #endif
