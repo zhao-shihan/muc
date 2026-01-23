@@ -132,6 +132,8 @@ constexpr auto abs(T x) -> T {
         return __builtin_fabsf(x);
     } else if constexpr (std::is_same_v<T, long double>) {
         return __builtin_fabsl(x);
+    } else {
+        return x >= 0 ? x : -x;
     }
 #else
     return x >= 0 ? x : -x;
