@@ -44,6 +44,7 @@
 #include "muc/detail/c++17/math/round.h++"
 #include "muc/detail/c++17/math/round_to.h++"
 #include "muc/detail/c++17/math/sigmoid.h++"
+#include "muc/detail/c++17/math/sincos.h++"
 #include "muc/detail/c++17/math/trunc_to.h++"
 #endif
 
