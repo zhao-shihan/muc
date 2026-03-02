@@ -7,7 +7,7 @@
 
 #define MUC_TEST_NEWTON(f, df, x0)                                   \
     {                                                                \
-        const auto [x, converged]{muc::find_root::newton_raphson(    \
+        const auto [x, converged]{muc::find_root::newton(            \
             [](auto x) {                                             \
                 return f;                                            \
             },                                                       \
@@ -32,7 +32,7 @@
 
 #define MUC_TEST_ZBRENT(f, x1, x2)                                         \
     {                                                                      \
-        const auto [x, converged]{muc::find_root::zbrent(                  \
+        const auto [x, converged]{muc::find_root::brent(                   \
             [](auto x) {                                                   \
                 return f;                                                  \
             },                                                             \

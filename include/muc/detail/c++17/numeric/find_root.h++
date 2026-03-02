@@ -36,7 +36,7 @@
 
 namespace muc::find_root {
 
-/// @brief Newton-Raphson method for finding roots of a function.
+/// @brief Newton's method for finding roots of a function.
 /// This function implements the Newton-Raphson method for finding roots of a
 /// function. It iteratively calculates the next value using the function and
 /// its derivative until convergence.
@@ -46,9 +46,11 @@ namespace muc::find_root {
 /// @param f The function to evaluate.
 /// @param df The derivative function.
 /// @param x0 The initial guess for the root.
-/// @param max_iter The maximum number of iterations allowed (default is 1000).
-/// @param tolerance The tolerance value for convergence (default is
-/// default_tolerance<T>).
+/// @param max_iter The maximum number of iterations allowed (default is 300).
+/// @param abs_tol The absolute tolerance value for convergence (default is
+/// default_abs_tol<T>).
+/// @param rel_tol The relative tolerance value for convergence (default is
+/// default_rel_tol<T>).
 /// @return A pair containing the root value and a boolean indicating if
 /// convergence was achieved.
 template<typename T, typename F, typename DF,
@@ -56,15 +58,16 @@ template<typename T, typename F, typename DF,
                               std::is_invocable_r_v<T, F, T> and
                               std::is_invocable_r_v<T, DF, T>,
                           bool> = true>
-constexpr auto
-newton_raphson(F&& f, DF&& df, T x0, int max_iter = 1000,
-               T tolerance = muc::default_tolerance<T>) -> std::pair<T, bool> {
+constexpr auto newton(F&& f, DF&& df, T x0, int max_iter = 300,
+                      T abs_tol = muc::default_abs_tol<T>,
+                      T rel_tol = muc::default_rel_tol<T>)
+    -> std::pair<T, bool> {
     auto x1{x0 - f(x0) / df(x0)};
     for (int i{}; i < max_iter; ++i) {
         if (muc::isnan(x1)) {
             break;
         }
-        if (muc::abs(x1 - x0) <= muc::abs(muc::midpoint(x1, x0)) * tolerance) {
+        if (muc::abs(x1 - x0) <= muc::tolerance({x0, x1}, abs_tol, rel_tol)) {
             return {x1, true};
         }
         x0 = x1;
@@ -83,31 +86,36 @@ newton_raphson(F&& f, DF&& df, T x0, int max_iter = 1000,
 /// @param x0 The first initial guess for the root.
 /// @param x1O The optional second initial guess for the root (default is
 /// empty).
-/// @param max_iter The maximum number of iterations allowed (default is 1000).
-/// @param tolerance The tolerance value for convergence (default is
-/// default_tolerance<T>).
+/// @param max_iter The maximum number of iterations allowed (default is 300).
+/// @param abs_tol The absolute tolerance value for convergence (default is
+/// default_abs_tol<T>).
+/// @param rel_tol The relative tolerance value for convergence (default is
+/// default_rel_tol<T>).
 /// @return A pair containing the root value and a boolean indicating if
 /// convergence was achieved.
 template<typename T, typename F,
          std::enable_if_t<std::is_floating_point_v<T> and
                               std::is_invocable_r_v<T, F, T>,
                           bool> = true>
-constexpr auto
-secant(F&& f, T x0, std::optional<T> x1O = {}, int max_iter = 1000,
-       T tolerance = muc::default_tolerance<T>) -> std::pair<T, bool> {
+constexpr auto secant(F&& f, T x0, std::optional<T> x1O = {},
+                      int max_iter = 300, T abs_tol = muc::default_abs_tol<T>,
+                      T rel_tol = muc::default_rel_tol<T>)
+    -> std::pair<T, bool> {
     auto fx0{f(x0)};
     if (fx0 == 0) {
         return {x0, true};
     }
-    auto x1{x1O.value_or(x0 + fx0 * 2 * tolerance /
-                                  (f(x0 - tolerance) - f(x0 + tolerance)))};
+    auto x1{x1O.value_or([&]() {
+        const auto delta{muc::tolerance(x0, abs_tol, rel_tol)};
+        return x0 + fx0 * 2 * delta / (f(x0 - delta) - f(x0 + delta));
+    }())};
     auto fx1{f(x1)};
     auto x2{(x0 * fx1 - x1 * fx0) / (fx1 - fx0)};
     for (int i{}; i < max_iter; ++i) {
         if (muc::isnan(x2)) {
             break;
         }
-        if (muc::abs(x2 - x1) <= muc::abs(muc::midpoint(x2, x1)) * tolerance) {
+        if (muc::abs(x2 - x1) <= muc::tolerance({x1, x2}, abs_tol, rel_tol)) {
             return {x2, true};
         }
         x0 = x1;
@@ -120,27 +128,29 @@ secant(F&& f, T x0, std::optional<T> x1O = {}, int max_iter = 1000,
 }
 
 /// @brief Brent's method for finding roots of a function.
-/// This function implements Brent's method for finding roots of a function.
-/// It iteratively narrows down the root using a combination of bisection,
-/// secant, and inverse quadratic interpolation.
+/// This function implements Brent-Dekker method for finding roots of a
+/// function. It iteratively narrows down the root using a combination of
+/// bisection, secant, and inverse quadratic interpolation.
 /// @tparam T The type of the input value.
 /// @tparam F The type of the function to evaluate.
 /// @param f The function to evaluate.
 /// @param x1 The first initial guess for the root.
 /// @param x2 The second initial guess for the root.
-/// @param max_iter The maximum number of iterations allowed (default is
-/// 100000).
-/// @param tolerance The tolerance value for convergence (default is
-/// default_tolerance<T>).
+/// @param max_iter The maximum number of iterations allowed (default is 300).
+/// @param abs_tol The absolute tolerance value for convergence (default is
+/// default_abs_tol<T>).
+/// @param rel_tol The relative tolerance value for convergence (default is
+/// default_rel_tol<T>).
 /// @return A pair containing the root value and a boolean indicating if
 /// convergence was achieved.
 template<typename T, typename F,
          std::enable_if_t<std::is_floating_point_v<T> and
                               std::is_invocable_r_v<T, F, T>,
                           bool> = true>
-constexpr auto
-zbrent(F&& f, T x1, T x2, int max_iter = 100000,
-       T tolerance = muc::default_tolerance<T>) -> std::pair<T, bool> {
+constexpr auto brent(F&& f, T x1, T x2, int max_iter = 300,
+                     T abs_tol = muc::default_abs_tol<T>,
+                     T rel_tol = muc::default_rel_tol<T>)
+    -> std::pair<T, bool> {
     auto a{x1};
     auto b{x2};
     auto c{x2};
@@ -172,15 +182,14 @@ zbrent(F&& f, T x1, T x2, int max_iter = 100000,
         if (muc::isnan(fb)) {
             break;
         }
-        const auto tol{2 * std::numeric_limits<T>::epsilon() * muc::abs(b) +
-                       tolerance / 2};
+        const auto tol{muc::tolerance({b, c}, abs_tol, rel_tol) / 2};
         const auto xm{(c - b) / 2};
         if (muc::abs(xm) <= tol or fb == 0) {
             return {b, true};
         }
         if (muc::abs(e) >= tol and muc::abs(fa) > muc::abs(fb)) {
-            T p;
-            T q;
+            T p{};
+            T q{};
             const auto s{fb / fa};
             if (a == c) {
                 p = 2 * xm * s;
@@ -225,7 +234,7 @@ zbrent(F&& f, T x1, T x2, int max_iter = 100000,
 #ifdef MUC_STATIC_TEST
 
 static_assert([] {
-    const auto [x, converged]{muc::find_root::newton_raphson(
+    const auto [x, converged]{muc::find_root::newton(
         [](auto x) {
             return x * x - 1;
         },
@@ -233,7 +242,7 @@ static_assert([] {
             return 2 * x;
         },
         0.5)};
-    return converged and muc::abs(x - 1) < 2 * muc::default_tolerance<double>;
+    return converged and muc::abs(x - 1) < 2 * muc::tolerance(x);
 }());
 
 static_assert([] {
@@ -242,16 +251,16 @@ static_assert([] {
             return x * x - 1;
         },
         0.5)};
-    return converged and muc::abs(x - 1) < 2 * muc::default_tolerance<double>;
+    return converged and muc::abs(x - 1) < 2 * muc::tolerance(x);
 }());
 
-// static_assert([] {
-//     const auto [x, converged]{muc::find_root::zbrent(
-//         [](auto x) {
-//             return x * x - 1;
-//         },
-//         0.5, 2.5)};
-//     return converged and muc::abs(x - 1) < 2 * muc::default_tolerance<double>;
-// }());
+static_assert([] {
+    const auto [x, converged]{muc::find_root::brent(
+        [](auto x) {
+            return x * x - 1;
+        },
+        0.5, 2.5)};
+    return converged and muc::abs(x - 1) < 2 * muc::tolerance(x);
+}());
 
 #endif

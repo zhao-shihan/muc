@@ -22,21 +22,55 @@
 
 #pragma once
 
+#include "muc/detail/c++17/math/constexpr_cmath.h++"
 #include "muc/detail/c++17/math/pow.h++"
 
+#include <algorithm>
 #include <limits>
 #include <type_traits>
+#include <utility>
 
 namespace muc {
 
-/// @brief Default tolerance value for floating-point type.
+/// @brief Default relative tolerance value for floating-point type.
 /// This constexpr variable provides a default tolerance value for
-/// floating-points. It is calculated as half of the number of significant
-/// digits of the floating-point type T.
-/// @tparam T The floating-point type.
+/// floating-points. It is set to (approximately) the square root of
+/// the machine epsilon
+/// @tparam T The floating-point type
 template<typename T, std::enable_if_t<std::is_floating_point_v<T>, bool> = true>
-inline constexpr auto default_tolerance{
+inline constexpr auto default_rel_tol{
     muc::ipow(2ull, std::numeric_limits<T>::digits / 2) *
     std::numeric_limits<T>::epsilon()};
+
+/// @brief Default absolute tolerance value for floating-point type.
+/// This constexpr variable provides a default tolerance value for
+/// floating-points. It is set to the machine epsilon of T
+/// @tparam T The floating-point type
+template<typename T, std::enable_if_t<std::is_floating_point_v<T>, bool> = true>
+inline constexpr auto default_abs_tol{std::numeric_limits<T>::epsilon()};
+
+/// @brief Calculate tolerance value for floating-point type at a given point
+/// @tparam T The floating-point type
+/// @param x The point where the tolerance is evaluated
+/// @param abs_tol The absolute tolerance (default is default_abs_tol<T>)
+/// @param rel_tol The relative tolerance (default is default_rel_tol<T>)
+/// @return The tolerance value at point x
+template<typename T, std::enable_if_t<std::is_floating_point_v<T>, bool> = true>
+constexpr auto tolerance(T x, T abs_tol = default_abs_tol<T>,
+                         T rel_tol = default_rel_tol<T>) -> T {
+    return abs_tol + muc::abs(x) * rel_tol;
+}
+
+/// @brief Calculate tolerance value for floating-point type with two points
+/// @tparam T The floating-point type
+/// @param x A pair of points where the tolerance is evaluated
+/// @param abs_tol The absolute tolerance (default is default_abs_tol<T>)
+/// @param rel_tol The relative tolerance (default is default_rel_tol<T>)
+/// @return The tolerance value with the two points
+template<typename T, std::enable_if_t<std::is_floating_point_v<T>, bool> = true>
+constexpr auto tolerance(std::pair<T, T> x, T abs_tol = default_abs_tol<T>,
+                         T rel_tol = default_rel_tol<T>) -> T {
+    return abs_tol + std::max(muc::abs(x.first), muc::abs(x.second)) * rel_tol;
+}
 
 } // namespace muc
