@@ -39,10 +39,10 @@ private:
 
 public:
     consteval ceta_string(const cstring& string) :
-        m_private_string_data{string} {}
+        m_{string} {}
 
     constexpr auto c_str() const -> const auto& {
-        return m_private_string_data.m_data;
+        return m_.m_data;
     }
 
     constexpr auto sv() const -> std::string_view {
@@ -96,7 +96,7 @@ private:
     };
 
 public:
-    const private_string_data m_private_string_data; // private by semantic
+    const private_string_data m_; // private by semantic
 };
 
 template<std::size_t N>
@@ -126,14 +126,14 @@ ceta_string() -> ceta_string<0>;
 ceta_string(std::nullptr_t) -> ceta_string<0>;
 
 template<std::size_t M, std::size_t N>
-constexpr auto operator==(const ceta_string<M>& lhs,
-                          const ceta_string<N>& rhs) -> bool {
+constexpr auto operator==(const ceta_string<M>& lhs, const ceta_string<N>& rhs)
+    -> bool {
     return lhs.sv() == rhs.sv();
 }
 
 template<std::size_t M, std::size_t N>
-constexpr auto operator<=>(const ceta_string<M>& lhs,
-                           const ceta_string<N>& rhs) -> auto {
+constexpr auto operator<=>(const ceta_string<M>& lhs, const ceta_string<N>& rhs)
+    -> auto {
     return lhs.sv() <=> rhs.sv();
 }
 
