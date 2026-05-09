@@ -22,16 +22,6 @@
 
 #pragma once
 
-// Linux/BSD implementation:
-#if (defined linux or defined __linux__ or defined __linux) or             \
-    (defined __DragonFly__ or defined __FreeBSD__ or defined __NetBSD__ or \
-     defined __OpenBSD__)
-// Windows implementation:
-#elif defined _WIN32
-// Fallback implementation:
-#else
-#endif
-
 // macOS / iOS (Darwin) implementation:
 #if defined __APPLE__ and defined __MACH__
 #include "muc/detail/c++17/chrono/impl/thread_stopwatch/mach_thread_stopwatch.h++"
