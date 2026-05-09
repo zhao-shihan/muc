@@ -21,15 +21,33 @@
 // SOFTWARE.
 
 #pragma once
-#ifndef MUC_CHRONO_35fd64e5dd5518762ebc391025fd06efd3f82687e245b5830b55c4a3ab96d768
-#define MUC_CHRONO_35fd64e5dd5518762ebc391025fd06efd3f82687e245b5830b55c4a3ab96d768
 
-#if __cplusplus >= 201703L
-#include "muc/detail/c++17/chrono/duration.h++"
-#include "muc/detail/c++17/chrono/processor_stopwatch.h++"
-#include "muc/detail/c++17/chrono/steady_high_resolution_clock.h++"
-#include "muc/detail/c++17/chrono/stopwatch.h++"
-#include "muc/detail/c++17/chrono/thread_stopwatch.h++"
-#endif
+#include <chrono>
+#include <time.h>
 
-#endif
+namespace muc::chrono::impl {
+
+class thread_stopwatch {
+public:
+    thread_stopwatch() noexcept :
+        m_t0{} {
+        reset();
+    }
+
+    auto reset() noexcept -> void {
+        clock_gettime(CLOCK_THREAD_CPUTIME_ID, &m_t0);
+    }
+
+    auto read() const noexcept -> std::chrono::nanoseconds {
+        struct timespec t{};
+        clock_gettime(CLOCK_THREAD_CPUTIME_ID, &t);
+        return std::chrono::nanoseconds{(t.tv_sec - m_t0.tv_sec) *
+                                            1'000'000'000ll +
+                                        (t.tv_nsec - m_t0.tv_nsec)};
+    }
+
+private:
+    struct timespec m_t0;
+};
+
+} // namespace muc::chrono::impl

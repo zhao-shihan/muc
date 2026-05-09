@@ -21,15 +21,38 @@
 // SOFTWARE.
 
 #pragma once
-#ifndef MUC_CHRONO_35fd64e5dd5518762ebc391025fd06efd3f82687e245b5830b55c4a3ab96d768
-#define MUC_CHRONO_35fd64e5dd5518762ebc391025fd06efd3f82687e245b5830b55c4a3ab96d768
 
-#if __cplusplus >= 201703L
-#include "muc/detail/c++17/chrono/duration.h++"
-#include "muc/detail/c++17/chrono/processor_stopwatch.h++"
-#include "muc/detail/c++17/chrono/steady_high_resolution_clock.h++"
-#include "muc/detail/c++17/chrono/stopwatch.h++"
-#include "muc/detail/c++17/chrono/thread_stopwatch.h++"
-#endif
+#include "muc/detail/c++17/math/constexpr_cmath.h++"
+#include "muc/detail/c++17/math/llround.h++"
 
-#endif
+#include <chrono>
+#include <ctime>
+
+namespace muc::chrono::impl {
+
+class thread_stopwatch {
+public:
+    thread_stopwatch() noexcept :
+        m_t0{std::clock()} {}
+
+    auto reset() noexcept -> void {
+        m_t0 = std::clock();
+    }
+
+    auto read() const noexcept -> std::chrono::nanoseconds {
+        const auto clocks{std::clock() - m_t0};
+        constexpr auto tick{
+            muc::div(static_cast<clock_t>(1'000'000'000), CLOCKS_PER_SEC)};
+        if constexpr (tick.rem == 0) {
+            return std::chrono::nanoseconds{clocks * tick.quot};
+        } else {
+            return std::chrono::nanoseconds{
+                muc::llround(clocks * (1e9 / CLOCKS_PER_SEC))};
+        }
+    }
+
+private:
+    std::clock_t m_t0;
+};
+
+} // namespace muc::chrono::impl
