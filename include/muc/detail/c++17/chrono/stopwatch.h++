@@ -35,8 +35,7 @@
 #include "muc/detail/c++17/chrono/impl/stopwatch/fallback_stopwatch.h++"
 #endif
 
-#include <limits>
-#include <type_traits>
+#include <chrono>
 
 namespace muc::chrono {
 

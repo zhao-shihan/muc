@@ -36,8 +36,6 @@
 #endif
 
 #include <chrono>
-#include <limits>
-#include <type_traits>
 
 namespace muc::chrono {
 

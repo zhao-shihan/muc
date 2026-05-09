@@ -23,7 +23,7 @@
 #pragma once
 
 #include <chrono>
-#include <sys/time.h>
+#include <time.h>
 
 namespace muc::chrono::impl {
 
@@ -42,7 +42,7 @@ public:
         struct timespec t{};
         clock_gettime(CLOCK_MONOTONIC, &t);
         return std::chrono::nanoseconds{(t.tv_sec - m_t0.tv_sec) *
-                                            1'000'000'000 +
+                                            1'000'000'000ll +
                                         (t.tv_nsec - m_t0.tv_nsec)};
     }
 
