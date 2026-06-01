@@ -20,7 +20,7 @@
 
 cmake_minimum_required(VERSION 3.14)
 
-project(muc VERSION 0.26.510 LANGUAGES CXX)
+project(muc VERSION 0.26.601 LANGUAGES CXX)
 
 add_library(muc INTERFACE)
 add_library(muc::muc ALIAS muc)
