@@ -25,8 +25,8 @@
 #include "muc/detail/c++17/math/constexpr_cmath.h++"
 #include "muc/detail/c++17/math/llround.h++"
 #include "muc/detail/c++17/math/pow.h++"
-#include "muc/detail/c++17/numeric/default_tolerance.h++"
 #include "muc/detail/c++17/numeric/midpoint.h++"
+#include "muc/detail/c++17/numeric/tolerance.h++"
 
 #include <algorithm>
 #include <limits>
@@ -47,10 +47,8 @@ namespace muc::find_root {
 /// @param df The derivative function.
 /// @param x0 The initial guess for the root.
 /// @param max_iter The maximum number of iterations allowed (default is 300).
-/// @param abs_tol The absolute tolerance value for convergence (default is
-/// default_abs_tol<T>).
-/// @param rel_tol The relative tolerance value for convergence (default is
-/// default_rel_tol<T>).
+/// @param tol The tolerance configuration for convergence (default is
+/// `tolerance<T>{}`).
 /// @return A pair containing the root value and a boolean indicating if
 /// convergence was achieved.
 template<typename T, typename F, typename DF,
@@ -59,15 +57,13 @@ template<typename T, typename F, typename DF,
                               std::is_invocable_r_v<T, DF, T>,
                           bool> = true>
 constexpr auto newton(F&& f, DF&& df, T x0, int max_iter = 300,
-                      T abs_tol = muc::default_abs_tol<T>,
-                      T rel_tol = muc::default_rel_tol<T>)
-    -> std::pair<T, bool> {
+                      tolerance<T> tol = {}) -> std::pair<T, bool> {
     auto x1{x0 - f(x0) / df(x0)};
     for (int i{}; i < max_iter; ++i) {
         if (muc::isnan(x1)) {
             break;
         }
-        if (muc::abs(x1 - x0) <= muc::tolerance({x0, x1}, abs_tol, rel_tol)) {
+        if (muc::abs(x1 - x0) <= tol.at(x0, x1)) {
             return {x1, true};
         }
         x0 = x1;
@@ -87,10 +83,8 @@ constexpr auto newton(F&& f, DF&& df, T x0, int max_iter = 300,
 /// @param x1O The optional second initial guess for the root (default is
 /// empty).
 /// @param max_iter The maximum number of iterations allowed (default is 300).
-/// @param abs_tol The absolute tolerance value for convergence (default is
-/// default_abs_tol<T>).
-/// @param rel_tol The relative tolerance value for convergence (default is
-/// default_rel_tol<T>).
+/// @param tol The tolerance configuration for convergence (default is
+/// `tolerance<T>{}`).
 /// @return A pair containing the root value and a boolean indicating if
 /// convergence was achieved.
 template<typename T, typename F,
@@ -98,15 +92,14 @@ template<typename T, typename F,
                               std::is_invocable_r_v<T, F, T>,
                           bool> = true>
 constexpr auto secant(F&& f, T x0, std::optional<T> x1O = {},
-                      int max_iter = 300, T abs_tol = muc::default_abs_tol<T>,
-                      T rel_tol = muc::default_rel_tol<T>)
+                      int max_iter = 300, tolerance<T> tol = {})
     -> std::pair<T, bool> {
     auto fx0{f(x0)};
     if (fx0 == 0) {
         return {x0, true};
     }
     auto x1{x1O.value_or([&]() {
-        const auto delta{muc::tolerance(x0, abs_tol, rel_tol)};
+        const auto delta{tol.at(x0)};
         return x0 + fx0 * 2 * delta / (f(x0 - delta) - f(x0 + delta));
     }())};
     auto fx1{f(x1)};
@@ -115,7 +108,7 @@ constexpr auto secant(F&& f, T x0, std::optional<T> x1O = {},
         if (muc::isnan(x2)) {
             break;
         }
-        if (muc::abs(x2 - x1) <= muc::tolerance({x1, x2}, abs_tol, rel_tol)) {
+        if (muc::abs(x2 - x1) <= tol.at(x1, x2)) {
             return {x2, true};
         }
         x0 = x1;
@@ -137,10 +130,8 @@ constexpr auto secant(F&& f, T x0, std::optional<T> x1O = {},
 /// @param x1 The first initial guess for the root.
 /// @param x2 The second initial guess for the root.
 /// @param max_iter The maximum number of iterations allowed (default is 300).
-/// @param abs_tol The absolute tolerance value for convergence (default is
-/// default_abs_tol<T>).
-/// @param rel_tol The relative tolerance value for convergence (default is
-/// default_rel_tol<T>).
+/// @param tol The tolerance configuration for convergence (default is
+/// `tolerance<T>{}`).
 /// @return A pair containing the root value and a boolean indicating if
 /// convergence was achieved.
 template<typename T, typename F,
@@ -148,9 +139,7 @@ template<typename T, typename F,
                               std::is_invocable_r_v<T, F, T>,
                           bool> = true>
 constexpr auto brent(F&& f, T x1, T x2, int max_iter = 300,
-                     T abs_tol = muc::default_abs_tol<T>,
-                     T rel_tol = muc::default_rel_tol<T>)
-    -> std::pair<T, bool> {
+                     tolerance<T> tol = {}) -> std::pair<T, bool> {
     auto a{x1};
     auto b{x2};
     auto c{x2};
@@ -182,12 +171,12 @@ constexpr auto brent(F&& f, T x1, T x2, int max_iter = 300,
         if (muc::isnan(fb)) {
             break;
         }
-        const auto tol{muc::tolerance({b, c}, abs_tol, rel_tol) / 2};
+        const auto tolr{tol.at(b, c) / 2};
         const auto xm{(c - b) / 2};
-        if (muc::abs(xm) <= tol or fb == 0) {
+        if (muc::abs(xm) <= tolr or fb == 0) {
             return {b, true};
         }
-        if (muc::abs(e) >= tol and muc::abs(fa) > muc::abs(fb)) {
+        if (muc::abs(e) >= tolr and muc::abs(fa) > muc::abs(fb)) {
             T p{};
             T q{};
             const auto s{fb / fa};
@@ -205,7 +194,7 @@ constexpr auto brent(F&& f, T x1, T x2, int max_iter = 300,
             }
             p = muc::abs(p);
             if (2 * p <
-                std::min(3 * xm * q - muc::abs(tol * q), muc::abs(e * q))) {
+                std::min(3 * xm * q - muc::abs(tolr * q), muc::abs(e * q))) {
                 e = d;
                 d = p / q;
             } else {
@@ -218,10 +207,10 @@ constexpr auto brent(F&& f, T x1, T x2, int max_iter = 300,
         }
         a = b;
         fa = fb;
-        if (muc::abs(d) > tol) {
+        if (muc::abs(d) > tolr) {
             b += d;
         } else {
-            b += (xm > 1) ? tol : -tol;
+            b += (xm > 1) ? tolr : -tolr;
         }
         fb = f(b);
     }
@@ -242,7 +231,7 @@ static_assert([] {
             return 2 * x;
         },
         0.5)};
-    return converged and muc::abs(x - 1) < 2 * muc::tolerance(x);
+    return converged and muc::abs(x - 1) < 2 * muc::tolerance<double>{}.at(x);
 }());
 
 static_assert([] {
@@ -251,7 +240,7 @@ static_assert([] {
             return x * x - 1;
         },
         0.5)};
-    return converged and muc::abs(x - 1) < 2 * muc::tolerance(x);
+    return converged and muc::abs(x - 1) < 2 * muc::tolerance<double>{}.at(x);
 }());
 
 static_assert([] {
@@ -260,7 +249,7 @@ static_assert([] {
             return x * x - 1;
         },
         0.5, 2.5)};
-    return converged and muc::abs(x - 1) < 2 * muc::tolerance(x);
+    return converged and muc::abs(x - 1) < 2 * muc::tolerance<double>{}.at(x);
 }());
 
 #endif

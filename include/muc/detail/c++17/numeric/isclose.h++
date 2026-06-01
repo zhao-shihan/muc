@@ -23,8 +23,7 @@
 #pragma once
 
 #include "muc/detail/c++17/math/constexpr_cmath.h++"
-#include "muc/detail/c++17/numeric/default_tolerance.h++"
-#include "muc/detail/c++17/utility/assume.h++"
+#include "muc/detail/c++17/numeric/tolerance.h++"
 
 #include <limits>
 #include <type_traits>
@@ -40,20 +39,15 @@ namespace muc {
 /// @tparam T Floating-point type.
 /// @param a First floating-point value to compare.
 /// @param b Second floating-point value to compare.
-/// @param rel_tol Relative tolerance (default is `default_rel_tol<T>`).
-/// @param abs_tol Absolute tolerance (default is `default_abs_tol<T>`).
+/// @param tol Tolerance configuration (default is `tolerance<T>{}`).
 /// @return `true` if `a` and `b` are approximately equal within tolerances,
 /// `false` otherwise.
 template<typename T, std::enable_if_t<std::is_floating_point_v<T>, bool> = true>
-constexpr auto isclose(T a, T b, T rel_tol = default_rel_tol<T>,
-                       T abs_tol = default_abs_tol<T>) -> bool {
-    assume(rel_tol > 0);
-    assume(abs_tol > 0);
+constexpr auto isclose(T a, T b, tolerance<T> tol = {}) -> bool {
     if (a == b) {
         return true;
     }
-    const auto tol{muc::tolerance({a, b}, abs_tol, rel_tol)};
-    return muc::abs(a - b) <= tol;
+    return muc::abs(a - b) <= tol.at(a, b);
 }
 
 } // namespace muc

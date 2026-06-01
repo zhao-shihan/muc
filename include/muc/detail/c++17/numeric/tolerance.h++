@@ -24,11 +24,11 @@
 
 #include "muc/detail/c++17/math/constexpr_cmath.h++"
 #include "muc/detail/c++17/math/pow.h++"
+#include "muc/detail/c++17/utility/assume.h++"
 
 #include <algorithm>
 #include <limits>
 #include <type_traits>
-#include <utility>
 
 namespace muc {
 
@@ -49,28 +49,36 @@ inline constexpr auto default_rel_tol{
 template<typename T, std::enable_if_t<std::is_floating_point_v<T>, bool> = true>
 inline constexpr auto default_abs_tol{std::numeric_limits<T>::epsilon()};
 
-/// @brief Calculate tolerance value for floating-point type at a given point
+/// @brief Tolerance control for floating-point algorithms.
+///
+/// This struct bundles absolute and relative tolerances into a single parameter
+/// that can be passed to numeric algorithms. It provides `at()` member
+/// functions to evaluate tolerance values at given points.
+///
 /// @tparam T The floating-point type
-/// @param x The point where the tolerance is evaluated
-/// @param abs_tol The absolute tolerance (default is default_abs_tol<T>)
-/// @param rel_tol The relative tolerance (default is default_rel_tol<T>)
-/// @return The tolerance value at point x
 template<typename T, std::enable_if_t<std::is_floating_point_v<T>, bool> = true>
-constexpr auto tolerance(T x, T abs_tol = default_abs_tol<T>,
-                         T rel_tol = default_rel_tol<T>) -> T {
-    return abs_tol + muc::abs(x) * rel_tol;
-}
+struct tolerance {
+    T abs{default_abs_tol<T>}; ///< Absolute tolerance
+    T rel{default_rel_tol<T>}; ///< Relative tolerance
 
-/// @brief Calculate tolerance value for floating-point type with two points
-/// @tparam T The floating-point type
-/// @param x A pair of points where the tolerance is evaluated
-/// @param abs_tol The absolute tolerance (default is default_abs_tol<T>)
-/// @param rel_tol The relative tolerance (default is default_rel_tol<T>)
-/// @return The tolerance value with the two points
-template<typename T, std::enable_if_t<std::is_floating_point_v<T>, bool> = true>
-constexpr auto tolerance(std::pair<T, T> x, T abs_tol = default_abs_tol<T>,
-                         T rel_tol = default_rel_tol<T>) -> T {
-    return abs_tol + std::max(muc::abs(x.first), muc::abs(x.second)) * rel_tol;
-}
+    /// @brief Evaluate the tolerance at a point.
+    /// @param x The point where the tolerance is evaluated
+    /// @return abs + |x| * rel
+    constexpr auto at(T x) const -> T {
+        assume(abs > 0);
+        assume(rel > 0);
+        return abs + muc::abs(x) * rel;
+    }
+
+    /// @brief Evaluate the tolerance for a pair of points.
+    /// @param x1 The first point
+    /// @param x2 The second point
+    /// @return abs + max(|x1|, |x2|) * rel
+    constexpr auto at(T x1, T x2) const -> T {
+        assume(abs > 0);
+        assume(rel > 0);
+        return abs + std::max(muc::abs(x1), muc::abs(x2)) * rel;
+    }
+};
 
 } // namespace muc
