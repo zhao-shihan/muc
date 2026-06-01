@@ -42,16 +42,16 @@ struct is_arithmetic_operable_with :
         impl::has_binary_arithmetic_with_v<
             T,
             decltype(std::declval<const U&>() - std::declval<const U&>())> and
-        /* impl::has_binary_arithmetic_with_v<
-            U, decltype(+std::declval<const U&>())> and */
+        impl::has_binary_arithmetic_with_v<
+            U, decltype(+std::declval<const U&>())> and
         impl::has_binary_arithmetic_with_v<
             U, decltype(-std::declval<const U&>())> and
         impl::has_binary_arithmetic_with_v<
             T, decltype(1 * std::declval<const U&>())> and
-        /* impl::has_binary_arithmetic_with_v<
+        impl::has_binary_arithmetic_with_v<
             T, decltype(std::declval<const U&>() * 1)> and
         impl::has_binary_arithmetic_with_v<
-            T, decltype(std::declval<const U&>() / 1)> and */
+            T, decltype(std::declval<const U&>() / 1)> and
         // T <-> {T <-> U}
         impl::has_binary_arithmetic_with_v<
             T,
@@ -73,16 +73,16 @@ struct is_arithmetic_operable_with :
         impl::has_binary_arithmetic_with_v<
             U,
             decltype(std::declval<const T&>() - std::declval<const T&>())> and
-        /* impl::has_binary_arithmetic_with_v<
-            U, decltype(+std::declval<const T&>())> and */
+        impl::has_binary_arithmetic_with_v<
+            U, decltype(+std::declval<const T&>())> and
         impl::has_binary_arithmetic_with_v<
             U, decltype(-std::declval<const T&>())> and
         impl::has_binary_arithmetic_with_v<
             U, decltype(1 * std::declval<const T&>())> and
-        /* impl::has_binary_arithmetic_with_v<
+        impl::has_binary_arithmetic_with_v<
             U, decltype(std::declval<const T&>() * 1)> and
         impl::has_binary_arithmetic_with_v<
-            U, decltype(std::declval<const T&>() / 1)> and */
+            U, decltype(std::declval<const T&>() / 1)> and
         // U <-> {T <-> U}
         impl::has_binary_arithmetic_with_v<
             U,
