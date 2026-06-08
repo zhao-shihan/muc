@@ -27,12 +27,12 @@
 namespace muc {
 
 template<typename T, std::enable_if_t<std::is_integral_v<T>, bool> = true>
-constexpr auto odd(T n) -> auto {
+constexpr auto odd(T n) -> bool {
     return n & static_cast<decltype(n)>(1);
 }
 
 template<typename T, std::enable_if_t<std::is_integral_v<T>, bool> = true>
-constexpr auto even(T n) -> auto {
+constexpr auto even(T n) -> bool {
     return not odd(n);
 }
 

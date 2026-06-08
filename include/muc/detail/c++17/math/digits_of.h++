@@ -98,7 +98,7 @@ constexpr auto digits_of(T m, int base) -> int {
 template<unsigned Base, typename T,
          std::enable_if_t<std::is_unsigned_v<T> and std::is_integral_v<T>,
                           bool> = true>
-constexpr auto digits_of(T m) -> auto {
+constexpr auto digits_of(T m) -> int {
     return muc::digits_of(m, Base);
 }
 
