@@ -22,65 +22,53 @@
 
 #pragma once
 
-#include "muc/detail/c++17/memory/placement.h++"
-#include "muc/detail/c++17/memory/to_address.h++"
+#include "muc/detail/c++17/memory/allocator_deleter.h++"
+#include "muc/detail/c++17/type_traits/type_identity.h++"
 
 #include <memory>
-#include <stdexcept>
 #include <type_traits>
 #include <utility>
 
 namespace muc {
 
-template<typename Allocator>
-struct allocator_delete : placement<Allocator> {
-    allocator_delete() = default;
+template<typename T, typename Alloc>
+using unique_alloc_ptr = std::conditional_t<
+    std::is_reference_v<Alloc>,
+    muc::type_identity_t<std::unique_ptr<T, muc::allocator_delete<T, Alloc>>>,
+    muc::type_identity_t<std::unique_ptr<
+        T, muc::allocator_delete<T, typename std::allocator_traits<
+                                        Alloc>::template rebind_alloc<T>>>>>;
 
-    explicit allocator_delete(const Allocator& alloc) :
-        placement<Allocator>{alloc} {}
-
-    explicit allocator_delete(Allocator&& alloc) :
-        placement<Allocator>{std::move(alloc)} {}
-
-    template<typename Alloc>
-    allocator_delete(const allocator_delete<Alloc>& other) :
-        Allocator{static_cast<const Alloc&>(other)} {}
-
-    template<typename Alloc>
-    allocator_delete(allocator_delete<Alloc>&& other) :
-        Allocator{static_cast<Alloc&&>(other)} {}
-
-    auto
-    operator()(typename std::allocator_traits<Allocator>::pointer ptr) -> void {
-        Allocator& alloc(*this);
-        std::allocator_traits<Allocator>::destroy(alloc, muc::to_address(ptr));
-        std::allocator_traits<Allocator>::deallocate(alloc, ptr, 1);
-    }
-};
-
-template<typename T, typename Allocator, typename... Args>
-auto allocate_unique(Allocator alloc, Args&&... args)
-    -> std::unique_ptr<T, allocator_delete<Allocator>> {
-    static_assert(
-        std::is_same_v<typename std::allocator_traits<Allocator>::value_type,
-                       std::remove_cv_t<T>>,
-        "Allocator has the wrong value_type");
-    const auto ptr{std::allocator_traits<Allocator>::allocate(alloc, 1)};
-    const auto deallocate_when_failed{[&] {
-        std::allocator_traits<Allocator>::deallocate(alloc, ptr, 1);
+template<typename T, typename Alloc, typename... Args>
+auto allocate_unique(Alloc&& alloc, Args&&... args) -> auto {
+    using traits =
+        typename std::allocator_traits<Alloc>::template rebind_traits<T>;
+    using alloc_t = typename traits::allocator_type;
+    alloc_t my_alloc{std::forward<Alloc>(alloc)};
+    auto hold_deleter{[&my_alloc](auto p) {
+        traits::deallocate(my_alloc, p, 1);
     }};
-    try {
-        std::allocator_traits<Allocator>::construct(
-            alloc, muc::to_address(ptr), std::forward<Args>(args)...);
-        return std::unique_ptr<T, allocator_delete<Allocator>>{
-            ptr, allocator_delete<Allocator>{alloc}};
-    } catch (const std::exception& e) {
-        deallocate_when_failed();
-        throw e;
-    } catch (...) {
-        deallocate_when_failed();
-        throw;
-    }
+    using hold_t = std::unique_ptr<T, decltype(hold_deleter)>;
+    hold_t hold{traits::allocate(my_alloc, 1), hold_deleter};
+    traits::construct(my_alloc, hold.get(), std::forward<Args>(args)...);
+    muc::allocator_delete<T, alloc_t> deleter{my_alloc};
+    return std::unique_ptr<T, decltype(deleter)>{hold.release(),
+                                                 std::move(deleter)};
+}
+
+template<typename T, typename Alloc, typename... Args>
+auto allocate_unique(std::reference_wrapper<Alloc> alloc, Args&&... args)
+    -> auto {
+    using traits = std::allocator_traits<Alloc>;
+    auto hold_deleter{[&alloc](auto p) {
+        traits::deallocate(alloc.get(), p, 1);
+    }};
+    using hold_t = std::unique_ptr<T, decltype(hold_deleter)>;
+    hold_t hold{traits::allocate(alloc.get(), 1), hold_deleter};
+    traits::construct(alloc.get(), hold.get(), std::forward<Args>(args)...);
+    muc::allocator_delete<T, Alloc&> deleter{alloc};
+    return std::unique_ptr<T, decltype(deleter)>{hold.release(),
+                                                 std::move(deleter)};
 }
 
 } // namespace muc
