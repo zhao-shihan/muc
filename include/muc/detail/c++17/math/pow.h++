@@ -22,6 +22,7 @@
 
 #pragma once
 
+#include "muc/detail/c++17/math/constexpr_cmath.h++"
 #include "muc/detail/c++17/math/parity.h++"
 #include "muc/detail/common/inline_macro.h++"
 
@@ -48,19 +49,19 @@ namespace muc {
 /// @see std::pow() for standards-compliant implementation
 /// @see ipow() for integer base version
 template<typename T, std::enable_if_t<std::is_floating_point_v<T>, bool> = true>
-MUC_STRONG_INLINE constexpr auto pow(T x, int n) -> T {
-    if (n < 0) {
-        return 1 / muc::pow(x, -n);
-    }
+MUC_ALWAYS_INLINE constexpr auto pow(T x, int n) -> T {
     T z{1};
-    while (n > 0) {
-        if (muc::odd(n)) {
+    for (auto m{muc::abs(n)}; m > 0; m /= 2) {
+        if (muc::odd(m)) {
             z *= x;
         }
         x *= x;
-        n /= 2;
     }
-    return z;
+    if (n >= 0) {
+        return z;
+    } else {
+        return 1 / z;
+    }
 }
 
 /// @brief Floating-point exponentiation with integral base conversion
@@ -79,7 +80,7 @@ MUC_STRONG_INLINE constexpr auto pow(T x, int n) -> T {
 template<typename T = double, typename U,
          std::enable_if_t<std::is_floating_point_v<T> and std::is_integral_v<U>,
                           bool> = true>
-MUC_STRONG_INLINE constexpr auto pow(U x, int n) -> T {
+MUC_ALWAYS_INLINE constexpr auto pow(U x, int n) -> T {
     return muc::pow(static_cast<T>(x), n);
 }
 
@@ -100,7 +101,7 @@ MUC_STRONG_INLINE constexpr auto pow(U x, int n) -> T {
 /// @warning May overflow for large values of m and n
 /// @see pow() for floating-point version
 template<typename T, std::enable_if_t<std::is_integral_v<T>, bool> = true>
-MUC_STRONG_INLINE constexpr auto ipow(T m, int n) -> T {
+MUC_ALWAYS_INLINE constexpr auto ipow(T m, int n) -> T {
     if (n < 0) {
         if constexpr (std::is_signed_v<T>) {
             if (m == 1) {
@@ -116,14 +117,91 @@ MUC_STRONG_INLINE constexpr auto ipow(T m, int n) -> T {
         return 0;
     }
     T k{1};
-    while (n > 0) {
+    for (; n > 0; n /= 2) {
         if (muc::odd(n)) {
             k *= m;
         }
         m *= m;
-        n /= 2;
     }
     return k;
 }
 
 } // namespace muc
+
+#ifdef MUC_STATIC_TEST
+
+static_assert(muc::pow(2, 10) == 1024);
+static_assert(muc::pow(2, 5) == 32);
+static_assert(muc::pow(2, 2) == 4);
+static_assert(muc::pow(2, 0) == 1);
+static_assert(muc::pow(2, -2) == 1 / 4.);
+static_assert(muc::pow(2, -5) == 1 / 32.);
+static_assert(muc::pow(2, -10) == 1 / 1024.);
+
+static_assert(muc::pow(1, 10) == 1.);
+static_assert(muc::pow(1, 5) == 1.);
+static_assert(muc::pow(1, 2) == 1.);
+static_assert(muc::pow(1, 0) == 1.);
+static_assert(muc::pow(1, -2) == 1.);
+static_assert(muc::pow(1, -5) == 1.);
+static_assert(muc::pow(1, -10) == 1.);
+
+static_assert(muc::pow(0., 10) == 0.);
+static_assert(muc::pow(0., 5) == 0.);
+static_assert(muc::pow(0., 2) == 0.);
+static_assert(muc::pow(0., 0) == 1.);
+
+static_assert(muc::pow(-1, 10) == 1);
+static_assert(muc::pow(-1, 5) == -1);
+static_assert(muc::pow(-1, 2) == 1);
+static_assert(muc::pow(-1, 0) == 1);
+static_assert(muc::pow(-1, -2) == 1);
+static_assert(muc::pow(-1, -5) == -1);
+static_assert(muc::pow(-1, -10) == 1);
+
+static_assert(muc::pow(-2, 10) == 1024);
+static_assert(muc::pow(-2, 5) == -32);
+static_assert(muc::pow(-2, 2) == 4);
+static_assert(muc::pow(-2, 0) == 1);
+static_assert(muc::pow(-2, -2) == 1 / 4.);
+static_assert(muc::pow(-2, -5) == -1 / 32.);
+static_assert(muc::pow(-2, -10) == 1 / 1024.);
+
+static_assert(muc::ipow(2, 10) == 1024);
+static_assert(muc::ipow(2, 5) == 32);
+static_assert(muc::ipow(2, 2) == 4);
+static_assert(muc::ipow(2, 0) == 1);
+static_assert(muc::ipow(2, -2) == 0);
+static_assert(muc::ipow(2, -5) == 0);
+static_assert(muc::ipow(2, -10) == 0);
+
+static_assert(muc::ipow(1, 10) == 1);
+static_assert(muc::ipow(1, 5) == 1);
+static_assert(muc::ipow(1, 2) == 1);
+static_assert(muc::ipow(1, 0) == 1);
+static_assert(muc::ipow(1, -2) == 1);
+static_assert(muc::ipow(1, -5) == 1);
+static_assert(muc::ipow(1, -10) == 1);
+
+static_assert(muc::ipow(0, 10) == 0);
+static_assert(muc::ipow(0, 5) == 0);
+static_assert(muc::ipow(0, 2) == 0);
+static_assert(muc::ipow(0, 0) == 1);
+
+static_assert(muc::ipow(-1, 10) == 1);
+static_assert(muc::ipow(-1, 5) == -1);
+static_assert(muc::ipow(-1, 2) == 1);
+static_assert(muc::ipow(-1, 0) == 1);
+static_assert(muc::ipow(-1, -2) == 1);
+static_assert(muc::ipow(-1, -5) == -1);
+static_assert(muc::ipow(-1, -10) == 1);
+
+static_assert(muc::ipow(-2, 10) == 1024);
+static_assert(muc::ipow(-2, 5) == -32);
+static_assert(muc::ipow(-2, 2) == 4);
+static_assert(muc::ipow(-2, 0) == 1);
+static_assert(muc::ipow(-2, -2) == 0);
+static_assert(muc::ipow(-2, -5) == 0);
+static_assert(muc::ipow(-2, -10) == 0);
+
+#endif
