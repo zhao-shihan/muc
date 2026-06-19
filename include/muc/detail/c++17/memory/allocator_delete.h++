@@ -82,4 +82,7 @@ struct allocator_delete<T, Alloc&> : private std::reference_wrapper<Alloc> {
     }
 };
 
+template<typename T, typename Alloc>
+struct allocator_delete<T[], Alloc> {};
+
 } // namespace muc

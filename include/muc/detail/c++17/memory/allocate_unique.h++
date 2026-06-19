@@ -40,35 +40,32 @@ using unique_alloc_ptr = std::conditional_t<
                                         Alloc>::template rebind_alloc<T>>>>>;
 
 template<typename T, typename Alloc, typename... Args>
-auto allocate_unique(Alloc&& alloc, Args&&... args) -> auto {
+auto allocate_unique(Alloc&& alloc, Args&&... args)
+    -> muc::unique_alloc_ptr<T, Alloc> {
     using traits =
         typename std::allocator_traits<Alloc>::template rebind_traits<T>;
     using alloc_t = typename traits::allocator_type;
     alloc_t my_alloc{std::forward<Alloc>(alloc)};
-    auto hold_deleter{[&my_alloc](auto p) {
+    auto hold_dealloc{[&my_alloc](auto p) {
         traits::deallocate(my_alloc, p, 1);
     }};
-    using hold_t = std::unique_ptr<T, decltype(hold_deleter)>;
-    hold_t hold{traits::allocate(my_alloc, 1), hold_deleter};
+    using hold_t = std::unique_ptr<T, decltype(hold_dealloc)>;
+    hold_t hold{traits::allocate(my_alloc, 1), std::move(hold_dealloc)};
     traits::construct(my_alloc, hold.get(), std::forward<Args>(args)...);
-    muc::allocator_delete<T, alloc_t> deleter{my_alloc};
-    return std::unique_ptr<T, decltype(deleter)>{hold.release(),
-                                                 std::move(deleter)};
+    return {hold.release(), muc::allocator_delete<T, alloc_t>{my_alloc}};
 }
 
 template<typename T, typename Alloc, typename... Args>
 auto allocate_unique(std::reference_wrapper<Alloc> alloc, Args&&... args)
-    -> auto {
+    -> muc::unique_alloc_ptr<T, Alloc&> {
     using traits = std::allocator_traits<Alloc>;
-    auto hold_deleter{[&alloc](auto p) {
+    auto hold_dealloc{[&alloc](auto p) {
         traits::deallocate(alloc.get(), p, 1);
     }};
-    using hold_t = std::unique_ptr<T, decltype(hold_deleter)>;
-    hold_t hold{traits::allocate(alloc.get(), 1), hold_deleter};
+    using hold_t = std::unique_ptr<T, decltype(hold_dealloc)>;
+    hold_t hold{traits::allocate(alloc.get(), 1), std::move(hold_dealloc)};
     traits::construct(alloc.get(), hold.get(), std::forward<Args>(args)...);
-    muc::allocator_delete<T, Alloc&> deleter{alloc};
-    return std::unique_ptr<T, decltype(deleter)>{hold.release(),
-                                                 std::move(deleter)};
+    return {hold.release(), muc::allocator_delete<T, Alloc&>{alloc}};
 }
 
 } // namespace muc
