@@ -22,7 +22,7 @@
 
 #pragma once
 
-#include "muc/detail/c++17/memory/allocator_deleter.h++"
+#include "muc/detail/c++17/memory/allocator_delete.h++"
 #include "muc/detail/c++17/type_traits/type_identity.h++"
 
 #include <memory>
