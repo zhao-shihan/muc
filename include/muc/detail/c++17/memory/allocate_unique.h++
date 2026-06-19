@@ -25,12 +25,22 @@
 #include "muc/detail/c++17/memory/allocator_delete.h++"
 #include "muc/detail/c++17/type_traits/type_identity.h++"
 
+#include <functional>
 #include <memory>
 #include <type_traits>
 #include <utility>
 
 namespace muc {
 
+/// @brief Determines the return type of allocate_unique.
+///
+/// When Alloc is a reference type, the unique_ptr uses
+/// muc::allocator_delete<T, Alloc> directly as the deleter. Otherwise, the
+/// allocator is rebound to T via allocator_traits::rebind_alloc before being
+/// used in the deleter.
+///
+/// @tparam T The type of the object to manage
+/// @tparam Alloc The allocator type (may be a reference)
 template<typename T, typename Alloc>
 using unique_alloc_ptr = std::conditional_t<
     std::is_reference_v<Alloc>,
@@ -39,6 +49,24 @@ using unique_alloc_ptr = std::conditional_t<
         T, muc::allocator_delete<T, typename std::allocator_traits<
                                         Alloc>::template rebind_alloc<T>>>>>;
 
+/// @brief Allocates and constructs an object of type T using an allocator,
+/// returning it in a std::unique_ptr.
+///
+/// This overload accepts an rvalue or lvalue reference to an allocator. The
+/// allocator is copied (or moved) into the returned unique_ptr's deleter. For
+/// stateful allocators that should not be copied, use the
+/// std::reference_wrapper overload instead.
+///
+/// @tparam T The type of object to allocate and construct
+/// @tparam Alloc The allocator type
+/// @tparam Args The types of arguments to forward to T's constructor
+/// @param alloc The allocator to use for allocation and construction
+/// @param args Arguments to forward to T's constructor
+///
+/// @return A std::unique_ptr<T, Deleter> managing the newly created object.
+/// The deleter type is determined by muc::unique_alloc_ptr<T, Alloc>
+///
+/// @see muc::unique_alloc_ptr
 template<typename T, typename Alloc, typename... Args>
 auto allocate_unique(Alloc&& alloc, Args&&... args)
     -> muc::unique_alloc_ptr<T, Alloc> {
@@ -55,6 +83,24 @@ auto allocate_unique(Alloc&& alloc, Args&&... args)
     return {hold.release(), muc::allocator_delete<T, alloc_t>{my_alloc}};
 }
 
+/// @brief Allocates and constructs an object of type T using an allocator
+/// referred to by reference_wrapper, returning it in a std::unique_ptr.
+///
+/// This overload is selected when the caller wraps the allocator in
+/// std::ref() or std::cref(). Unlike the primary overload, this version
+/// stores a reference to the original allocator rather than copying it,
+/// which is essential for stateful allocators.
+///
+/// @tparam T The type of object to allocate and construct
+/// @tparam Alloc The allocator type
+/// @tparam Args The types of arguments to forward to T's constructor
+/// @param alloc A reference_wrapper referring to the allocator
+/// @param args Arguments to forward to T's constructor
+///
+/// @return A std::unique_ptr<T, Deleter> managing the newly created object.
+/// The deleter stores a reference to the original allocator
+///
+/// @note Use std::ref(alloc) to invoke this overload
 template<typename T, typename Alloc, typename... Args>
 auto allocate_unique(std::reference_wrapper<Alloc> alloc, Args&&... args)
     -> muc::unique_alloc_ptr<T, Alloc&> {

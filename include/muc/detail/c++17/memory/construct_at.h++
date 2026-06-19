@@ -27,6 +27,20 @@
 
 namespace muc {
 
+/// @brief A backport of std::construct_at. Creates a T object initialized with
+/// args... at the memory location pointed to by ptr.
+///
+/// This function uses placement new to construct an object of type T at the
+/// given address, forwarding the provided arguments to T's constructor. This
+/// is equivalent to the C++20 std::construct_at.
+///
+/// @tparam T The type of object to construct
+/// @tparam Args The types of arguments to forward to T's constructor
+/// @param ptr Pointer to the memory location where the object will be
+/// constructed. Must point to properly aligned storage of sufficient size
+/// @param args Arguments to forward to T's constructor
+///
+/// @return A pointer to the newly constructed T object (same as ptr)
 template<typename T, typename... Args>
 auto construct_at(T* ptr, Args&&... args) -> T* {
     return ::new (static_cast<void*>(ptr)) T(std::forward<Args>(args)...);
