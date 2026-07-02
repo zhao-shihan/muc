@@ -19,6 +19,7 @@ MUC is a C++ STL-style header-only library, requires C++17 or higher. Some utili
 - `muc/numeric`: Numeric operations on values in ranges.
 - `muc/optional`: Optional contained value types.
 - `muc/ptrvec`: Aliases for `std::vector<pointer-like-type>`.
+- `muc/random`: Random number generation utilities.
 - `muc/time`: Timing and high-resolution stopwatch.
 - `muc/tuple`: Tuple-like types and objects operations.
 - `muc/type_traits`: Template metaprogramming library.
