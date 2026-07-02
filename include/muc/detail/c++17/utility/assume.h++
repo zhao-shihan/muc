@@ -28,7 +28,7 @@ namespace muc {
 
 MUC_ALWAYS_INLINE constexpr auto
 assume([[maybe_unused]] bool condition) noexcept -> void {
-#if __has_cpp_attribute(assume)
+#if __cplusplus >= 202302L and __has_cpp_attribute(assume)
     [[assume(condition)]]; // C++23
 #elif defined __clang__
     __builtin_assume(condition);
