@@ -112,16 +112,14 @@ concept random_number_distribution = requires(D d, const D x) {
     // expression d(g) has type of D::result_type. The sequence of numbers
     // returned by successive invocations of expression d(g) with the same g
     // are randomly distributed according to the distribution parametrized by
-    // d.param().
-    requires requires(std::random_device g) {
-        { d(g) } -> std::same_as<typename D::result_type>;
-    };
     // 11. They said: "Given g, lvalues of a type satisfying
     // UniformRandomBitGenerator, and given p, a (possibly const) value of type
     // D::param_type, expression d(g, p) must be valid. The sequence of numbers
     // returned by successive invocations of d(g, p) with the same g are
     // randomly distributed according to the distribution parametrized by p.
+    // d.param().
     requires requires(std::random_device g, const typename D::param_type p) {
+        { d(g) } -> std::same_as<typename D::result_type>;
         { d(g, p) } -> std::same_as<typename D::result_type>;
     };
     // 12. They said: "Given x, a (possibly const) value of D, expression
