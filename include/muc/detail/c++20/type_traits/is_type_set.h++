@@ -31,8 +31,8 @@ namespace muc {
 
 template<typename... Ts>
 struct is_type_set :
-    std::bool_constant<(... and tuple_contains_unique_v<std::tuple<Ts...>, Ts>)> {
-};
+    std::bool_constant<(... and
+                        tuple_contains_unique_v<std::tuple<Ts...>, Ts>)> {};
 
 template<typename... Ts>
 inline constexpr auto is_type_set_v = is_type_set<Ts...>::value;

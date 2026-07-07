@@ -41,8 +41,8 @@ struct iota_fn {
     template<std::input_or_output_iterator O, std::sentinel_for<O> S,
              std::weakly_incrementable T>
         requires std::indirectly_writable<O, const T&>
-    constexpr auto operator()(O first, S last,
-                              T value) const -> std::ranges::iota_result<O, T> {
+    constexpr auto operator()(O first, S last, T value) const
+        -> std::ranges::iota_result<O, T> {
         return std::ranges::iota(std::move(first), std::move(last),
                                  std::move(value));
     }
@@ -83,8 +83,8 @@ struct iota_fn {
     template<std::input_or_output_iterator O, std::sentinel_for<O> S,
              std::weakly_incrementable T>
         requires std::indirectly_writable<O, const T&>
-    constexpr auto operator()(O first, S last,
-                              T value) const -> iota_result<O, T> {
+    constexpr auto operator()(O first, S last, T value) const
+        -> iota_result<O, T> {
         while (first != last) {
             *first++ = value++;
         }

@@ -35,8 +35,8 @@ namespace muc {
 /// `std::tuple` holding dangling references.
 struct multidentity {
     template<typename... Ts, std::enable_if_t<sizeof...(Ts) >= 1, bool> = true>
-    [[nodiscard]] constexpr auto
-    operator()(Ts&&... ts) const noexcept -> std::tuple<Ts&&...> {
+    [[nodiscard]] constexpr auto operator()(Ts&&... ts) const noexcept
+        -> std::tuple<Ts&&...> {
         return std::forward_as_tuple<Ts...>(ts...);
     }
 };

@@ -62,8 +62,8 @@ static_assert(
     std::same_as<muc::to_std_tuple_t<std::tuple<int>>, std::tuple<int>>);
 static_assert(
     std::same_as<muc::to_std_tuple_t<std::tuple<int>>, std::tuple<int>>);
-static_assert(
-    std::same_as<muc::to_std_tuple_t<std::pair<int, int>>, std::tuple<int, int>>);
+static_assert(std::same_as<muc::to_std_tuple_t<std::pair<int, int>>,
+                           std::tuple<int, int>>);
 static_assert(std::same_as<muc::to_std_tuple_t<std::pair<int, double>>,
                            std::tuple<int, double>>);
 static_assert(std::same_as<muc::to_std_tuple_t<std::tuple<int, double>>,

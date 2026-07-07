@@ -163,25 +163,40 @@ concept random_number_distribution = requires(D d, const D x) {
 
 #ifdef MUC_STATIC_TEST
 
-static_assert(muc::random_number_distribution<std::uniform_int_distribution<int>>);
-static_assert(muc::random_number_distribution<std::uniform_real_distribution<double>>);
+static_assert(
+    muc::random_number_distribution<std::uniform_int_distribution<int>>);
+static_assert(
+    muc::random_number_distribution<std::uniform_real_distribution<double>>);
 static_assert(muc::random_number_distribution<std::bernoulli_distribution>);
 static_assert(muc::random_number_distribution<std::binomial_distribution<int>>);
-static_assert(muc::random_number_distribution<std::negative_binomial_distribution<int>>);
-static_assert(muc::random_number_distribution<std::geometric_distribution<int>>);
+static_assert(
+    muc::random_number_distribution<std::negative_binomial_distribution<int>>);
+static_assert(
+    muc::random_number_distribution<std::geometric_distribution<int>>);
 static_assert(muc::random_number_distribution<std::poisson_distribution<int>>);
-static_assert(muc::random_number_distribution<std::exponential_distribution<double>>);
+static_assert(
+    muc::random_number_distribution<std::exponential_distribution<double>>);
 static_assert(muc::random_number_distribution<std::gamma_distribution<double>>);
-static_assert(muc::random_number_distribution<std::weibull_distribution<double>>);
-static_assert(muc::random_number_distribution<std::extreme_value_distribution<double>>);
-static_assert(muc::random_number_distribution<std::normal_distribution<double>>);
-static_assert(muc::random_number_distribution<std::lognormal_distribution<double>>);
-static_assert(muc::random_number_distribution<std::chi_squared_distribution<double>>);
-static_assert(muc::random_number_distribution<std::cauchy_distribution<double>>);
-static_assert(muc::random_number_distribution<std::fisher_f_distribution<double>>);
-static_assert(muc::random_number_distribution<std::student_t_distribution<double>>);
+static_assert(
+    muc::random_number_distribution<std::weibull_distribution<double>>);
+static_assert(
+    muc::random_number_distribution<std::extreme_value_distribution<double>>);
+static_assert(
+    muc::random_number_distribution<std::normal_distribution<double>>);
+static_assert(
+    muc::random_number_distribution<std::lognormal_distribution<double>>);
+static_assert(
+    muc::random_number_distribution<std::chi_squared_distribution<double>>);
+static_assert(
+    muc::random_number_distribution<std::cauchy_distribution<double>>);
+static_assert(
+    muc::random_number_distribution<std::fisher_f_distribution<double>>);
+static_assert(
+    muc::random_number_distribution<std::student_t_distribution<double>>);
 static_assert(muc::random_number_distribution<std::discrete_distribution<int>>);
-static_assert(muc::random_number_distribution<std::piecewise_constant_distribution<double>>);
-static_assert(muc::random_number_distribution<std::piecewise_linear_distribution<double>>);
+static_assert(muc::random_number_distribution<
+              std::piecewise_constant_distribution<double>>);
+static_assert(muc::random_number_distribution<
+              std::piecewise_linear_distribution<double>>);
 
 #endif

@@ -9,14 +9,14 @@
 #define MUC_TEST_MATH_SCALAR(expr) \
     { std::cout << #expr " = " << expr << '\n'; }
 
-#define MUC_TEST_MATH_VECTOR(expr)              \
-    {                                           \
-        const auto result{expr};                \
-        std::cout << #expr " = [ ";             \
+#define MUC_TEST_MATH_VECTOR(expr)                      \
+    {                                                   \
+        const auto result{expr};                        \
+        std::cout << #expr " = [ ";                     \
         for (std::size_t i{}; i < result.size(); ++i) { \
-            std::cout << result[i] << ' ';      \
-        }                                       \
-        std::cout << "]\n";                     \
+            std::cout << result[i] << ' ';              \
+        }                                               \
+        std::cout << "]\n";                             \
     }
 
 auto main() -> int {

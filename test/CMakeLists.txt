@@ -1,13 +1,13 @@
 if(MUC_ENABLE_UBSAN_IN_DEBUG_BUILD)
     if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
         add_compile_options($<$<CONFIG:Debug>:-fsanitize=undefined>
-                            $<$<CONFIG:Debug>:-fno-omit-frame-pointer>
-                            $<$<CONFIG:RelWithDebInfo>:-fsanitize=undefined>
-                            $<$<CONFIG:RelWithDebInfo>:-fno-omit-frame-pointer>)
+            $<$<CONFIG:Debug>:-fno-omit-frame-pointer>
+            $<$<CONFIG:RelWithDebInfo>:-fsanitize=undefined>
+            $<$<CONFIG:RelWithDebInfo>:-fno-omit-frame-pointer>)
         add_link_options($<$<CONFIG:Debug>:-fsanitize=undefined>
-                         $<$<CONFIG:Debug>:-fno-omit-frame-pointer>
-                         $<$<CONFIG:RelWithDebInfo>:-fsanitize=undefined>
-                         $<$<CONFIG:RelWithDebInfo>:-fno-omit-frame-pointer>)
+            $<$<CONFIG:Debug>:-fno-omit-frame-pointer>
+            $<$<CONFIG:RelWithDebInfo>:-fsanitize=undefined>
+            $<$<CONFIG:RelWithDebInfo>:-fno-omit-frame-pointer>)
         if(DEFINED CMAKE_CONFIGURATION_TYPES)
             # multi-config generator
             message(STATUS "UndefinedBehaviorSanitizer will be enabled in debug build (-fsanitize=undefined)")
@@ -25,7 +25,7 @@ if(CMAKE_COMPILER_IS_GNUCXX)
     list(APPEND MUC_COMPILE_OPTIONS -Wall -Wextra -Wduplicated-cond -Wnon-virtual-dtor -pedantic -Wundef -Wunused-macros)
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     list(APPEND MUC_COMPILE_OPTIONS -WCL4 -Wmove -Wnon-virtual-dtor -pedantic -Wundef -Wunused-macros
-                                     -Wno-gnu-zero-variadic-macro-arguments)
+        -Wno-gnu-zero-variadic-macro-arguments)
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     list(APPEND MUC_COMPILE_OPTIONS /W4)
 endif()
