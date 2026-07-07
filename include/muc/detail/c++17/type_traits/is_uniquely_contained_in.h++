@@ -45,14 +45,16 @@ inline constexpr bool is_uniquely_contained_in_v{
 static_assert(muc::is_uniquely_contained_in_v<int, int>);
 static_assert(muc::is_uniquely_contained_in_v<void, void>);
 static_assert(muc::is_uniquely_contained_in_v<int[], int[]>);
-static_assert(not muc::is_uniquely_contained_in_v<int[4], int[4], int[4], int[3]>);
+static_assert(
+    not muc::is_uniquely_contained_in_v<int[4], int[4], int[4], int[3]>);
 static_assert(not muc::is_uniquely_contained_in_v<int, int, void, int[4], int>);
 static_assert(not muc::is_uniquely_contained_in_v<void, void, double, void>);
 static_assert(not muc::is_uniquely_contained_in_v<int, float>);
 static_assert(not muc::is_uniquely_contained_in_v<void, int[]>);
 static_assert(not muc::is_uniquely_contained_in_v<int[3], int[4]>);
 static_assert(not muc::is_uniquely_contained_in_v<int, float, float, double>);
-static_assert(not muc::is_uniquely_contained_in_v<void, int[3], double, double>);
+static_assert(
+    not muc::is_uniquely_contained_in_v<void, int[3], double, double>);
 static_assert(not muc::is_uniquely_contained_in_v<int[], void*, void>);
 
 #endif

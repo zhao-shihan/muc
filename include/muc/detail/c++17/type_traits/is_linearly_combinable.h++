@@ -22,55 +22,45 @@
 
 #pragma once
 
-#include "muc/detail/c++17/type_traits/remove_cvref.h++"
+#include "muc/detail/c++17/type_traits/impl/has_linear_combination.h++"
 
 #include <type_traits>
 
 namespace muc {
 
-namespace impl {
-namespace {
-
-template<typename T, std::size_t = sizeof(T)>
-auto is_complete(T*) -> std::true_type;
-
-template<typename T, std::enable_if_t<std::is_function_v<T>, bool> = true>
-auto is_complete(T) -> std::true_type;
+template<typename T>
+struct is_linearly_combinable :
+    std::conjunction<impl::has_scalar_mul<T>, impl::has_add_sub<T, T>> {};
 
 template<typename T>
-auto is_complete(...) -> std::false_type;
-
-} // namespace
-} // namespace impl
-
-template<typename T>
-struct is_complete :
-    decltype(impl::is_complete<muc::remove_cvref_t<T>>(nullptr)) {};
-
-template<typename T>
-inline constexpr bool is_complete_v{is_complete<T>::value};
+inline constexpr bool is_linearly_combinable_v{
+    is_linearly_combinable<T>::value};
 
 } // namespace muc
 
 #ifdef MUC_STATIC_TEST
 
-namespace muc {
+#include <array>
+#include <complex>
+#include <string>
+#include <valarray>
+#include <vector>
 
-class is_complete_test_complete_type {};
+static_assert(muc::is_linearly_combinable_v<int>);
+static_assert(muc::is_linearly_combinable_v<float>);
+static_assert(muc::is_linearly_combinable_v<double>);
+static_assert(muc::is_linearly_combinable_v<long double>);
 
-class is_complete_test_incomplete_type;
+static_assert(muc::is_linearly_combinable_v<std::complex<float>>);
+static_assert(muc::is_linearly_combinable_v<std::complex<double>>);
+static_assert(muc::is_linearly_combinable_v<std::complex<long double>>);
 
-auto is_complete_test_function() -> void {}
+static_assert(muc::is_linearly_combinable_v<std::valarray<float>>);
+static_assert(muc::is_linearly_combinable_v<std::valarray<double>>);
+static_assert(muc::is_linearly_combinable_v<std::valarray<long double>>);
 
-} // namespace muc
-
-static_assert(muc::is_complete_v<void*>);
-static_assert(muc::is_complete_v<int[4]>);
-static_assert(muc::is_complete_v<double>);
-static_assert(muc::is_complete_v<muc::is_complete_test_complete_type>);
-static_assert(muc::is_complete_v<decltype(muc::is_complete_test_function)>);
-static_assert(not muc::is_complete_v<void>);
-static_assert(not muc::is_complete_v<int[]>);
-static_assert(not muc::is_complete_v<muc::is_complete_test_incomplete_type>);
+static_assert(not muc::is_linearly_combinable_v<std::array<float, 3>>);
+static_assert(not muc::is_linearly_combinable_v<std::vector<double>>);
+static_assert(not muc::is_linearly_combinable_v<std::string>);
 
 #endif

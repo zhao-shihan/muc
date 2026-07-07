@@ -24,7 +24,7 @@
 
 #include "muc/detail/c++17/numeric/bilerp.h++"
 #include "muc/detail/c++17/numeric/lerp.h++"
-#include "muc/detail/c++17/type_traits/is_general_arithmetic.h++"
+#include "muc/detail/c++17/type_traits/is_linearly_combinable.h++"
 
 #include <type_traits>
 
@@ -51,7 +51,7 @@ namespace muc {
 /// |/
 /// +----> u
 template<typename T, typename U,
-         std::enable_if_t<is_general_arithmetic_v<T>, bool> = true,
+         std::enable_if_t<muc::is_linearly_combinable_v<T>, bool> = true,
          std::enable_if_t<std::is_floating_point_v<U>, bool> = true>
 constexpr auto trilerp(const T& c000, const T& c001, const T& c010,
                        const T& c011, const T& c100, const T& c101,

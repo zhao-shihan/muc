@@ -22,11 +22,11 @@
 
 #pragma once
 
-#include "muc/detail/c++17/type_traits/is_general_arithmetic.h++"
+#include "muc/detail/c++17/type_traits/is_linearly_combinable.h++"
 
 namespace muc {
 
 template<typename T>
-concept general_arithmetic = is_general_arithmetic_v<T>;
+concept linearly_combinable = muc::is_linearly_combinable_v<T>;
 
 } // namespace muc

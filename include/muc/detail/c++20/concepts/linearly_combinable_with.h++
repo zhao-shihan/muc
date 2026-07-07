@@ -21,20 +21,12 @@
 // SOFTWARE.
 
 #pragma once
-#ifndef MUC_CONCEPTS_35fd64e5dd5518762ebc391025fd06efd3f82687e245b5830b55c4a3ab96d768
-#define MUC_CONCEPTS_35fd64e5dd5518762ebc391025fd06efd3f82687e245b5830b55c4a3ab96d768
 
-#if __cplusplus >= 202002L
-#include "muc/detail/c++20/concepts/arithmetic.h++"
-#include "muc/detail/c++20/concepts/boolean_testable.h++"
-#include "muc/detail/c++20/concepts/character.h++"
-#include "muc/detail/c++20/concepts/copy_assignable.h++"
-#include "muc/detail/c++20/concepts/fundamental.h++"
-#include "muc/detail/c++20/concepts/instantiated_from.h++"
-#include "muc/detail/c++20/concepts/linearly_combinable.h++"
-#include "muc/detail/c++20/concepts/move_assignable.h++"
-#include "muc/detail/c++20/concepts/numeric.h++"
-#include "muc/detail/c++20/concepts/stream_ioable.h++"
-#endif
+#include "muc/detail/c++17/type_traits/is_linearly_combinable_with.h++"
 
-#endif
+namespace muc {
+
+template<typename T, typename U>
+concept linearly_combinable_with = muc::is_linearly_combinable_with_v<T, U>;
+
+} // namespace muc
