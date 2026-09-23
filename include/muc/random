@@ -26,7 +26,9 @@
 
 #if __cplusplus >= 202002L
 #include "muc/detail/c++20/random/random_number_distribution.h++"
-#include "muc/detail/c++20/random/random_number_generator.h++"
+#include "muc/detail/c++20/random/random_number_engine.h++"
+#include "muc/detail/c++20/random/rng_ref.h++"
+#include "muc/detail/c++20/random/urbg_ref.h++"
 #endif
 
 #endif
