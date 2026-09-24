@@ -86,6 +86,19 @@ and never claim a verification you did not run.
 
 - Everything lives in `namespace muc`, in a module sub-namespace where one exists (`muc::chrono`),
   with private helpers in a nested `impl` namespace; nothing under `detail/` is public API.
+- Qualify names the way the standard library does. Inside `namespace muc` and its nested
+  namespaces, refer to muc entities without the `muc::` prefix, using the shortest path that
+  reaches the name (`impl::x` from `muc`, plain `x` from `impl`). Keep the prefix in two cases
+  only: the unqualified name would be hidden by a member or local declaration (as in
+  `tolerance::at`, where the data member `abs` hides `muc::abs`), or the reference is a call in a
+  template to a muc function whose name also exists in `std` (`abs`, `bit_cast`, `div`, `imaxabs`,
+  `imaxdiv`, `isnan`, `lerp`, `llround`, `pow`, `to_address`), where the prefix is a deliberate ADL
+  barrier: without it a same-named function found by argument-dependent lookup in the argument
+  type's namespace can be selected silently. Outside the namespace — the `MUC_STATIC_TEST` blocks,
+  `test/` sources, examples — always qualify as `muc::x`. Namespace closers such as
+  `} // namespace muc::chrono::impl` keep the fully qualified namespace name.
+- Documentation comments use bare names in prose and the qualified `muc::x`/`std::y` in `@see` and
+  other cross-references; qualify both when contrasting muc with `std`.
 - `snake_case` for every public name: types (`stopwatch`, `ceta_string`, `optional_ref`), functions
   (`find_root`, `soft_cmp`, `try_demangle`), concepts (`arithmetic`, `linearly_combinable`) and
   variables alike.
