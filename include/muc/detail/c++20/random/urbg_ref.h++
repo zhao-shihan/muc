@@ -232,37 +232,36 @@ private:
 using urbg32_ref = basic_urbg_ref<std::uint32_t>;
 
 /// @brief `basic_urbg_ref` with `std::uint64_t` output.
-using urbg64_ref = basic_urbg_ref<std::uint64_t>;
+using urbg_ref = basic_urbg_ref<std::uint64_t>;
 
 } // namespace muc
 
 #ifdef MUC_STATIC_TEST
 
 static_assert(std::uniform_random_bit_generator<muc::urbg32_ref>);
-static_assert(std::uniform_random_bit_generator<muc::urbg64_ref>);
+static_assert(std::uniform_random_bit_generator<muc::urbg_ref>);
 static_assert(std::same_as<muc::urbg32_ref::result_type, std::uint32_t>);
-static_assert(std::same_as<muc::urbg64_ref::result_type, std::uint64_t>);
+static_assert(std::same_as<muc::urbg_ref::result_type, std::uint64_t>);
 static_assert(muc::urbg32_ref::min() == 0);
 static_assert(muc::urbg32_ref::max() ==
               std::numeric_limits<std::uint32_t>::max());
-static_assert(muc::urbg64_ref::min() == 0);
-static_assert(muc::urbg64_ref::max() ==
+static_assert(muc::urbg_ref::min() == 0);
+static_assert(muc::urbg_ref::max() ==
               std::numeric_limits<std::uint64_t>::max());
 static_assert(not std::default_initializable<muc::urbg32_ref>);
-static_assert(not std::default_initializable<muc::urbg64_ref>);
+static_assert(not std::default_initializable<muc::urbg_ref>);
 static_assert(std::copyable<muc::urbg32_ref>);
-static_assert(std::copyable<muc::urbg64_ref>);
-static_assert(std::is_trivially_copyable_v<muc::urbg64_ref>);
-static_assert(std::is_trivially_destructible_v<muc::urbg64_ref>);
+static_assert(std::copyable<muc::urbg_ref>);
+static_assert(std::is_trivially_copyable_v<muc::urbg_ref>);
+static_assert(std::is_trivially_destructible_v<muc::urbg_ref>);
 static_assert(std::constructible_from<muc::urbg32_ref, std::mt19937&>);
-static_assert(std::constructible_from<muc::urbg64_ref, std::mt19937&>);
-static_assert(std::constructible_from<muc::urbg64_ref, std::mt19937_64&>);
+static_assert(std::constructible_from<muc::urbg_ref, std::mt19937&>);
+static_assert(std::constructible_from<muc::urbg_ref, std::mt19937_64&>);
 static_assert(std::constructible_from<muc::urbg32_ref, std::minstd_rand&>);
-static_assert(std::constructible_from<muc::urbg64_ref, std::ranlux48&>);
-static_assert(std::constructible_from<muc::urbg64_ref, std::random_device&>);
-static_assert(not std::constructible_from<muc::urbg64_ref, std::mt19937>);
-static_assert(
-    not std::constructible_from<muc::urbg64_ref, const std::mt19937&>);
-static_assert(not std::constructible_from<muc::urbg64_ref, int&>);
+static_assert(std::constructible_from<muc::urbg_ref, std::ranlux48&>);
+static_assert(std::constructible_from<muc::urbg_ref, std::random_device&>);
+static_assert(not std::constructible_from<muc::urbg_ref, std::mt19937>);
+static_assert(not std::constructible_from<muc::urbg_ref, const std::mt19937&>);
+static_assert(not std::constructible_from<muc::urbg_ref, int&>);
 
 #endif

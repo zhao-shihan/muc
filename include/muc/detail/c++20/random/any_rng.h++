@@ -374,12 +374,12 @@ static_assert(std::is_convertible_v<std::mt19937, muc::any_rng>);
 static_assert(not std::is_convertible_v<std::uint64_t, muc::any_rng>);
 static_assert(not std::is_convertible_v<int, muc::any_rng>);
 static_assert(not std::constructible_from<muc::any_rng, std::random_device&>);
-static_assert(not std::constructible_from<muc::any_rng, muc::rng64_ref&>);
+static_assert(not std::constructible_from<muc::any_rng, muc::rng_ref&>);
 static_assert(not std::constructible_from<muc::any_rng, muc::any_urbg&>);
 static_assert(std::constructible_from<muc::any_urbg, muc::any_rng&>);
 static_assert(std::constructible_from<muc::any_urbg32, muc::any_rng&>);
-static_assert(std::same_as<decltype(std::declval<muc::any_rng&>().ref()),
-                           muc::rng64_ref>);
+static_assert(
+    std::same_as<decltype(std::declval<muc::any_rng&>().ref()), muc::rng_ref>);
 static_assert(std::same_as<decltype(std::declval<muc::any_rng32&>().ref()),
                            muc::rng32_ref>);
 static_assert(

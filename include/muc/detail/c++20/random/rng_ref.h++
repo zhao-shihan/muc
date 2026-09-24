@@ -283,7 +283,7 @@ private:
 using rng32_ref = basic_rng_ref<std::uint32_t>;
 
 /// @brief `basic_rng_ref` with `std::uint64_t` output.
-using rng64_ref = basic_rng_ref<std::uint64_t>;
+using rng_ref = basic_rng_ref<std::uint64_t>;
 
 } // namespace muc
 
@@ -294,39 +294,38 @@ using rng64_ref = basic_rng_ref<std::uint64_t>;
 #include <random>
 
 static_assert(muc::random_number_generator<muc::rng32_ref>);
-static_assert(muc::random_number_generator<muc::rng64_ref>);
+static_assert(muc::random_number_generator<muc::rng_ref>);
 static_assert(not muc::random_number_engine<muc::rng32_ref>);
-static_assert(not muc::random_number_engine<muc::rng64_ref>);
+static_assert(not muc::random_number_engine<muc::rng_ref>);
 static_assert(std::uniform_random_bit_generator<muc::rng32_ref>);
-static_assert(std::uniform_random_bit_generator<muc::rng64_ref>);
+static_assert(std::uniform_random_bit_generator<muc::rng_ref>);
 static_assert(std::same_as<muc::rng32_ref::result_type, std::uint32_t>);
-static_assert(std::same_as<muc::rng64_ref::result_type, std::uint64_t>);
+static_assert(std::same_as<muc::rng_ref::result_type, std::uint64_t>);
 static_assert(muc::rng32_ref::min() == 0);
 static_assert(muc::rng32_ref::max() ==
               std::numeric_limits<std::uint32_t>::max());
-static_assert(muc::rng64_ref::min() == 0);
-static_assert(muc::rng64_ref::max() ==
-              std::numeric_limits<std::uint64_t>::max());
+static_assert(muc::rng_ref::min() == 0);
+static_assert(muc::rng_ref::max() == std::numeric_limits<std::uint64_t>::max());
 static_assert(not std::default_initializable<muc::rng32_ref>);
-static_assert(not std::default_initializable<muc::rng64_ref>);
+static_assert(not std::default_initializable<muc::rng_ref>);
 static_assert(std::copyable<muc::rng32_ref>);
-static_assert(std::copyable<muc::rng64_ref>);
-static_assert(std::is_trivially_copyable_v<muc::rng64_ref>);
-static_assert(std::is_trivially_destructible_v<muc::rng64_ref>);
-static_assert(std::equality_comparable<muc::rng64_ref>);
-static_assert(muc::stream_ioable<muc::rng64_ref>);
+static_assert(std::copyable<muc::rng_ref>);
+static_assert(std::is_trivially_copyable_v<muc::rng_ref>);
+static_assert(std::is_trivially_destructible_v<muc::rng_ref>);
+static_assert(std::equality_comparable<muc::rng_ref>);
+static_assert(muc::stream_ioable<muc::rng_ref>);
 static_assert(std::constructible_from<muc::rng32_ref, std::mt19937&>);
-static_assert(std::constructible_from<muc::rng64_ref, std::mt19937&>);
-static_assert(std::constructible_from<muc::rng64_ref, std::mt19937_64&>);
-static_assert(std::constructible_from<muc::rng64_ref, std::minstd_rand&>);
-static_assert(std::constructible_from<muc::rng64_ref, std::ranlux24&>);
-static_assert(not std::constructible_from<muc::rng64_ref, std::mt19937>);
-static_assert(not std::constructible_from<muc::rng64_ref, const std::mt19937&>);
+static_assert(std::constructible_from<muc::rng_ref, std::mt19937&>);
+static_assert(std::constructible_from<muc::rng_ref, std::mt19937_64&>);
+static_assert(std::constructible_from<muc::rng_ref, std::minstd_rand&>);
+static_assert(std::constructible_from<muc::rng_ref, std::ranlux24&>);
+static_assert(not std::constructible_from<muc::rng_ref, std::mt19937>);
+static_assert(not std::constructible_from<muc::rng_ref, const std::mt19937&>);
 static_assert(std::convertible_to<muc::rng32_ref, muc::urbg32_ref>);
-static_assert(std::convertible_to<muc::rng64_ref, muc::urbg64_ref>);
-static_assert(not std::convertible_to<muc::rng64_ref, muc::urbg32_ref>);
+static_assert(std::convertible_to<muc::rng_ref, muc::urbg_ref>);
+static_assert(not std::convertible_to<muc::rng_ref, muc::urbg32_ref>);
 static_assert(std::constructible_from<muc::urbg32_ref, muc::rng32_ref&>);
-static_assert(std::constructible_from<muc::urbg64_ref, muc::rng64_ref&>);
-static_assert(not std::constructible_from<muc::urbg64_ref, muc::rng32_ref&>);
+static_assert(std::constructible_from<muc::urbg_ref, muc::rng_ref&>);
+static_assert(not std::constructible_from<muc::urbg_ref, muc::rng32_ref&>);
 
 #endif

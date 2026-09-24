@@ -33,7 +33,7 @@ auto test_urbg_ref() -> int {
     // most significant.
     {
         std::mt19937 a{42}, b{42};
-        const muc::urbg64_ref g{a};
+        const muc::urbg_ref g{a};
         for (int i{}; i < 8; ++i) {
             const auto hi{static_cast<std::uint64_t>(b())};
             const auto lo{static_cast<std::uint64_t>(b())};
@@ -52,7 +52,7 @@ auto test_urbg_ref() -> int {
     // standard distributions through the concept.
     {
         std::minstd_rand a{1};
-        muc::urbg64_ref g{a};
+        muc::urbg_ref g{a};
         std::uniform_int_distribution<int> d{0, 9};
         for (int i{}; i < 100; ++i) {
             const auto v{d(g)};
@@ -172,7 +172,7 @@ auto test_rng_ref() -> int {
     // seed() and discard() forward to the referenced engine.
     {
         std::mt19937 a{}, b{};
-        muc::rng64_ref r{a};
+        muc::rng_ref r{a};
         r.seed(42);
         b.seed(42);
         r.discard(5);
@@ -184,25 +184,25 @@ auto test_rng_ref() -> int {
     // Equality compares the state of the referenced engines.
     {
         std::mt19937 a{3}, b{3};
-        muc::rng64_ref ra{a}, rb{b};
+        muc::rng_ref ra{a}, rb{b};
         MUC_TEST_CHECK(ra == rb);
         MUC_TEST_CHECK(not(ra != rb));
         ra.discard(1);
         MUC_TEST_CHECK(ra != rb);
-        const muc::rng64_ref ra2{a};
+        const muc::rng_ref ra2{a};
         MUC_TEST_CHECK(ra == ra2);
     }
     // Wrappers over different engine types never compare equal.
     {
         std::mt19937 a{3};
         std::minstd_rand b{3};
-        const muc::rng64_ref ra{a}, rb{b};
+        const muc::rng_ref ra{a}, rb{b};
         MUC_TEST_CHECK(ra != rb);
     }
     // Narrow stream round-trip restores the engine state.
     {
         std::mt19937 a{9}, b{9};
-        muc::rng64_ref ra{a}, rb{b};
+        muc::rng_ref ra{a}, rb{b};
         ra.discard(3);
         std::ostringstream os;
         os << ra;
@@ -214,7 +214,7 @@ auto test_rng_ref() -> int {
     // Wide stream round-trip restores the engine state.
     {
         std::mt19937 a{9}, b{9};
-        muc::rng64_ref ra{a}, rb{b};
+        muc::rng_ref ra{a}, rb{b};
         ra.discard(3);
         std::wostringstream os;
         os << ra;
@@ -238,8 +238,8 @@ auto test_rng_ref() -> int {
     // Implicit conversion to basic_urbg_ref shares the referenced engine.
     {
         std::mt19937 a{5}, b{5};
-        muc::rng64_ref r{a};
-        const muc::urbg64_ref g{r};
+        muc::rng_ref r{a};
+        const muc::urbg_ref g{r};
         const auto x{g()};
         const auto hi{static_cast<std::uint64_t>(b())};
         const auto lo{static_cast<std::uint64_t>(b())};
@@ -248,7 +248,7 @@ auto test_rng_ref() -> int {
     // target() recovers the referenced engine by type.
     {
         std::mt19937 a{8};
-        const muc::rng64_ref r{a};
+        const muc::rng_ref r{a};
         MUC_TEST_CHECK(r.target<std::mt19937>() == &a);
         MUC_TEST_CHECK(r.target<std::minstd_rand>() == nullptr);
     }
@@ -330,13 +330,13 @@ auto test_rng_ref_engine_like() -> int {
     // to a generator that is not an engine.
     static_assert(muc::random_number_generator<seeded_lcg>);
     static_assert(not muc::random_number_engine<seeded_lcg>);
-    static_assert(std::constructible_from<muc::rng64_ref, seeded_lcg&>);
+    static_assert(std::constructible_from<muc::rng_ref, seeded_lcg&>);
     // seed(), seed(s), discard() and equality forward to the referenced
     // generator.
     {
         seeded_lcg a{seeded_lcg::seed_token{}, 42};
         seeded_lcg b{seeded_lcg::seed_token{}, 42};
-        muc::rng64_ref ra{a}, rb{b};
+        muc::rng_ref ra{a}, rb{b};
         MUC_TEST_CHECK(ra == rb);
         ra.discard(3);
         MUC_TEST_CHECK(ra != rb);
@@ -372,7 +372,7 @@ auto test_any_rng() -> int {
         muc::any_rng r{}, s{};
         MUC_TEST_CHECK(r == s);
         std::minstd_rand b{};
-        muc::rng64_ref t{b};
+        muc::rng_ref t{b};
         for (int i{}; i < 8; ++i) {
             MUC_TEST_CHECK(r() == t());
         }
@@ -469,7 +469,7 @@ auto test_any_rng() -> int {
     {
         std::mt19937 b{5};
         muc::any_urbg g{muc::any_rng{std::mt19937{5}}};
-        muc::rng64_ref t{b};
+        muc::rng_ref t{b};
         for (int i{}; i < 8; ++i) {
             MUC_TEST_CHECK(g() == t());
         }
