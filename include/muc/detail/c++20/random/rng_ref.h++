@@ -120,6 +120,8 @@ struct rng_ref_binding {
 /// `random_number_generator`, since it forwards every engine operation
 /// that concept requires, but not `random_number_engine`: as a reference
 /// it can neither be default constructed nor be constructed from a seed.
+/// The owning `basic_any_rng` can do both and therefore satisfies
+/// `random_number_engine`.
 ///
 /// @par Engine operations
 /// `seed()` and `seed(s)` reseed the referenced engine, truncating s to
@@ -134,7 +136,7 @@ struct rng_ref_binding {
 /// @warning The referenced engine must outlive the wrapper and every copy
 /// of it.
 /// @see muc::random_number_engine, muc::random_number_generator,
-/// muc::basic_urbg_ref
+/// muc::basic_any_rng, muc::basic_urbg_ref
 template<std::unsigned_integral UInt = std::uint64_t>
 class basic_rng_ref : impl::random_ref_tag {
 public:
@@ -265,6 +267,14 @@ public:
     }
 
 private:
+    template<std::unsigned_integral, random_number_engine>
+    friend class basic_any_rng;
+
+    constexpr basic_rng_ref(void* ptr,
+                            const impl::rng_ref_ops<UInt>* ops) noexcept :
+        m_ptr{ptr},
+        m_ops{ops} {}
+
     void* m_ptr;
     const impl::rng_ref_ops<UInt>* m_ops;
 };

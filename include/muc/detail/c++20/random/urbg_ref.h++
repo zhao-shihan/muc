@@ -165,7 +165,8 @@ struct urbg_ref_binding {
 ///
 /// @warning The referenced generator must outlive the wrapper and every
 /// copy of it.
-/// @see std::uniform_random_bit_generator, muc::basic_rng_ref
+/// @see std::uniform_random_bit_generator, muc::basic_any_urbg,
+/// muc::basic_rng_ref
 template<std::unsigned_integral UInt = std::uint64_t>
 class basic_urbg_ref : impl::random_ref_tag {
 public:
@@ -213,6 +214,8 @@ public:
     }
 
 private:
+    template<std::unsigned_integral>
+    friend class basic_any_urbg;
     template<std::unsigned_integral>
     friend class basic_rng_ref;
 

@@ -8,6 +8,7 @@
 #include <limits>
 #include <random>
 #include <sstream>
+#include <utility>
 
 #define MUC_TEST_CHECK(expr)                                            \
     {                                                                   \
@@ -69,6 +70,100 @@ auto test_urbg_ref() -> int {
         const muc::urbg32_ref g{a};
         MUC_TEST_CHECK(g.target<std::mt19937>() == &a);
         MUC_TEST_CHECK(g.target<std::minstd_rand>() == nullptr);
+    }
+    return 0;
+}
+
+auto test_any_urbg() -> int {
+    // The wrapper generates exactly what basic_urbg_ref generates.
+    {
+        std::mt19937 a{42}, b{42};
+        muc::any_urbg32 g{a};
+        for (int i{}; i < 8; ++i) {
+            MUC_TEST_CHECK(g() == static_cast<std::uint32_t>(b()));
+        }
+    }
+    {
+        std::mt19937 a{42}, b{42};
+        muc::any_urbg g{a};
+        for (int i{}; i < 8; ++i) {
+            const auto hi{static_cast<std::uint64_t>(b())};
+            const auto lo{static_cast<std::uint64_t>(b())};
+            MUC_TEST_CHECK(g() == ((hi << 32) | lo));
+        }
+    }
+    // A const source is copied by state.
+    {
+        const std::mt19937 a{3};
+        std::mt19937 b{3};
+        muc::any_urbg32 g{a};
+        for (int i{}; i < 8; ++i) {
+            MUC_TEST_CHECK(g() == static_cast<std::uint32_t>(b()));
+        }
+    }
+    // Non-power-of-two spans go through rejection sampling and still feed
+    // standard distributions through the concept.
+    {
+        std::minstd_rand a{1};
+        muc::any_urbg g{a};
+        std::uniform_int_distribution<int> d{0, 9};
+        for (int i{}; i < 100; ++i) {
+            const auto v{d(g)};
+            MUC_TEST_CHECK(v >= 0 and v <= 9);
+        }
+    }
+    // Copies own independent generator states.
+    {
+        std::mt19937 a{7};
+        muc::any_urbg32 g{a}, h{a};
+        muc::any_urbg32 k{g};
+        MUC_TEST_CHECK(k() == h());
+        g();
+        MUC_TEST_CHECK(k() == h());
+        MUC_TEST_CHECK(g() != k());
+    }
+    // Moving duplicates the state and leaves the source unchanged.
+    {
+        std::mt19937 a{5}, b{5}, c{5};
+        muc::any_urbg32 g{a};
+        muc::any_urbg32 k{std::move(g)};
+        MUC_TEST_CHECK(k() == static_cast<std::uint32_t>(b()));
+        MUC_TEST_CHECK(g() == static_cast<std::uint32_t>(c()));
+    }
+    // Rebinding assignment replaces the owned generator.
+    {
+        std::mt19937 a{1};
+        std::minstd_rand b{2};
+        muc::any_urbg32 g{a};
+        g = b;
+        MUC_TEST_CHECK(g.target<std::minstd_rand>() != nullptr);
+        MUC_TEST_CHECK(g.target<std::mt19937>() == nullptr);
+        g = std::mt19937{1};
+        MUC_TEST_CHECK(g.target<std::mt19937>() != nullptr);
+    }
+    // target() recovers the owned generator; ref() shares it.
+    {
+        std::mt19937 a{3}, b{3};
+        muc::any_urbg32 g{a};
+        MUC_TEST_CHECK(g.target<std::mt19937>() != nullptr);
+        MUC_TEST_CHECK(g.target<std::minstd_rand>() == nullptr);
+        const auto& cg{g};
+        MUC_TEST_CHECK(cg.target<std::mt19937>() == g.target<std::mt19937>());
+        auto r{g.ref()};
+        for (int i{}; i < 8; ++i) {
+            MUC_TEST_CHECK(r() == static_cast<std::uint32_t>(b()));
+            MUC_TEST_CHECK(g() == static_cast<std::uint32_t>(b()));
+        }
+    }
+    // swap exchanges the owned generators.
+    {
+        std::mt19937 a{1}, b{2};
+        std::mt19937 c{1}, d{2};
+        muc::any_urbg32 g{a}, h{b};
+        muc::any_urbg32 k{c}, l{d};
+        swap(g, h);
+        MUC_TEST_CHECK(g() == l());
+        MUC_TEST_CHECK(h() == k());
     }
     return 0;
 }
@@ -270,6 +365,118 @@ auto test_rng_ref_engine_like() -> int {
     return 0;
 }
 
+auto test_any_rng() -> int {
+    // Default construction owns a default-constructed D, and seed()
+    // restores it: the random_number_engine postcondition e == E().
+    {
+        muc::any_rng r{}, s{};
+        MUC_TEST_CHECK(r == s);
+        std::minstd_rand b{};
+        muc::rng64_ref t{b};
+        for (int i{}; i < 8; ++i) {
+            MUC_TEST_CHECK(r() == t());
+        }
+        MUC_TEST_CHECK(r != s);
+        r.seed();
+        MUC_TEST_CHECK(r == s);
+    }
+    // Seed construction and seeding reproduce states and keep the engine
+    // type.
+    {
+        muc::any_rng r{42u}, s{42u};
+        MUC_TEST_CHECK(r == s);
+        r();
+        MUC_TEST_CHECK(r != s);
+        r.seed(42u);
+        MUC_TEST_CHECK(r == s);
+        MUC_TEST_CHECK(r.target<std::minstd_rand>() != nullptr);
+    }
+    {
+        muc::any_rng r{std::mt19937{9}}, s{std::mt19937{1}};
+        r.seed(7);
+        s.seed(7);
+        MUC_TEST_CHECK(r == s);
+        MUC_TEST_CHECK(r.target<std::mt19937>() != nullptr);
+    }
+    // seed(), discard() and generation forward to the owned engine.
+    {
+        std::mt19937 b{};
+        muc::any_rng r{std::mt19937{}};
+        r.seed(42);
+        b.seed(42);
+        r.discard(5);
+        b.discard(5);
+        const auto hi{static_cast<std::uint64_t>(b())};
+        const auto lo{static_cast<std::uint64_t>(b())};
+        MUC_TEST_CHECK(r() == ((hi << 32) | lo));
+    }
+    // Equality compares engine type and state; wrappers over different
+    // engine types never compare equal.
+    {
+        muc::any_rng ra{std::mt19937{3}}, rb{std::mt19937{3}};
+        MUC_TEST_CHECK(ra == rb);
+        MUC_TEST_CHECK(not(ra != rb));
+        ra.discard(1);
+        MUC_TEST_CHECK(ra != rb);
+        const muc::any_rng ra2{ra};
+        MUC_TEST_CHECK(ra == ra2);
+        muc::any_rng rc{std::minstd_rand{3}}, rd{std::mt19937{3}};
+        MUC_TEST_CHECK(rc != rd);
+    }
+    // Copies own independent engine states (value semantics).
+    {
+        seeded_lcg a{seeded_lcg::seed_token{}, 42};
+        muc::any_rng ra{a}, rb{a};
+        MUC_TEST_CHECK(ra == rb);
+        ra.discard(3);
+        MUC_TEST_CHECK(ra != rb);
+        rb.discard(3);
+        MUC_TEST_CHECK(ra == rb);
+    }
+    // Narrow stream round-trip restores the engine state.
+    {
+        muc::any_rng ra{std::mt19937{9}}, rb{std::mt19937{9}};
+        ra.discard(3);
+        std::ostringstream os;
+        os << ra;
+        std::istringstream is{os.str()};
+        is >> rb;
+        MUC_TEST_CHECK(ra == rb);
+        MUC_TEST_CHECK(ra() == rb());
+    }
+    // Wide stream round-trip restores the engine state.
+    {
+        muc::any_rng ra{std::mt19937{9}}, rb{std::mt19937{9}};
+        ra.discard(3);
+        std::wostringstream os;
+        os << ra;
+        std::wistringstream is{os.str()};
+        is >> rb;
+        MUC_TEST_CHECK(ra == rb);
+        MUC_TEST_CHECK(ra() == rb());
+    }
+    // ref() shares the owned engine; target() recovers it.
+    {
+        seeded_lcg a{seeded_lcg::seed_token{}, 42};
+        muc::any_rng r{a}, s{a};
+        auto v{r.ref()};
+        v.discard(2);
+        s.discard(2);
+        MUC_TEST_CHECK(r == s);
+        MUC_TEST_CHECK(r.target<seeded_lcg>() != nullptr);
+    }
+    // any_urbg can wrap any_rng, narrowing to a pure generator.
+    {
+        std::mt19937 b{5};
+        muc::any_urbg g{muc::any_rng{std::mt19937{5}}};
+        muc::rng64_ref t{b};
+        for (int i{}; i < 8; ++i) {
+            MUC_TEST_CHECK(g() == t());
+        }
+    }
+    return 0;
+}
+
 #endif
 
 auto main() -> int {
@@ -281,6 +488,12 @@ auto main() -> int {
         return ec;
     }
     if (const auto ec{test_rng_ref_engine_like()}; ec != 0) {
+        return ec;
+    }
+    if (const auto ec{test_any_urbg()}; ec != 0) {
+        return ec;
+    }
+    if (const auto ec{test_any_rng()}; ec != 0) {
         return ec;
     }
 #endif

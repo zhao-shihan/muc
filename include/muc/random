@@ -25,6 +25,8 @@
 #define MUC_RANDOM_35fd64e5dd5518762ebc391025fd06efd3f82687e245b5830b55c4a3ab96d768
 
 #if __cplusplus >= 202002L
+#include "muc/detail/c++20/random/any_rng.h++"
+#include "muc/detail/c++20/random/any_urbg.h++"
 #include "muc/detail/c++20/random/random_number_distribution.h++"
 #include "muc/detail/c++20/random/random_number_engine.h++"
 #include "muc/detail/c++20/random/random_number_generator.h++"

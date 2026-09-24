@@ -50,6 +50,7 @@ namespace muc {
 /// that must also accept such references are constrained on
 /// `random_number_generator` instead; erasing the type of an engine while
 /// keeping value semantics requires a wrapper that owns the engine state.
+/// `basic_any_rng` is such a wrapper and therefore satisfies this concept.
 ///
 /// See also:
 /// https://en.cppreference.com/w/cpp/named_req/RandomNumberEngine

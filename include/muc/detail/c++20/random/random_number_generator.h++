@@ -45,7 +45,10 @@ namespace muc {
 /// after `seed(s)` with the same s, any two objects of type E compare equal,
 /// as long as neither generated a value or was advanced by `discard` in
 /// between. For an engine this is exactly the standard postcondition, because
-/// `E()` and `E(s)` are the objects that seeding produces.
+/// `E()` and `E(s)` are the objects that seeding produces. An owning
+/// type-erased wrapper such as `basic_any_rng` keeps the erased engine type
+/// on `seed`, so reproducibility extends to any two wrappers over engines of
+/// the same type, not to wrappers over different types.
 ///
 /// See also:
 /// https://en.cppreference.com/w/cpp/named_req/RandomNumberEngine
