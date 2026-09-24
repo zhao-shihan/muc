@@ -44,8 +44,7 @@ auto is_complete(...) -> std::false_type;
 } // namespace impl
 
 template<typename T>
-struct is_complete :
-    decltype(impl::is_complete<muc::remove_cvref_t<T>>(nullptr)) {};
+struct is_complete : decltype(impl::is_complete<remove_cvref_t<T>>(nullptr)) {};
 
 template<typename T>
 inline constexpr bool is_complete_v{is_complete<T>::value};

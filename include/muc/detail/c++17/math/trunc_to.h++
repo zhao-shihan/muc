@@ -56,7 +56,7 @@ auto trunc_to(T x, int n) -> T {
 ///
 /// This function converts the input integral value `x` to a floating-point type
 /// `T` and then truncates it to `n` decimal places. It calls the
-/// `muc::trunc_to` function defined for floating-point types to perform the
+/// `trunc_to` function defined for floating-point types to perform the
 /// truncation.
 ///
 /// @tparam T The type of the output value (default is double).
@@ -71,7 +71,7 @@ template<typename T = double, typename U,
          std::enable_if_t<std::is_floating_point_v<T> && std::is_integral_v<U>,
                           bool> = true>
 auto trunc_to(U x, int n) -> T {
-    return muc::trunc_to(static_cast<T>(x), n);
+    return trunc_to(static_cast<T>(x), n);
 }
 
 } // namespace muc

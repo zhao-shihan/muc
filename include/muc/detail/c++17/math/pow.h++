@@ -52,7 +52,7 @@ template<typename T, std::enable_if_t<std::is_floating_point_v<T>, bool> = true>
 MUC_ALWAYS_INLINE constexpr auto pow(T x, int n) -> T {
     T z{1};
     for (auto m{muc::abs(n)}; m > 0; m /= 2) {
-        if (muc::odd(m)) {
+        if (odd(m)) {
             z *= x;
         }
         x *= x;
@@ -107,7 +107,7 @@ MUC_ALWAYS_INLINE constexpr auto ipow(T m, int n) -> T {
             if (m == 1) {
                 return 1;
             } else if (m == -1) {
-                return muc::even(n) ? 1 : -1;
+                return even(n) ? 1 : -1;
             }
         } else {
             if (m == 1) {
@@ -118,7 +118,7 @@ MUC_ALWAYS_INLINE constexpr auto ipow(T m, int n) -> T {
     }
     T k{1};
     for (; n > 0; n /= 2) {
-        if (muc::odd(n)) {
+        if (odd(n)) {
             k *= m;
         }
         m *= m;

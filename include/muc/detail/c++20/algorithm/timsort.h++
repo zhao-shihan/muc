@@ -780,8 +780,7 @@ template<std::ranges::random_access_range Range,
 auto timmerge(Range&& range, std::ranges::iterator_t<Range> middle,
               Compare comp = {}, Projection proj = {})
     -> std::ranges::borrowed_iterator_t<Range> {
-    return muc::timmerge(std::begin(range), middle, std::end(range), comp,
-                         proj);
+    return timmerge(std::begin(range), middle, std::end(range), comp, proj);
 }
 
 /**
@@ -809,7 +808,7 @@ template<std::ranges::random_access_range Range,
     requires std::sortable<std::ranges::iterator_t<Range>, Compare, Projection>
 auto timsort(Range&& range, Compare comp = {}, Projection proj = {})
     -> std::ranges::borrowed_iterator_t<Range> {
-    return muc::timsort(std::begin(range), std::end(range), comp, proj);
+    return timsort(std::begin(range), std::end(range), comp, proj);
 }
 
 } // namespace muc

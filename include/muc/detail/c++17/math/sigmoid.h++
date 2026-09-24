@@ -65,7 +65,7 @@ template<typename T = double, typename U,
          std::enable_if_t<std::is_floating_point_v<T> and std::is_integral_v<U>,
                           bool> = true>
 auto sigmoid(U x) -> T {
-    return muc::sigmoid(static_cast<T>(x));
+    return sigmoid(static_cast<T>(x));
 }
 
 } // namespace muc

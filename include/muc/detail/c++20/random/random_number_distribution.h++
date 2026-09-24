@@ -156,7 +156,7 @@ concept random_number_distribution = requires(D d, const D x) {
     // Traits stream template parameters, otherwise the behavior is undefined.
     // If bad input is encountered, is.setstate(std::ios::failbit) is called,
     // which may throw std::ios_base::failure. d is unchanged in that case."
-    requires muc::stream_ioable<D>;
+    requires stream_ioable<D>;
 };
 
 } // namespace muc

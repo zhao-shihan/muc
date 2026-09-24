@@ -101,21 +101,21 @@ private:
         /// @param other The other value to compare against.
         /// @return The result of the soft comparison.
         auto operator>(value other) const -> result {
-            return muc::sigmoid((m_value - other.m_value) / m_soft);
+            return sigmoid((m_value - other.m_value) / m_soft);
         }
 
         /// @brief Less-than operator comparing two soft values.
         /// @param other The other value to compare against.
         /// @return The result of the soft comparison.
         auto operator<(value other) const -> result {
-            return muc::sigmoid((other.m_value - m_value) / m_soft);
+            return sigmoid((other.m_value - m_value) / m_soft);
         }
 
         /// @brief Equality operator comparing two soft values.
         /// @param other The other value to compare against.
         /// @return The result of the equality comparison.
         auto operator==(value other) const -> result {
-            const auto x{muc::sigmoid((m_value - other.m_value) / m_soft)};
+            const auto x{sigmoid((m_value - other.m_value) / m_soft)};
             return 4 * x * (1 - x);
         }
 
@@ -123,7 +123,7 @@ private:
         /// @param other The other value to compare against.
         /// @return The result of the inequality comparison.
         auto operator!=(value other) const -> result {
-            const auto x{muc::sigmoid((m_value - other.m_value) / m_soft)};
+            const auto x{sigmoid((m_value - other.m_value) / m_soft)};
             return 1 - 4 * x * (1 - x);
         }
 

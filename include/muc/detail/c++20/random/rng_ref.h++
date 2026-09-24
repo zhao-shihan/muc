@@ -105,8 +105,8 @@ struct rng_ref_binding {
 /// @brief Type-erased non-owning reference to a random number engine.
 ///
 /// Binds a reference to any object whose type satisfies
-/// `muc::random_number_generator` and erases that type; every type satisfying
-/// `muc::random_number_engine` qualifies. Copies of a basic_rng_ref share the
+/// `random_number_generator` and erases that type; every type satisfying
+/// `random_number_engine` qualifies. Copies of a basic_rng_ref share the
 /// referenced engine. The wrapper is never empty: it is not default
 /// constructible and always holds a reference. Besides generating values like
 /// `basic_urbg_ref`, it forwards the engine operations `seed`, `discard`,
@@ -117,8 +117,8 @@ struct rng_ref_binding {
 /// @par Generation
 /// The wrapper itself satisfies `std::uniform_random_bit_generator`, see
 /// `basic_urbg_ref` for the generation semantics. It satisfies
-/// `muc::random_number_generator`, since it forwards every engine operation
-/// that concept requires, but not `muc::random_number_engine`: as a reference
+/// `random_number_generator`, since it forwards every engine operation
+/// that concept requires, but not `random_number_engine`: as a reference
 /// it can neither be default constructed nor be constructed from a seed.
 ///
 /// @par Engine operations
@@ -147,7 +147,7 @@ public:
     template<typename G>
         requires(not std::is_base_of_v<impl::random_ref_tag,
                                        std::remove_cvref_t<G>>) and
-                    muc::random_number_generator<G>
+                    random_number_generator<G>
     constexpr basic_rng_ref(G& g) noexcept :
         m_ptr{&g},
         m_ops{&impl::rng_ref_binding<G, UInt>::ops} {}

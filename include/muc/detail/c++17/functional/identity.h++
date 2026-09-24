@@ -26,7 +26,7 @@
 
 namespace muc {
 
-/// @brief `muc::identity` is a function object type whose operator() returns
+/// @brief `identity` is a function object type whose operator() returns
 /// its argument unchanged. The effect is the same as It is a backport of
 /// `std::identity`.
 struct identity {

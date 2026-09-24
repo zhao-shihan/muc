@@ -78,7 +78,7 @@ constexpr auto relu(U x) -> T {
     if constexpr (std::numeric_limits<T>::is_iec559) {
         return std::max({}, x);
     } else {
-        return muc::relu(static_cast<T>(x));
+        return relu(static_cast<T>(x));
     }
 }
 

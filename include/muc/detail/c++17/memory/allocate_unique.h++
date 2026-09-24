@@ -35,7 +35,7 @@ namespace muc {
 /// @brief Determines the return type of allocate_unique.
 ///
 /// When Alloc is a reference type, the unique_ptr uses
-/// muc::allocator_delete<T, Alloc> directly as the deleter. Otherwise, the
+/// allocator_delete<T, Alloc> directly as the deleter. Otherwise, the
 /// allocator is rebound to T via allocator_traits::rebind_alloc before being
 /// used in the deleter.
 ///
@@ -44,10 +44,10 @@ namespace muc {
 template<typename T, typename Alloc>
 using unique_alloc_ptr = std::conditional_t<
     std::is_reference_v<Alloc>,
-    muc::type_identity_t<std::unique_ptr<T, muc::allocator_delete<T, Alloc>>>,
-    muc::type_identity_t<std::unique_ptr<
-        T, muc::allocator_delete<T, typename std::allocator_traits<
-                                        Alloc>::template rebind_alloc<T>>>>>;
+    type_identity_t<std::unique_ptr<T, allocator_delete<T, Alloc>>>,
+    type_identity_t<std::unique_ptr<
+        T, allocator_delete<T, typename std::allocator_traits<
+                                   Alloc>::template rebind_alloc<T>>>>>;
 
 /// @brief Allocates and constructs an object of type T using an allocator,
 /// returning it in a std::unique_ptr.
@@ -64,12 +64,12 @@ using unique_alloc_ptr = std::conditional_t<
 /// @param args Arguments to forward to T's constructor
 ///
 /// @return A std::unique_ptr<T, Deleter> managing the newly created object.
-/// The deleter type is determined by muc::unique_alloc_ptr<T, Alloc>
+/// The deleter type is determined by unique_alloc_ptr<T, Alloc>
 ///
 /// @see muc::unique_alloc_ptr
 template<typename T, typename Alloc, typename... Args>
 auto allocate_unique(Alloc&& alloc, Args&&... args)
-    -> muc::unique_alloc_ptr<T, Alloc> {
+    -> unique_alloc_ptr<T, Alloc> {
     using traits =
         typename std::allocator_traits<Alloc>::template rebind_traits<T>;
     using alloc_t = typename traits::allocator_type;
@@ -80,7 +80,7 @@ auto allocate_unique(Alloc&& alloc, Args&&... args)
     using hold_t = std::unique_ptr<T, decltype(hold_dealloc)>;
     hold_t hold{traits::allocate(my_alloc, 1), std::move(hold_dealloc)};
     traits::construct(my_alloc, hold.get(), std::forward<Args>(args)...);
-    return {hold.release(), muc::allocator_delete<T, alloc_t>{my_alloc}};
+    return {hold.release(), allocator_delete<T, alloc_t>{my_alloc}};
 }
 
 /// @brief Allocates and constructs an object of type T using an allocator
@@ -103,7 +103,7 @@ auto allocate_unique(Alloc&& alloc, Args&&... args)
 /// @note Use std::ref(alloc) to invoke this overload
 template<typename T, typename Alloc, typename... Args>
 auto allocate_unique(std::reference_wrapper<Alloc> alloc, Args&&... args)
-    -> muc::unique_alloc_ptr<T, Alloc&> {
+    -> unique_alloc_ptr<T, Alloc&> {
     using traits = std::allocator_traits<Alloc>;
     auto hold_dealloc{[&alloc](auto p) {
         traits::deallocate(alloc.get(), p, 1);
@@ -111,7 +111,7 @@ auto allocate_unique(std::reference_wrapper<Alloc> alloc, Args&&... args)
     using hold_t = std::unique_ptr<T, decltype(hold_dealloc)>;
     hold_t hold{traits::allocate(alloc.get(), 1), std::move(hold_dealloc)};
     traits::construct(alloc.get(), hold.get(), std::forward<Args>(args)...);
-    return {hold.release(), muc::allocator_delete<T, Alloc&>{alloc}};
+    return {hold.release(), allocator_delete<T, Alloc&>{alloc}};
 }
 
 } // namespace muc

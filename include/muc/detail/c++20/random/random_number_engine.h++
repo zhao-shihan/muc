@@ -30,13 +30,13 @@ namespace muc {
 
 /// @brief C++ named requirements: RandomNumberEngine.
 ///
-/// A random_number_engine is a `muc::random_number_generator` that adds the
+/// A random_number_engine is a `random_number_generator` that adds the
 /// construction requirements of the named requirement: an engine can be
 /// created from scratch and from a seed value, while a random number
 /// generator need not be, as a type-erased reference such as
-/// `muc::basic_rng_ref` cannot. Owning standard engines satisfy this concept,
+/// `basic_rng_ref` cannot. Owning standard engines satisfy this concept,
 /// and everything satisfying this concept satisfies
-/// `muc::random_number_generator` as well.
+/// `random_number_generator` as well.
 ///
 /// @note Satisfying this concept requires value semantics, not just the member
 /// operations. The named requirement states that `E(x)` creates an engine that
@@ -44,11 +44,11 @@ namespace muc {
 /// as x's ith call, and that `E()` and `E(s)` create engines with an initial
 /// state of their own; this holds only when an engine owns its state, so that
 /// equal copies evolve independently. A non-owning reference such as
-/// `muc::basic_rng_ref` therefore deliberately does not satisfy this concept
+/// `basic_rng_ref` therefore deliberately does not satisfy this concept
 /// even though it provides every operation: copies of it share the referenced
 /// engine, so equal copies would not generate the same sequence. Interfaces
 /// that must also accept such references are constrained on
-/// `muc::random_number_generator` instead; erasing the type of an engine while
+/// `random_number_generator` instead; erasing the type of an engine while
 /// keeping value semantics requires a wrapper that owns the engine state.
 ///
 /// See also:

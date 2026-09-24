@@ -48,7 +48,7 @@ namespace muc {
 /// |
 /// +----> u
 template<typename T, typename U,
-         std::enable_if_t<muc::is_linearly_combinable_v<T>, bool> = true,
+         std::enable_if_t<is_linearly_combinable_v<T>, bool> = true,
          std::enable_if_t<std::is_floating_point_v<U>, bool> = true>
 constexpr auto bilerp(const T& c00, const T& c01, const T& c10, const T& c11,
                       U u, U v) -> T {

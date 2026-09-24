@@ -38,7 +38,7 @@ namespace muc {
 /// extrapolation.
 /// @return interpolated value.
 template<typename T, typename U,
-         std::enable_if_t<muc::is_linearly_combinable_v<T>, bool> = true,
+         std::enable_if_t<is_linearly_combinable_v<T>, bool> = true,
          std::enable_if_t<std::is_floating_point_v<U>, bool> = true>
 MUC_ALWAYS_INLINE constexpr auto lerp(const T& a, const T& b, U t) -> T {
     if constexpr (std::is_integral_v<T>) {

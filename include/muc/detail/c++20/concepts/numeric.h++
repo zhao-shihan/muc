@@ -30,6 +30,6 @@
 namespace muc {
 
 template<typename T>
-concept numeric = muc::arithmetic<T> or muc::instantiated_from<T, std::complex>;
+concept numeric = arithmetic<T> or instantiated_from<T, std::complex>;
 
 } // namespace muc

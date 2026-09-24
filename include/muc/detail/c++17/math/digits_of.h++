@@ -66,7 +66,7 @@ template<unsigned Base, typename T,
          std::enable_if_t<std::is_signed_v<T> and std::is_integral_v<T>, bool> =
              true>
 constexpr auto digits_of(T m, bool with_sign = false) -> int {
-    return muc::digits_of(m, Base, with_sign);
+    return digits_of(m, Base, with_sign);
 }
 
 /// @brief Get n-based digits of an integer.
@@ -99,7 +99,7 @@ template<unsigned Base, typename T,
          std::enable_if_t<std::is_unsigned_v<T> and std::is_integral_v<T>,
                           bool> = true>
 constexpr auto digits_of(T m) -> int {
-    return muc::digits_of(m, Base);
+    return digits_of(m, Base);
 }
 
 } // namespace muc

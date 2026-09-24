@@ -27,6 +27,6 @@
 namespace muc {
 
 template<typename T, typename U>
-concept linearly_combinable_with = muc::is_linearly_combinable_with_v<T, U>;
+concept linearly_combinable_with = is_linearly_combinable_with_v<T, U>;
 
 } // namespace muc

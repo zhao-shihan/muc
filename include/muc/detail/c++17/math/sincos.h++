@@ -145,7 +145,7 @@ auto sincos(T x) -> std::pair<T, T> {
 /// @note This function uses builtin or platform sincos if available. The
 /// performance may be better than calling std::sin and std::cos separately
 inline auto sincosf(float x) -> std::pair<float, float> {
-    return muc::sincos(x);
+    return sincos(x);
 }
 
 /// @brief Compute sine and cosine of a long double angle
@@ -154,7 +154,7 @@ inline auto sincosf(float x) -> std::pair<float, float> {
 /// @note This function uses builtin or platform sincos if available. The
 /// performance may be better than calling std::sin and std::cos separately
 inline auto sincosl(long double x) -> std::pair<long double, long double> {
-    return muc::sincos(x);
+    return sincos(x);
 }
 
 /// @brief Compute sine and cosine of an integral angle
@@ -168,7 +168,7 @@ template<typename T = double, typename U,
          std::enable_if_t<std::is_floating_point_v<T> and std::is_integral_v<U>,
                           bool> = true>
 auto sincos(U x) -> std::pair<T, T> {
-    return muc::sincos(static_cast<T>(x));
+    return sincos(static_cast<T>(x));
 }
 
 } // namespace muc

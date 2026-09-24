@@ -28,7 +28,7 @@
 
 namespace muc {
 
-/// @brief muc::multidentity is a function object type whose operator() returns
+/// @brief multidentity is a function object type whose operator() returns
 /// its arguments in a `std::tuple`. The effect is the same as
 /// `std::forward_as_tuple`.
 /// @warning Passing temporary objects as arguments is errorous and will produce

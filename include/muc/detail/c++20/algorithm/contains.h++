@@ -34,7 +34,7 @@ namespace muc::ranges {
 inline constexpr struct {
     template<std::input_iterator I, std::sentinel_for<I> S,
              typename Proj = std::identity,
-             typename T = muc::projected_value_t<I, Proj>>
+             typename T = projected_value_t<I, Proj>>
         requires std::indirect_binary_predicate<
             std::ranges::equal_to, std::projected<I, Proj>, const T*>
     constexpr auto operator()(I first, S last, const T& value,
@@ -43,9 +43,8 @@ inline constexpr struct {
                                  std::move(proj)) != last;
     }
 
-    template<
-        std::ranges::input_range R, typename Proj = std::identity,
-        typename T = muc::projected_value_t<std::ranges::iterator_t<R>, Proj>>
+    template<std::ranges::input_range R, typename Proj = std::identity,
+             typename T = projected_value_t<std::ranges::iterator_t<R>, Proj>>
         requires std::indirect_binary_predicate<
             std::ranges::equal_to,
             std::projected<std::ranges::iterator_t<R>, Proj>, const T*>

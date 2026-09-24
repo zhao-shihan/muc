@@ -56,7 +56,7 @@ auto floor_to(T x, int n) -> T {
 ///
 /// This function converts the input integral value `x` to a floating-point type
 /// `T` and then floors it to `n` decimal places. It utilizes the
-/// `muc::floor_to` function defined for floating-point types to perform the
+/// `floor_to` function defined for floating-point types to perform the
 /// flooring operation.
 ///
 /// @tparam T The type of the output value (default is double).
@@ -71,7 +71,7 @@ template<typename T = double, typename U,
          std::enable_if_t<std::is_floating_point_v<T> && std::is_integral_v<U>,
                           bool> = true>
 auto floor_to(U x, int n) -> T {
-    return muc::floor_to(static_cast<T>(x), n);
+    return floor_to(static_cast<T>(x), n);
 }
 
 } // namespace muc

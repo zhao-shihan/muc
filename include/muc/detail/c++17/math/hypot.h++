@@ -62,12 +62,12 @@ constexpr auto hypot_sq(Ts... x) -> auto {
 /// @note Compile-time constraints:
 ///       - All types must be floating-point (float/double/etc)
 ///       - Minimum 2 arguments required
-/// @note Delegates to muc::hypot_sq() for sum of squares
+/// @note Delegates to hypot_sq() for sum of squares
 template<typename... Ts, std::enable_if_t<((sizeof...(Ts) >= 2) and ... and
                                            std::is_floating_point_v<Ts>),
                                           bool> = true>
 auto hypot(Ts... x) -> auto {
-    return std::sqrt(muc::hypot_sq(x...));
+    return std::sqrt(hypot_sq(x...));
 }
 
 } // namespace muc

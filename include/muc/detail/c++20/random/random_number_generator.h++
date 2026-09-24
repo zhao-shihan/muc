@@ -36,8 +36,8 @@ namespace muc {
 /// reseeded, skipped ahead, compared by state and serialized, which is
 /// everything a random number engine does apart from creating engines: a type
 /// satisfies this concept even if it cannot be created from scratch or from a
-/// seed value, as a type-erased reference such as `muc::basic_rng_ref` cannot.
-/// Every type satisfying `muc::random_number_engine` satisfies this concept.
+/// seed value, as a type-erased reference such as `basic_rng_ref` cannot.
+/// Every type satisfying `random_number_engine` satisfies this concept.
 ///
 /// The named requirement states the postconditions `e == E()` for `seed()` and
 /// `e == E(s)` for `seed(s)`, naming constructors this concept does not
@@ -66,7 +66,7 @@ concept random_number_generator = requires(E e, const E x) {
     // 6. They said: "E(s) creates an engine whose initial state is determined
     // by s."
     // -- Requirements 4 to 6 are construction requirements and are not
-    // imposed here, see muc::random_number_engine.
+    // imposed here, see random_number_engine.
     // 7. They said: "e.seed() must be valid and its value type is void.
     // Postcondition: e == E()." Since E() is not required to exist, the
     // postcondition is restated in the documentation above.
@@ -105,7 +105,7 @@ concept random_number_generator = requires(E e, const E x) {
     // parameters, otherwise the behavior is undefined. If bad input is
     // encountered, is.setstate(std::ios::failbit) is called, which may throw
     // std::ios_base::failure. v is unchanged in that case."
-    requires muc::stream_ioable<E>;
+    requires stream_ioable<E>;
 };
 
 } // namespace muc

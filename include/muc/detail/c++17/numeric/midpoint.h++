@@ -28,8 +28,7 @@
 
 namespace muc {
 
-template<typename T,
-         std::enable_if_t<muc::is_linearly_combinable_v<T>, bool> = true>
+template<typename T, std::enable_if_t<is_linearly_combinable_v<T>, bool> = true>
 constexpr auto midpoint(const T& a, const T& b) -> T {
     return a + (b - a) / 2;
 }
