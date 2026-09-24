@@ -2,8 +2,10 @@
 
 #if __cplusplus >= 202002L
 
+#include <concepts>
 #include <cstdint>
 #include <iostream>
+#include <limits>
 #include <random>
 #include <sstream>
 
@@ -158,6 +160,116 @@ auto test_rng_ref() -> int {
     return 0;
 }
 
+// Satisfies muc::random_number_generator but not muc::random_number_engine:
+// it has no default constructor and cannot be constructed from its
+// result_type.
+class seeded_lcg {
+public:
+    using result_type = std::uint32_t;
+
+    struct seed_token {};
+
+    explicit seeded_lcg(seed_token, result_type s) noexcept :
+        m_state{s} {}
+
+    auto operator()() noexcept -> result_type {
+        return m_state = m_state * 1664525u + 1013904223u;
+    }
+
+    static constexpr auto min() noexcept -> result_type {
+        return 0;
+    }
+
+    static constexpr auto max() noexcept -> result_type {
+        return std::numeric_limits<result_type>::max();
+    }
+
+    auto seed() noexcept -> void {
+        m_state = 0;
+    }
+
+    auto seed(result_type s) noexcept -> void {
+        m_state = s;
+    }
+
+    auto discard(unsigned long long z) noexcept -> void {
+        while (z-- != 0) {
+            (*this)();
+        }
+    }
+
+    friend auto operator==(const seeded_lcg& x, const seeded_lcg& y) noexcept
+        -> bool {
+        return x.m_state == y.m_state;
+    }
+
+    friend auto operator!=(const seeded_lcg& x, const seeded_lcg& y) noexcept
+        -> bool {
+        return not(x == y);
+    }
+
+    friend auto operator<<(std::ostream& os, const seeded_lcg& x)
+        -> std::ostream& {
+        return os << x.m_state;
+    }
+
+    friend auto operator>>(std::istream& is, seeded_lcg& x) -> std::istream& {
+        return is >> x.m_state;
+    }
+
+    friend auto operator<<(std::wostream& os, const seeded_lcg& x)
+        -> std::wostream& {
+        return os << x.m_state;
+    }
+
+    friend auto operator>>(std::wistream& is, seeded_lcg& x) -> std::wistream& {
+        return is >> x.m_state;
+    }
+
+private:
+    result_type m_state;
+};
+
+auto test_rng_ref_engine_like() -> int {
+    // basic_rng_ref requires only the operations it forwards, so it binds
+    // to a generator that is not an engine.
+    static_assert(muc::random_number_generator<seeded_lcg>);
+    static_assert(not muc::random_number_engine<seeded_lcg>);
+    static_assert(std::constructible_from<muc::rng64_ref, seeded_lcg&>);
+    // seed(), seed(s), discard() and equality forward to the referenced
+    // generator.
+    {
+        seeded_lcg a{seeded_lcg::seed_token{}, 42};
+        seeded_lcg b{seeded_lcg::seed_token{}, 42};
+        muc::rng64_ref ra{a}, rb{b};
+        MUC_TEST_CHECK(ra == rb);
+        ra.discard(3);
+        MUC_TEST_CHECK(ra != rb);
+        ra.seed(7);
+        rb.seed(7);
+        MUC_TEST_CHECK(ra == rb);
+        MUC_TEST_CHECK(ra() == rb());
+        ra.seed();
+        rb.seed();
+        MUC_TEST_CHECK(ra == rb);
+        MUC_TEST_CHECK(ra.target<seeded_lcg>() == &a);
+    }
+    // Narrow stream round-trip restores the referenced generator state.
+    {
+        seeded_lcg a{seeded_lcg::seed_token{}, 5};
+        seeded_lcg b{seeded_lcg::seed_token{}, 5};
+        muc::rng32_ref ra{a}, rb{b};
+        ra.discard(3);
+        std::ostringstream os;
+        os << ra;
+        std::istringstream is{os.str()};
+        is >> rb;
+        MUC_TEST_CHECK(ra == rb);
+        MUC_TEST_CHECK(ra() == rb());
+    }
+    return 0;
+}
+
 #endif
 
 auto main() -> int {
@@ -166,6 +278,9 @@ auto main() -> int {
         return ec;
     }
     if (const auto ec{test_rng_ref()}; ec != 0) {
+        return ec;
+    }
+    if (const auto ec{test_rng_ref_engine_like()}; ec != 0) {
         return ec;
     }
 #endif

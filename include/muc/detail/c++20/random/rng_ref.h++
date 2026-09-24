@@ -23,6 +23,7 @@
 #pragma once
 
 #include "muc/detail/c++20/random/random_number_engine.h++"
+#include "muc/detail/c++20/random/random_number_generator.h++"
 #include "muc/detail/c++20/random/urbg_ref.h++"
 
 #include <concepts>
@@ -101,23 +102,24 @@ struct rng_ref_binding {
 
 } // namespace impl
 
-/// @brief Type-erased non-owning reference to a RandomNumberEngine.
+/// @brief Type-erased non-owning reference to a random number engine.
 ///
 /// Binds a reference to any object whose type satisfies
-/// `muc::random_number_engine` and erases that type. Copies of a
-/// basic_rng_ref share the referenced engine. The wrapper is never empty:
-/// it is not default constructible and always holds a reference. Besides
-/// generating values like `basic_urbg_ref`, it forwards the engine
-/// operations `seed`, `discard`, equality and stream serialization to the
-/// referenced engine.
+/// `muc::random_number_generator` and erases that type; every type satisfying
+/// `muc::random_number_engine` qualifies. Copies of a basic_rng_ref share the
+/// referenced engine. The wrapper is never empty: it is not default
+/// constructible and always holds a reference. Besides generating values like
+/// `basic_urbg_ref`, it forwards the engine operations `seed`, `discard`,
+/// equality and stream serialization to the referenced engine.
 ///
 /// @tparam UInt unsigned output type, aka `result_type`
 ///
 /// @par Generation
 /// The wrapper itself satisfies `std::uniform_random_bit_generator`, see
-/// `basic_urbg_ref` for the generation semantics. It does not satisfy
-/// `muc::random_number_engine`: as a reference it can neither be default
-/// constructed nor be constructed from a seed.
+/// `basic_urbg_ref` for the generation semantics. It satisfies
+/// `muc::random_number_generator`, since it forwards every engine operation
+/// that concept requires, but not `muc::random_number_engine`: as a reference
+/// it can neither be default constructed nor be constructed from a seed.
 ///
 /// @par Engine operations
 /// `seed()` and `seed(s)` reseed the referenced engine, truncating s to
@@ -131,20 +133,21 @@ struct rng_ref_binding {
 ///
 /// @warning The referenced engine must outlive the wrapper and every copy
 /// of it.
-/// @see muc::random_number_engine, muc::basic_urbg_ref
+/// @see muc::random_number_engine, muc::random_number_generator,
+/// muc::basic_urbg_ref
 template<std::unsigned_integral UInt = std::uint64_t>
 class basic_rng_ref : impl::random_ref_tag {
 public:
     /// @brief The type of the generated random values.
     using result_type = UInt;
 
-    /// @brief Binds the wrapper to the engine g.
-    /// @tparam G type of the referenced engine
-    /// @param g engine to reference; must outlive the wrapper
+    /// @brief Binds the wrapper to the generator g.
+    /// @tparam G type of the referenced generator
+    /// @param g generator to reference; must outlive the wrapper
     template<typename G>
         requires(not std::is_base_of_v<impl::random_ref_tag,
                                        std::remove_cvref_t<G>>) and
-                    muc::random_number_engine<G>
+                    muc::random_number_generator<G>
     constexpr basic_rng_ref(G& g) noexcept :
         m_ptr{&g},
         m_ops{&impl::rng_ref_binding<G, UInt>::ops} {}
@@ -278,6 +281,12 @@ using rng64_ref = basic_rng_ref<std::uint64_t>;
 
 #include "muc/detail/c++20/concepts/stream_ioable.h++"
 
+#include <random>
+
+static_assert(muc::random_number_generator<muc::rng32_ref>);
+static_assert(muc::random_number_generator<muc::rng64_ref>);
+static_assert(not muc::random_number_engine<muc::rng32_ref>);
+static_assert(not muc::random_number_engine<muc::rng64_ref>);
 static_assert(std::uniform_random_bit_generator<muc::rng32_ref>);
 static_assert(std::uniform_random_bit_generator<muc::rng64_ref>);
 static_assert(std::same_as<muc::rng32_ref::result_type, std::uint32_t>);
