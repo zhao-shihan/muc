@@ -224,6 +224,7 @@ private:
         m_ptr{ptr},
         m_ops{ops} {}
 
+private:
     void* m_ptr;
     const impl::urbg_ref_ops<UInt>* m_ops;
 };

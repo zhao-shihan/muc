@@ -275,6 +275,7 @@ private:
         m_ptr{ptr},
         m_ops{ops} {}
 
+private:
     void* m_ptr;
     const impl::rng_ref_ops<UInt>* m_ops;
 };
